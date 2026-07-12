@@ -7,6 +7,7 @@
 - SQLite、Drizzle導入
 - Raspberry Pi上での起動確認
 - Caddyまたはnginx設定
+- Python認証アプリは別リポジトリで管理する前提を維持
 
 ## フェーズ2：認証イベント
 
@@ -14,7 +15,7 @@
 - 端末APIキー認証
 - 認証イベント登録API
 - eventIdによる冪等性
-- Pythonからの送信確認
+- 別リポジトリのPython認証アプリからの送信確認
 
 ## フェーズ3：出欠管理
 

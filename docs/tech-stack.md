@@ -26,6 +26,8 @@
 - HTTPクライアント
 - ローカル再送キュー
 
+認証アプリは別リポジトリで管理する。このリポジトリでは、認証アプリからイベントを受け取るAPIと管理画面を扱う。
+
 ## インフラ
 
 - Raspberry Pi
@@ -38,7 +40,6 @@
 ## 開発環境
 
 - pnpm
-- ESLint または Biome
+- Biome
 - Vitest
-- Playwright
 - Git

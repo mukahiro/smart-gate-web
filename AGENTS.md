@@ -18,13 +18,13 @@
 
 ## 暫定アーキテクチャ
 
-現在の資料では、React + TypeScript、Hono + Node.js + TypeScript、SQLite、Python認証アプリ、Caddy/nginx、systemd が候補です。
+現在の資料では、React + TypeScript、Hono + Node.js + TypeScript、SQLite、Caddy/nginx、systemd が候補です。Python認証アプリは別リポジトリで管理するため、このリポジトリでは実装しません。
 
 これは未確定です。新規実装や大きな構成変更の前に確認してください。
 
 ## 実装時の注意
 
-- Python認証アプリからSQLiteへ直接接続しない想定です。認証イベントはAPIへ送る方針です。
+- Python認証アプリは別リポジトリです。このリポジトリ側では、認証イベントを受け取るAPI境界を整備します。
 - `eventId` は冪等性キーとして扱い、同じイベントを二重登録しないでください。
 - APIキーは平文保存しないでください。
 - 顔画像は保存しない方針が基本です。保存が必要な場合はユーザーに確認してください。
@@ -33,4 +33,14 @@
 
 ## コマンド
 
-現時点では、確認済みの開発コマンドはありません。プロジェクトをスキャフォールドした後、実際に確認したコマンドを追記してください。
+確認済みコマンド:
+
+```sh
+pnpm install
+pnpm dev
+pnpm lint
+pnpm test
+pnpm build
+```
+
+`pnpm` が未インストールの場合は、`npm exec pnpm@9.15.4 -- <command>` で代替できます。

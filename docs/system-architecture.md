@@ -14,15 +14,13 @@ Caddy / nginx
                   SQLite
 
 Python認証アプリ
-    ├─ 顔認証
-    ├─ カード認証
-    └─ Hono APIへイベント送信
+    └─ 別リポジトリからHono APIへイベント送信
 ```
 
 ## 配置方針
 
 - ReactとHono APIは同一オリジンで公開する
-- Python認証アプリとHono APIは同一Raspberry Pi上で動作させる
+- Python認証アプリは別リポジトリで管理する
 - DBはHono APIのみが操作する
 - Python認証アプリからDBへ直接接続しない
 
@@ -46,10 +44,8 @@ Python認証アプリ
 
 ### Python認証アプリ
 
-- 顔・カードの読み取り
-- 利用者の識別
-- 認証結果のAPI送信
-- 送信失敗時の再送
+- このリポジトリの実装対象外
+- Hono APIへ認証イベントを送信する外部クライアントとして扱う
 
 ### SQLite
 
@@ -65,11 +61,6 @@ Python認証アプリ
 apps/
   web/
   api/
-  auth-app/
-
-packages/
-  schemas/
-  shared/
 
 data/
   attendance.sqlite

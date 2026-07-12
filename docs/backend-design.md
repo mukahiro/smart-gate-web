@@ -28,7 +28,6 @@ src/
     auth/
   infrastructure/
     database/
-  shared/
   app.ts
   index.ts
 ```

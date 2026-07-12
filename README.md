@@ -2,6 +2,8 @@
 
 Raspberry Pi上で動作する、ローカルネットワーク向け出欠確認システムの設計資料です。
 
+このリポジトリでは、Web管理画面とバックエンドAPIを扱います。Python認証アプリは別リポジトリで管理します。
+
 ## ドキュメント一覧
 
 - `tech-stack.md`：技術スタック
@@ -12,7 +14,7 @@ Raspberry Pi上で動作する、ローカルネットワーク向け出欠確�
 - `authentication-security.md`：認証・セキュリティ
 - `frontend-design.md`：フロントエンド設計
 - `backend-design.md`：バックエンド設計
-- `python-auth-app.md`：Python認証アプリ設計
+- `python-auth-app.md`：Python認証アプリ連携メモ
 - `deployment-operations.md`：デプロイ・運用
 - `testing.md`：テスト方針
 - `implementation-plan.md`：実装計画
@@ -26,7 +28,22 @@ Raspberry Pi上で動作する、ローカルネットワーク向け出欠確�
             └─ SQLite
 
 Python認証アプリ
-  ├─ 顔認証
-  ├─ カード認証
-  └─ Hono APIへ認証結果を送信
+  └─ 別リポジトリからHono APIへ認証結果を送信
+```
+
+## 開発環境
+
+```sh
+pnpm install
+pnpm dev
+pnpm lint
+pnpm test
+pnpm build
+```
+
+`pnpm` が未インストールの場合は、次のように一時実行できます。
+
+```sh
+npm exec pnpm@9.15.4 -- install
+npm exec pnpm@9.15.4 -- dev
 ```
