@@ -1,45 +1,34 @@
 import { Hono } from "hono";
-import { validator } from "hono/validator";
-import { attendanceEventInputSchema } from "./schemas/attendance-event";
+import {
+  type AttendanceEventStore,
+  createInMemoryAttendanceEventStore,
+} from "./attendance-event-store";
+import { createAttendanceEventsRoute } from "./routes/attendance-events";
 
-export const app = new Hono().basePath("/api/v1");
+type AppOptions = {
+  authToken?: string;
+  attendanceEventStore?: AttendanceEventStore;
+};
 
-app.get("/health", (c) =>
-  c.json({
-    ok: true,
-    service: "smart-gate-api",
-  }),
-);
+export const createApp = ({
+  authToken = process.env.AUTH_APP_BEARER_TOKEN,
+  attendanceEventStore = createInMemoryAttendanceEventStore(),
+}: AppOptions = {}) => {
+  const app = new Hono().basePath("/api/v1");
 
-app.post(
-  "/attendance-events",
-  validator("json", (value, c) => {
-    const result = attendanceEventInputSchema.safeParse(value);
+  app.get("/health", (c) =>
+    c.json({
+      ok: true,
+      service: "smart-gate-api",
+    }),
+  );
 
-    if (!result.success) {
-      return c.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "入力内容に誤りがあります",
-            details: result.error.flatten(),
-          },
-        },
-        400,
-      );
-    }
+  app.route(
+    "/attendance-events",
+    createAttendanceEventsRoute({ authToken, attendanceEventStore }),
+  );
 
-    return result.data;
-  }),
-  (c) => {
-    const event = c.req.valid("json");
+  return app;
+};
 
-    return c.json(
-      {
-        eventId: event.eventId,
-        status: "accepted",
-      },
-      202,
-    );
-  },
-);
+export const app = createApp();

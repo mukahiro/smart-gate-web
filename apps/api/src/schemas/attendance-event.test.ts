@@ -29,4 +29,17 @@ describe("attendanceEventInputSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("requires confidence for face authentication", () => {
+    const result = attendanceEventInputSchema.safeParse({
+      eventId: "event-001",
+      personId: "person-001",
+      deviceId: "device-001",
+      method: "face",
+      eventType: "check_in",
+      authenticatedAt: "2026-07-12T08:45:12+09:00",
+    });
+
+    expect(result.success).toBe(false);
+  });
 });
