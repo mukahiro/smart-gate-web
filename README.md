@@ -8,6 +8,7 @@ Raspberry Pi上で動作する、ローカルネットワーク向け研究室�
 
 - `tech-stack.md`：技術スタック
 - `requirements.md`：要件定義
+- `endpoints.md`：APIエンドポイント仕様
 
 ## 想定構成
 
