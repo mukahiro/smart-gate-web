@@ -1,19 +1,16 @@
 import { Hono } from "hono";
-import {
-  type AttendanceEventStore,
-  createInMemoryAttendanceEventStore,
-} from "./attendance-event-store";
+import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
 
 type AppOptions = {
   authToken?: string;
-  attendanceEventStore?: AttendanceEventStore;
+  attendanceEventRepository: AttendanceEventRepository;
 };
 
 export const createApp = ({
   authToken = process.env.AUTH_APP_BEARER_TOKEN,
-  attendanceEventStore = createInMemoryAttendanceEventStore(),
-}: AppOptions = {}) => {
+  attendanceEventRepository,
+}: AppOptions) => {
   const app = new Hono().basePath("/api/v1");
 
   app.get("/health", (c) =>
@@ -25,10 +22,8 @@ export const createApp = ({
 
   app.route(
     "/attendance-events",
-    createAttendanceEventsRoute({ authToken, attendanceEventStore }),
+    createAttendanceEventsRoute({ authToken, attendanceEventRepository }),
   );
 
   return app;
 };
-
-export const app = createApp();

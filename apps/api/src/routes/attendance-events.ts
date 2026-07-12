@@ -1,22 +1,23 @@
 import { Hono } from "hono";
 import { validator } from "hono/validator";
-import type { AttendanceEventStore } from "../attendance-event-store";
 import { createBearerAuthMiddleware } from "../middleware/bearer-auth";
+import type { AttendanceEventRepository } from "../repositories/attendance-event-repository";
 import { attendanceEventInputSchema } from "../schemas/attendance-event";
 import { createAttendanceEventService } from "../services/attendance-event-service";
 
 type AttendanceEventsRouteOptions = {
   authToken?: string;
-  attendanceEventStore: AttendanceEventStore;
+  attendanceEventRepository: AttendanceEventRepository;
 };
 
 export const createAttendanceEventsRoute = ({
   authToken,
-  attendanceEventStore,
+  attendanceEventRepository,
 }: AttendanceEventsRouteOptions) => {
   const route = new Hono();
-  const attendanceEventService =
-    createAttendanceEventService(attendanceEventStore);
+  const attendanceEventService = createAttendanceEventService(
+    attendanceEventRepository,
+  );
 
   route.post(
     "/",

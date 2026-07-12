@@ -1,7 +1,45 @@
 import { describe, expect, it } from "vitest";
 import { createApp } from "./app";
+import type {
+  AttendanceEventRepository,
+  StoredAttendanceEvent,
+} from "./repositories/attendance-event-repository";
+import type { AttendanceEventInput } from "./schemas/attendance-event";
 
-const app = createApp({ authToken: "test-token" });
+const createInMemoryAttendanceEventRepository =
+  (): AttendanceEventRepository => {
+    const eventsById = new Map<string, StoredAttendanceEvent>();
+
+    return {
+      save(event: AttendanceEventInput, receivedAt: string) {
+        const existingEvent = eventsById.get(event.eventId);
+
+        if (existingEvent) {
+          return {
+            kind: "duplicate",
+            event: existingEvent,
+          };
+        }
+
+        const storedEvent = {
+          ...event,
+          receivedAt,
+        };
+
+        eventsById.set(event.eventId, storedEvent);
+
+        return {
+          kind: "created",
+          event: storedEvent,
+        };
+      },
+    };
+  };
+
+const app = createApp({
+  authToken: "test-token",
+  attendanceEventRepository: createInMemoryAttendanceEventRepository(),
+});
 
 const authorizationHeaders = {
   authorization: "Bearer test-token",

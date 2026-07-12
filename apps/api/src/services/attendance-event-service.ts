@@ -1,7 +1,7 @@
 import type {
-  AttendanceEventStore,
+  AttendanceEventRepository,
   SaveAttendanceEventResult,
-} from "../attendance-event-store";
+} from "../repositories/attendance-event-repository";
 import type { AttendanceEventInput } from "../schemas/attendance-event";
 
 export type AttendanceEventResponseBody = {
@@ -35,10 +35,10 @@ const toResponse = (
 });
 
 export const createAttendanceEventService = (
-  attendanceEventStore: AttendanceEventStore,
+  attendanceEventRepository: AttendanceEventRepository,
 ) => ({
   record(event: AttendanceEventInput): RecordAttendanceEventResult {
     const receivedAt = new Date().toISOString();
-    return toResponse(attendanceEventStore.save(event, receivedAt));
+    return toResponse(attendanceEventRepository.save(event, receivedAt));
   },
 });
