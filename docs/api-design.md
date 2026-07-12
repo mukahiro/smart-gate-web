@@ -6,7 +6,7 @@
 - データ形式：JSON
 - 日時形式：ISO 8601
 - 文字コード：UTF-8
-- Python認証端末はAPIキー認証
+- 認証イベント登録APIは簡易Bearerトークン認証
 - 管理画面はCookieセッション認証
 
 ## 認証イベント登録
@@ -19,7 +19,6 @@ POST /api/v1/attendance-events
 {
   "eventId": "01JXXXXXXXXXXXX",
   "personId": "person-001",
-  "deviceId": "device-001",
   "method": "face",
   "eventType": "check_in",
   "authenticatedAt": "2026-07-12T08:45:12+09:00",
@@ -46,13 +45,19 @@ POST   /people
 GET    /people/:id
 PATCH  /people/:id
 
-GET    /devices
-POST   /devices
-PATCH  /devices/:id
-
 GET    /audit-logs
 GET    /exports/attendance.csv
 ```
+
+## 認証イベントAPIの認証
+
+認証イベントは単一のRaspberry Piから送信される前提とし、端末登録や無効化は行わない。
+
+```http
+Authorization: Bearer <token>
+```
+
+トークンは環境変数などで管理し、DBで送信元を個別管理しない。
 
 ## エラー形式
 

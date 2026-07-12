@@ -9,7 +9,6 @@
 /attendance/:date
 /people
 /people/:id
-/devices
 /settings
 /audit-logs
 ```
@@ -28,7 +27,6 @@
 - 日付別の出欠一覧
 - 利用者検索
 - 利用者登録・編集
-- 端末管理
 - 出欠修正
 - CSV出力
 - エラー・成功通知

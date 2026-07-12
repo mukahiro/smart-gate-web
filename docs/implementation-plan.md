@@ -11,8 +11,8 @@
 
 ## フェーズ2：認証イベント
 
-- people、devices、attendance_events作成
-- 端末APIキー認証
+- people、attendance_events作成
+- 認証イベントAPIのBearerトークン認証
 - 認証イベント登録API
 - eventIdによる冪等性
 - 別リポジトリのPython認証アプリからの送信確認
@@ -28,7 +28,6 @@
 
 - 管理者ログイン
 - 利用者管理
-- 端末管理
 - 出欠修正
 - 監査ログ
 - CSV出力

@@ -24,7 +24,6 @@ src/
       attendance.repository.ts
       attendance.schema.ts
     people/
-    devices/
     auth/
   infrastructure/
     database/

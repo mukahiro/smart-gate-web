@@ -27,22 +27,11 @@ PRAGMA busy_timeout = 5000;
 - created_at
 - updated_at
 
-### devices
-
-- id
-- name
-- api_key_hash
-- is_active
-- last_seen_at
-- created_at
-- updated_at
-
 ### attendance_events
 
 - id
 - event_id
 - person_id
-- device_id
 - method
 - event_type
 - authenticated_at

@@ -17,7 +17,6 @@ Python認証アプリは別リポジトリで管理する。このリポジト�
 
 - eventId
 - personId
-- deviceId
 - method
 - eventType
 - authenticatedAt

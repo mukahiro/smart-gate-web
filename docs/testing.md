@@ -11,7 +11,7 @@
 ## APIテスト
 
 - 認証イベント登録
-- 不正なAPIキー
+- 不正なBearerトークン
 - 重複eventId
 - 無効なpersonId
 - 出欠一覧取得
@@ -29,7 +29,7 @@
 
 ## 結合テスト
 
-- Python認証アプリからHono APIへの送信
+- 別リポジトリの認証アプリからHono APIへの送信
 - APIからSQLiteへの保存
 - Reactへの反映
 - API停止後の再送
