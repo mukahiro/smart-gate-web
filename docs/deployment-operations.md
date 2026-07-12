@@ -4,7 +4,6 @@
 
 - Raspberry Pi OS
 - Node.js LTS
-- Python 3
 - Caddyまたはnginx
 - systemd
 - SQLite
@@ -12,20 +11,20 @@
 ## プロセス
 
 ```text
-attendance-api.service
-attendance-auth.service
+lab-access-api.service
 caddy.service または nginx.service
 ```
 
 ## 配信
 
-- Reactは`npm run build`で静的ファイルを生成する
+- Reactは`pnpm build`で静的ファイルを生成する
 - Webサーバーから静的ファイルを配信する
 - `/api/*`をHonoへリバースプロキシする
 
 ## 自動起動
 
-- Hono APIとPython認証アプリをsystemdへ登録する
+- Hono APIをsystemdへ登録する
+- Python認証アプリは別リポジトリ側の運用手順で管理する
 - 異常終了時に自動再起動する
 - OS起動時に自動起動する
 
@@ -49,7 +48,6 @@ caddy.service または nginx.service
 ## ログ
 
 - APIログ
-- Python認証ログ
 - systemdログ
 - 監査ログ
 

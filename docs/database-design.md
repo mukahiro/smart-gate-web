@@ -27,7 +27,7 @@ PRAGMA busy_timeout = 5000;
 - created_at
 - updated_at
 
-### attendance_events
+### access_events
 
 - id
 - event_id
@@ -39,16 +39,13 @@ PRAGMA busy_timeout = 5000;
 - confidence
 - created_at
 
-### daily_attendance
+### occupancy_states
 
 - id
 - person_id
-- attendance_date
-- first_check_in_at
-- last_check_out_at
-- status
-- late_minutes
-- note
+- is_present
+- last_event_id
+- last_event_at
 - updated_at
 
 ### users
@@ -81,7 +78,7 @@ PRAGMA busy_timeout = 5000;
 
 ## 制約
 
-- `attendance_events.event_id`はUNIQUE
+- `access_events.event_id`はUNIQUE
 - `people.card_id`は必要に応じてUNIQUE
 - `people.face_id`は必要に応じてUNIQUE
-- `daily_attendance`は人物と日付の組み合わせをUNIQUE
+- `occupancy_states.person_id`はUNIQUE

@@ -5,8 +5,9 @@
 ```text
 /login
 /dashboard
-/attendance
-/attendance/:date
+/occupancy
+/access-events
+/access-events/:date
 /people
 /people/:id
 /settings
@@ -23,11 +24,10 @@
 
 ## 主な機能
 
-- 本日の出席状況表示
-- 日付別の出欠一覧
+- 現在の在室状況表示
+- 日付別の入退室履歴
 - 利用者検索
 - 利用者登録・編集
-- 出欠修正
 - CSV出力
 - エラー・成功通知
 

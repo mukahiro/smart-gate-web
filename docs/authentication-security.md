@@ -8,9 +8,9 @@
 - `SameSite=Lax`を基本とする
 - パスワードはArgon2またはbcryptでハッシュ化する
 
-## 認証イベントAPI
+## 入退室イベントAPI
 
-- 認証イベント送信元は単一のRaspberry Piを想定する
+- 入退室イベント送信元は単一のRaspberry Piを想定する
 - 端末の登録・無効化・個別管理は行わない
 - `Authorization: Bearer <token>` による簡易認証を行う
 - トークンは環境変数などで管理する

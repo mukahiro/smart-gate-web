@@ -5,11 +5,11 @@
 - APIルーティング
 - 入力検証
 - 認証・認可
-- 出欠判定
+- 在室状態の更新
 - 重複排除
 - DB操作
 - 監査ログ
-- CSV生成
+- 入退室履歴CSV生成
 
 ## ディレクトリ例
 
@@ -18,11 +18,12 @@ src/
   routes/
   middleware/
   features/
-    attendance/
-      attendance.route.ts
-      attendance.service.ts
-      attendance.repository.ts
-      attendance.schema.ts
+    access-events/
+      access-events.route.ts
+      access-events.service.ts
+      access-events.repository.ts
+      access-events.schema.ts
+    occupancy/
     people/
     auth/
   infrastructure/
@@ -39,10 +40,9 @@ src/
 - schema：入力・出力スキーマ
 - middleware：認証、ログ、エラー処理
 
-## 出欠判定
+## 入退室処理
 
-- 認証イベントを最初に保存する
-- 初回入室時刻を出席時刻として扱う
-- 基準時刻以降は遅刻として判定する
+- 入退室イベントを最初に保存する
+- 入室イベントで在室状態にする
+- 退室イベントで不在状態にする
 - 重複イベントは無視または既存結果を返す
-- 手動修正時は監査ログを残す
