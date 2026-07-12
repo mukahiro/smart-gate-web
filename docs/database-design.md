@@ -1,0 +1,98 @@
+# データベース設計
+
+## DB
+
+- SQLite
+- WALモードを有効化
+- 外部キー制約を有効化
+- busy timeoutを設定
+
+```sql
+PRAGMA journal_mode = WAL;
+PRAGMA foreign_keys = ON;
+PRAGMA busy_timeout = 5000;
+```
+
+## 主なテーブル
+
+### people
+
+- id
+- name
+- code
+- card_id
+- face_id
+- organization
+- is_active
+- created_at
+- updated_at
+
+### devices
+
+- id
+- name
+- api_key_hash
+- is_active
+- last_seen_at
+- created_at
+- updated_at
+
+### attendance_events
+
+- id
+- event_id
+- person_id
+- device_id
+- method
+- event_type
+- authenticated_at
+- received_at
+- confidence
+- created_at
+
+### daily_attendance
+
+- id
+- person_id
+- attendance_date
+- first_check_in_at
+- last_check_out_at
+- status
+- late_minutes
+- note
+- updated_at
+
+### users
+
+- id
+- username
+- password_hash
+- role
+- is_active
+- created_at
+- updated_at
+
+### sessions
+
+- id
+- user_id
+- expires_at
+- created_at
+
+### audit_logs
+
+- id
+- user_id
+- action
+- target_type
+- target_id
+- before_data
+- after_data
+- created_at
+
+## 制約
+
+- `attendance_events.event_id`はUNIQUE
+- `people.card_id`は必要に応じてUNIQUE
+- `people.face_id`は必要に応じてUNIQUE
+- `daily_attendance`は人物と日付の組み合わせをUNIQUE
