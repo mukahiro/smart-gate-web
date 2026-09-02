@@ -1,6 +1,5 @@
 export type AppScreen =
   | { kind: "history" }
-  | { kind: "password" }
   | { kind: "admin-users" }
   | { kind: "admin-user-new" }
   | { kind: "admin-user-detail"; userId: string }

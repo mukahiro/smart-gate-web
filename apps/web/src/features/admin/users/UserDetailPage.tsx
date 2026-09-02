@@ -156,10 +156,6 @@ export function UserDetailPage({
   if (!user) {
     return (
       <section className="admin-card admin-form-card">
-        <button className="back-button" type="button" onClick={onBack}>
-          <ArrowLeft aria-hidden="true" />
-          利用者一覧
-        </button>
         {error ? (
           <div className="notice error-notice" role="alert">
             {error}
@@ -202,10 +198,6 @@ export function UserDetailPage({
         className="admin-card admin-detail-card"
         aria-labelledby="user-detail-title"
       >
-        <button className="back-button" type="button" onClick={onBack}>
-          <ArrowLeft aria-hidden="true" />
-          利用者一覧
-        </button>
         <div className="admin-page-heading detail-title-row">
           <div>
             <h1 id="user-detail-title">{user.name}</h1>
@@ -294,6 +286,9 @@ export function UserDetailPage({
               </time>
             </div>
             <div className="form-actions">
+              <button className="secondary-button" type="button" onClick={onBack}>
+                キャンセル
+              </button>
               <button className="primary-button" type="submit" disabled={busy}>
                 基本情報を保存
               </button>

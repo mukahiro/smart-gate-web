@@ -49,6 +49,7 @@ export function HistoryPage({
     screenFromPath(window.location.pathname, user.role === "admin"),
   );
   const [menuOpen, setMenuOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
 
   const navigate = useCallback((nextScreen: AppScreen, replace = false) => {
@@ -172,8 +173,7 @@ export function HistoryPage({
               <button
                 type="button"
                 onClick={() => {
-                  navigate({ kind: "password" });
-                  setSelectedDate(null);
+                  setPasswordDialogOpen(true);
                   setMenuOpen(false);
                 }}
               >
@@ -190,13 +190,7 @@ export function HistoryPage({
       </header>
 
       <main className="content-shell">
-        {screen.kind === "password" ? (
-          <PasswordPanel
-            onCancel={showHistory}
-            onSessionExpired={onSessionExpired}
-            onChanged={onPasswordChanged}
-          />
-        ) : screen.kind === "admin-users" ? (
+        {screen.kind === "admin-users" ? (
           <UserListPage
             onCreate={() => navigate({ kind: "admin-user-new" })}
             onSelect={(userId) =>
@@ -312,6 +306,13 @@ export function HistoryPage({
           </>
         )}
       </main>
+      {passwordDialogOpen && (
+        <PasswordPanel
+          onCancel={() => setPasswordDialogOpen(false)}
+          onSessionExpired={onSessionExpired}
+          onChanged={onPasswordChanged}
+        />
+      )}
     </div>
   );
 }

@@ -79,10 +79,6 @@ export function CreateUserPage({
         className="admin-card admin-form-card"
         aria-labelledby="create-user-title"
       >
-        <button className="back-button" type="button" onClick={onBack}>
-          <ArrowLeft aria-hidden="true" />
-          利用者一覧
-        </button>
         <div className="admin-page-heading">
           <div>
             <h1 id="create-user-title">利用者を登録</h1>

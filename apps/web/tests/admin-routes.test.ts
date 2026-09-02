@@ -31,6 +31,5 @@ describe("admin screen routes", () => {
     expect(pathForScreen({ kind: "admin-user-detail", userId: "user 1" })).toBe(
       "/admin/users/user%201",
     );
-    expect(pathForScreen({ kind: "password" })).toBe("/");
   });
 });
