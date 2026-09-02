@@ -16,7 +16,7 @@ import { attendanceEvents } from "../../src/db/attendance-event-schema";
 import { sessions, userCredentials } from "../../src/db/auth-schema";
 import { createSqliteDatabase } from "../../src/db/client";
 import { users } from "../../src/db/user-schema";
-import { createDrizzleAttendanceEventRepository } from "../../src/repositories/drizzle-attendance-event-repository";
+import { DrizzleAttendanceEventRepository } from "../../src/repositories/drizzle-attendance-event-repository";
 
 const migrationsFolder = fileURLToPath(
   new URL("../../drizzle", import.meta.url),
@@ -57,7 +57,7 @@ describe("manage user", () => {
 
   it("creates credentials and links unmatched attendance events", async () => {
     const db = createDatabase();
-    createDrizzleAttendanceEventRepository(db).save(
+    new DrizzleAttendanceEventRepository(db).save(
       {
         eventId: "event-001",
         studentNumber: "1234567890",

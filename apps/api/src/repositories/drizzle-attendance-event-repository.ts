@@ -2,8 +2,10 @@ import { eq } from "drizzle-orm";
 import { attendanceEvents } from "../db/attendance-event-schema";
 import type { SqliteDatabase } from "../db/client";
 import { users } from "../db/user-schema";
+import type { AttendanceEventInput } from "../schemas/attendance-event";
 import type {
   AttendanceEventRepository,
+  SaveAttendanceEventResult,
   StoredAttendanceEvent,
 } from "./attendance-event-repository";
 
@@ -24,11 +26,16 @@ const rowToStoredEvent = (row: AttendanceEventRow): StoredAttendanceEvent => ({
   ...(row.confidence === null ? {} : { confidence: row.confidence }),
 });
 
-export const createDrizzleAttendanceEventRepository = (
-  db: SqliteDatabase,
-): AttendanceEventRepository => ({
-  save(event, receivedAt) {
-    return db.transaction((tx) => {
+export class DrizzleAttendanceEventRepository
+  implements AttendanceEventRepository
+{
+  constructor(private readonly db: SqliteDatabase) {}
+
+  save(
+    event: AttendanceEventInput,
+    receivedAt: string,
+  ): SaveAttendanceEventResult {
+    return this.db.transaction((tx) => {
       const user = tx
         .select({ id: users.id })
         .from(users)
@@ -77,5 +84,5 @@ export const createDrizzleAttendanceEventRepository = (
         event: rowToStoredEvent(row),
       };
     });
-  },
-});
+  }
+}

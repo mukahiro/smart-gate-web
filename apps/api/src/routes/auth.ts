@@ -8,7 +8,10 @@ import {
 } from "../middleware/session-auth";
 import type { AuthRepository } from "../repositories/auth-repository";
 import { loginInputSchema } from "../schemas/auth";
-import { createAuthService } from "../services/auth-service";
+import { AuthenticateSessionUseCase } from "../services/auth/authenticate-session";
+import { DeleteExpiredSessionsUseCase } from "../services/auth/delete-expired-sessions";
+import { LoginUseCase } from "../services/auth/login";
+import { LogoutUseCase } from "../services/auth/logout";
 
 type AuthRouteOptions = {
   authRepository: AuthRepository;
@@ -20,9 +23,14 @@ export const createAuthRoute = ({
   secureCookie,
 }: AuthRouteOptions) => {
   const route = new Hono<AuthEnv>();
-  const authService = createAuthService(authRepository);
+  const login = new LoginUseCase(authRepository);
+  const authenticateSession = new AuthenticateSessionUseCase(authRepository);
+  const logout = new LogoutUseCase(authRepository);
+  const deleteExpiredSessions = new DeleteExpiredSessionsUseCase(
+    authRepository,
+  );
   // 再起動後も残る期限切れセッションを、API起動時にまとめて破棄する。
-  authService.deleteExpiredSessions();
+  deleteExpiredSessions.execute();
   const cookieOptions = {
     httpOnly: true,
     sameSite: "Lax" as const,
@@ -63,10 +71,7 @@ export const createAuthRoute = ({
       );
     }
 
-    const result = await authService.login(
-      parsed.data.email,
-      parsed.data.password,
-    );
+    const result = await login.execute(parsed.data);
     if (result.kind === "invalid") {
       return c.json(
         {
@@ -86,7 +91,7 @@ export const createAuthRoute = ({
   route.post("/logout", requireSameOrigin, (c) => {
     const token = getCookie(c, sessionCookieName);
     if (token) {
-      authService.logout(token);
+      logout.execute(token);
     }
     deleteCookie(c, sessionCookieName, {
       path: cookieOptions.path,
@@ -97,7 +102,7 @@ export const createAuthRoute = ({
 
   route.get(
     "/me",
-    createSessionAuthMiddleware(authService, secureCookie),
+    createSessionAuthMiddleware(authenticateSession, secureCookie),
     (c) => c.json({ user: c.get("authenticatedUser") }, 200),
   );
 

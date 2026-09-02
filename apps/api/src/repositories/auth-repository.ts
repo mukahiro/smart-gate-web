@@ -23,6 +23,15 @@ export type StoredSession = {
   absoluteExpiresAt: string;
 };
 
+export type CreateSessionInput = {
+  tokenHash: string;
+  userId: string;
+  createdAt: string;
+  lastSeenAt: string;
+  idleExpiresAt: string;
+  absoluteExpiresAt: string;
+};
+
 export interface AuthRepository {
   findUserAuthentication(
     emailNormalized: string,
@@ -34,14 +43,7 @@ export interface AuthRepository {
     lockDurationMs: number,
   ): void;
   clearLoginFailures(userId: string, now: string): void;
-  createSession(session: {
-    tokenHash: string;
-    userId: string;
-    createdAt: string;
-    lastSeenAt: string;
-    idleExpiresAt: string;
-    absoluteExpiresAt: string;
-  }): void;
+  createSession(session: CreateSessionInput): void;
   findSession(tokenHash: string): StoredSession | null;
   touchSession(
     tokenHash: string,

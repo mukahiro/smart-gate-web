@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from "hono";
 import { deleteCookie, getCookie } from "hono/cookie";
 import type { AuthenticatedUser } from "../repositories/auth-repository";
-import type { AuthService } from "../services/auth-service";
+import type { AuthenticateSessionUseCase } from "../services/auth/authenticate-session";
 
 export const sessionCookieName = "smart_gate_session";
 
@@ -12,10 +12,13 @@ export type AuthEnv = {
 };
 
 export const createSessionAuthMiddleware =
-  (authService: AuthService, secure: boolean): MiddlewareHandler<AuthEnv> =>
+  (
+    authenticateSession: AuthenticateSessionUseCase,
+    secure: boolean,
+  ): MiddlewareHandler<AuthEnv> =>
   async (c, next) => {
     const token = getCookie(c, sessionCookieName);
-    const user = token ? authService.authenticate(token) : null;
+    const user = token ? authenticateSession.execute(token) : null;
 
     if (!user) {
       deleteCookie(c, sessionCookieName, {

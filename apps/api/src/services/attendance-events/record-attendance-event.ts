@@ -1,8 +1,8 @@
 import type {
   AttendanceEventRepository,
   SaveAttendanceEventResult,
-} from "../repositories/attendance-event-repository";
-import type { AttendanceEventInput } from "../schemas/attendance-event";
+} from "../../repositories/attendance-event-repository";
+import type { AttendanceEventInput } from "../../schemas/attendance-event";
 
 export type AttendanceEventLogger = (entry: {
   timestamp: string;
@@ -54,15 +54,17 @@ const toResponse = (
   };
 };
 
-export const createAttendanceEventService = (
-  attendanceEventRepository: AttendanceEventRepository,
-  logger: AttendanceEventLogger,
-) => ({
-  record(event: AttendanceEventInput): RecordAttendanceEventResult {
-    const receivedAt = new Date().toISOString();
-    const result = attendanceEventRepository.save(event, receivedAt);
+export class RecordAttendanceEventUseCase {
+  constructor(
+    private readonly attendanceEventRepository: AttendanceEventRepository,
+    private readonly logger: AttendanceEventLogger,
+  ) {}
 
-    logger({
+  execute(event: AttendanceEventInput): RecordAttendanceEventResult {
+    const receivedAt = new Date().toISOString();
+    const result = this.attendanceEventRepository.save(event, receivedAt);
+
+    this.logger({
       timestamp: receivedAt,
       level: "info",
       event: "attendance_event_saved",
@@ -74,5 +76,5 @@ export const createAttendanceEventService = (
     });
 
     return toResponse(result);
-  },
-});
+  }
+}

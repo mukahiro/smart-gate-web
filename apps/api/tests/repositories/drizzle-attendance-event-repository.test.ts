@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { createSqliteDatabase } from "../../src/db/client";
 import { users } from "../../src/db/user-schema";
-import { createDrizzleAttendanceEventRepository } from "../../src/repositories/drizzle-attendance-event-repository";
+import { DrizzleAttendanceEventRepository } from "../../src/repositories/drizzle-attendance-event-repository";
 import type { AttendanceEventInput } from "../../src/schemas/attendance-event";
 
 const createDatabasePath = () =>
@@ -24,11 +24,11 @@ const attendanceEvent: AttendanceEventInput = {
 };
 
 const createAttendanceEventRepository = (databasePath: string) =>
-  createDrizzleAttendanceEventRepository(
+  new DrizzleAttendanceEventRepository(
     createSqliteDatabase(databasePath, { migrationsFolder }),
   );
 
-describe("createDrizzleAttendanceEventRepository", () => {
+describe("DrizzleAttendanceEventRepository", () => {
   it("saves attendance events to SQLite", () => {
     const repository = createAttendanceEventRepository(createDatabasePath());
 
@@ -89,7 +89,7 @@ describe("createDrizzleAttendanceEventRepository", () => {
         updatedAt: "2026-07-12T08:00:00.000Z",
       })
       .run();
-    const repository = createDrizzleAttendanceEventRepository(db);
+    const repository = new DrizzleAttendanceEventRepository(db);
 
     const result = repository.save(attendanceEvent, "2026-07-12T08:45:13.000Z");
 

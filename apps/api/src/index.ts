@@ -1,8 +1,8 @@
 import { serve } from "@hono/node-server";
 import { createApp, readAuthAppBearerToken } from "./app";
 import { createSqliteDatabase } from "./db/client";
-import { createDrizzleAttendanceEventRepository } from "./repositories/drizzle-attendance-event-repository";
-import { createDrizzleAuthRepository } from "./repositories/drizzle-auth-repository";
+import { DrizzleAttendanceEventRepository } from "./repositories/drizzle-attendance-event-repository";
+import { DrizzleAuthRepository } from "./repositories/drizzle-auth-repository";
 
 const port = Number(process.env.API_PORT ?? 3000);
 const databasePath = process.env.DATABASE_PATH ?? "./data/smart-gate.sqlite3";
@@ -16,11 +16,11 @@ if (!secureCookie) {
 
 const app = createApp({
   authToken,
-  attendanceEventRepository: createDrizzleAttendanceEventRepository(db),
+  attendanceEventRepository: new DrizzleAttendanceEventRepository(db),
   attendanceEventLogger: (entry) => {
     console.log(JSON.stringify(entry));
   },
-  authRepository: createDrizzleAuthRepository(db),
+  authRepository: new DrizzleAuthRepository(db),
   secureCookie,
 });
 

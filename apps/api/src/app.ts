@@ -3,7 +3,7 @@ import type { AttendanceEventRepository } from "./repositories/attendance-event-
 import type { AuthRepository } from "./repositories/auth-repository";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
 import { createAuthRoute } from "./routes/auth";
-import type { AttendanceEventLogger } from "./services/attendance-event-service";
+import type { AttendanceEventLogger } from "./services/attendance-events/record-attendance-event";
 
 export const readAuthAppBearerToken = (
   env: NodeJS.ProcessEnv = process.env,

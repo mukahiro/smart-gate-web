@@ -4,8 +4,8 @@ import type { AttendanceEventRepository } from "../repositories/attendance-event
 import { attendanceEventInputSchema } from "../schemas/attendance-event";
 import {
   type AttendanceEventLogger,
-  createAttendanceEventService,
-} from "../services/attendance-event-service";
+  RecordAttendanceEventUseCase,
+} from "../services/attendance-events/record-attendance-event";
 
 type AttendanceEventsRouteOptions = {
   authToken?: string;
@@ -19,7 +19,7 @@ export const createAttendanceEventsRoute = ({
   attendanceEventLogger,
 }: AttendanceEventsRouteOptions) => {
   const route = new Hono();
-  const attendanceEventService = createAttendanceEventService(
+  const recordAttendanceEvent = new RecordAttendanceEventUseCase(
     attendanceEventRepository,
     attendanceEventLogger,
   );
@@ -57,7 +57,7 @@ export const createAttendanceEventsRoute = ({
       );
     }
 
-    const recordResult = attendanceEventService.record(result.data);
+    const recordResult = recordAttendanceEvent.execute(result.data);
 
     return c.json(recordResult.body, recordResult.status);
   });

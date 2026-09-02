@@ -2,14 +2,21 @@ import { eq, lte, or } from "drizzle-orm";
 import { sessions, userCredentials } from "../db/auth-schema";
 import type { SqliteDatabase } from "../db/client";
 import { users } from "../db/user-schema";
-import type { AuthRepository } from "./auth-repository";
+import type {
+  AuthRepository,
+  CreateSessionInput,
+  StoredSession,
+  UserAuthenticationRecord,
+} from "./auth-repository";
 
-export const createDrizzleAuthRepository = (
-  db: SqliteDatabase,
-): AuthRepository => ({
-  findUserAuthentication(emailNormalized) {
+export class DrizzleAuthRepository implements AuthRepository {
+  constructor(private readonly db: SqliteDatabase) {}
+
+  findUserAuthentication(
+    emailNormalized: string,
+  ): UserAuthenticationRecord | null {
     return (
-      db
+      this.db
         .select({
           id: users.id,
           studentNumber: users.studentNumber,
@@ -26,9 +33,15 @@ export const createDrizzleAuthRepository = (
         .where(eq(users.emailNormalized, emailNormalized))
         .get() ?? null
     );
-  },
-  recordLoginFailure(userId, now, lockThreshold, lockDurationMs) {
-    db.transaction((tx) => {
+  }
+
+  recordLoginFailure(
+    userId: string,
+    now: string,
+    lockThreshold: number,
+    lockDurationMs: number,
+  ): void {
+    this.db.transaction((tx) => {
       const credential = tx
         .select({
           failedLoginCount: userCredentials.failedLoginCount,
@@ -61,18 +74,22 @@ export const createDrizzleAuthRepository = (
         .where(eq(userCredentials.userId, userId))
         .run();
     });
-  },
-  clearLoginFailures(userId, now) {
-    db.update(userCredentials)
+  }
+
+  clearLoginFailures(userId: string, now: string): void {
+    this.db
+      .update(userCredentials)
       .set({ failedLoginCount: 0, lockedUntil: null, updatedAt: now })
       .where(eq(userCredentials.userId, userId))
       .run();
-  },
-  createSession(session) {
-    db.insert(sessions).values(session).run();
-  },
-  findSession(tokenHash) {
-    const row = db
+  }
+
+  createSession(session: CreateSessionInput): void {
+    this.db.insert(sessions).values(session).run();
+  }
+
+  findSession(tokenHash: string): StoredSession | null {
+    const row = this.db
       .select({
         tokenHash: sessions.tokenHash,
         userId: users.id,
@@ -110,18 +127,27 @@ export const createDrizzleAuthRepository = (
       idleExpiresAt: row.idleExpiresAt,
       absoluteExpiresAt: row.absoluteExpiresAt,
     };
-  },
-  touchSession(tokenHash, lastSeenAt, idleExpiresAt) {
-    db.update(sessions)
+  }
+
+  touchSession(
+    tokenHash: string,
+    lastSeenAt: string,
+    idleExpiresAt: string,
+  ): void {
+    this.db
+      .update(sessions)
       .set({ lastSeenAt, idleExpiresAt })
       .where(eq(sessions.tokenHash, tokenHash))
       .run();
-  },
-  deleteSession(tokenHash) {
-    db.delete(sessions).where(eq(sessions.tokenHash, tokenHash)).run();
-  },
-  deleteExpiredSessions(now) {
-    db.delete(sessions)
+  }
+
+  deleteSession(tokenHash: string): void {
+    this.db.delete(sessions).where(eq(sessions.tokenHash, tokenHash)).run();
+  }
+
+  deleteExpiredSessions(now: string): void {
+    this.db
+      .delete(sessions)
       .where(
         or(
           lte(sessions.idleExpiresAt, now),
@@ -129,5 +155,5 @@ export const createDrizzleAuthRepository = (
         ),
       )
       .run();
-  },
-});
+  }
+}

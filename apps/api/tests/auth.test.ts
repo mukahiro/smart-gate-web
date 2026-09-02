@@ -8,9 +8,9 @@ import { createUser, setUserActive } from "../scripts/manage-user";
 import { createApp } from "../src/app";
 import { sessions, userCredentials } from "../src/db/auth-schema";
 import { createSqliteDatabase } from "../src/db/client";
-import { createDrizzleAttendanceEventRepository } from "../src/repositories/drizzle-attendance-event-repository";
-import { createDrizzleAuthRepository } from "../src/repositories/drizzle-auth-repository";
-import { hashSessionToken } from "../src/services/auth-service";
+import { DrizzleAttendanceEventRepository } from "../src/repositories/drizzle-attendance-event-repository";
+import { DrizzleAuthRepository } from "../src/repositories/drizzle-auth-repository";
+import { hashSessionToken } from "../src/services/auth/session-token";
 
 const migrationsFolder = fileURLToPath(new URL("../drizzle", import.meta.url));
 const host = "localhost:5173";
@@ -37,8 +37,8 @@ const setup = async () => {
   const createTestApp = () =>
     createApp({
       authToken: "test-token",
-      attendanceEventRepository: createDrizzleAttendanceEventRepository(db),
-      authRepository: createDrizzleAuthRepository(db),
+      attendanceEventRepository: new DrizzleAttendanceEventRepository(db),
+      authRepository: new DrizzleAuthRepository(db),
       secureCookie: false,
     });
 
