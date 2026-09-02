@@ -52,6 +52,8 @@ export function HistoryPage({
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
   const [userListRefreshKey, setUserListRefreshKey] = useState(0);
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  const [monthInput, setMonthInput] = useState(month);
   const [reloadCount, setReloadCount] = useState(0);
 
   const navigate = useCallback((nextScreen: AppScreen, replace = false) => {
@@ -220,12 +222,33 @@ export function HistoryPage({
           <>
             <section className="history-card" aria-labelledby="history-title">
               <header className="history-heading card-header">
-                <div>
-                  <h1 id="history-title">{formatMonth(month)}</h1>
-                </div>
-                <div className="month-controls" aria-label="表示月の移動">
+                <nav className="month-tabs" aria-label="表示月の移動">
                   <button
-                    className="secondary-button"
+                    className="month-tab"
+                    type="button"
+                    onClick={() => moveMonth(-1)}
+                    aria-label={`${formatMonth(shiftMonth(month, -1))}を表示`}
+                  >
+                    <ChevronLeft aria-hidden="true" />
+                  </button>
+                  <div className="month-tab month-tab-current">
+                    <h1 id="history-title">
+                      <span className="month-tab-year">
+                        {month.slice(0, 4)}年
+                      </span>
+                      {Number(month.slice(5))}月
+                    </h1>
+                  </div>
+                  <button
+                    className="month-tab"
+                    type="button"
+                    onClick={() => moveMonth(1)}
+                    aria-label={`${formatMonth(shiftMonth(month, 1))}を表示`}
+                  >
+                    <ChevronRight aria-hidden="true" />
+                  </button>
+                  <button
+                    className="month-tab month-tab-today"
                     type="button"
                     onClick={() => {
                       setMonth(today.slice(0, 7));
@@ -235,22 +258,17 @@ export function HistoryPage({
                     今月
                   </button>
                   <button
-                    className="icon-button"
+                    className="month-tab month-picker-button"
                     type="button"
-                    onClick={() => moveMonth(-1)}
-                    aria-label="前月"
+                    onClick={() => {
+                      setMonthInput(month);
+                      setMonthPickerOpen(true);
+                    }}
+                    aria-label="表示する年月を指定"
                   >
-                    <ChevronLeft aria-hidden="true" />
+                    <CalendarDays aria-hidden="true" />
                   </button>
-                  <button
-                    className="icon-button"
-                    type="button"
-                    onClick={() => moveMonth(1)}
-                    aria-label="翌月"
-                  >
-                    <ChevronRight aria-hidden="true" />
-                  </button>
-                </div>
+                </nav>
               </header>
               <div className="calendar-legend">
                 <span>
@@ -309,6 +327,51 @@ export function HistoryPage({
           onSessionExpired={onSessionExpired}
           onChanged={onPasswordChanged}
         />
+      )}
+      {monthPickerOpen && (
+        <div className="dialog-backdrop" role="presentation">
+          <dialog
+            open
+            className="dialog-card month-picker-dialog"
+            aria-labelledby="month-picker-title"
+            aria-modal="true"
+          >
+            <header className="dialog-header">
+              <h2 id="month-picker-title">年月を指定</h2>
+            </header>
+            <form
+              className="month-picker-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setMonth(monthInput);
+                setSelectedDate(null);
+                setMonthPickerOpen(false);
+              }}
+            >
+              <label>
+                表示する年月
+                <input
+                  type="month"
+                  required
+                  value={monthInput}
+                  onChange={(event) => setMonthInput(event.target.value)}
+                />
+              </label>
+              <div className="dialog-actions">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => setMonthPickerOpen(false)}
+                >
+                  キャンセル
+                </button>
+                <button className="primary-button" type="submit">
+                  表示
+                </button>
+              </div>
+            </form>
+          </dialog>
+        </div>
       )}
       {(createUserDialogOpen || screen.kind === "admin-user-new") && (
         <CreateUserPage
