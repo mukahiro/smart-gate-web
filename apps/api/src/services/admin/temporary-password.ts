@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 
 const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-const randomCharacterCount = 16;
+const randomCharacterCount = 12;
 const unbiasedByteLimit = Math.floor(256 / alphabet.length) * alphabet.length;
 
 export const generateTemporaryPassword = () => {
@@ -20,5 +20,5 @@ export const generateTemporaryPassword = () => {
     }
   }
 
-  return value.match(/.{4}/g)?.join("-") ?? value;
+  return value;
 };

@@ -135,7 +135,7 @@ describe("admin API", () => {
       temporaryPassword: string;
     };
     expect(body.user.role).toBe("member");
-    expect(body.temporaryPassword).toMatch(/^[A-Z2-9]{4}(?:-[A-Z2-9]{4}){3}$/);
+    expect(body.temporaryPassword).toMatch(/^[A-Z2-9]{12}$/);
     expect(body.temporaryPassword).not.toMatch(/[ILO01]/);
     expect(
       (await login("new@example.com", body.temporaryPassword)).status,
