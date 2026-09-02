@@ -1,23 +1,48 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { ApiError, type User, getCurrentUser, logout } from "./api/client";
+import { LoginPage } from "./features/auth/LoginPage";
+import { HistoryPage } from "./features/history/HistoryPage";
 
-type ApiState = "checking" | "online" | "offline";
+type AuthState =
+  | { status: "checking" }
+  | { status: "anonymous"; message?: string }
+  | { status: "authenticated"; user: User };
 
 export function App() {
-  const [apiState, setApiState] = useState<ApiState>("checking");
+  const [auth, setAuth] = useState<AuthState>({ status: "checking" });
+
+  const expireSession = useCallback(() => {
+    setAuth({
+      status: "anonymous",
+      message:
+        "セッションの有効期限が切れました。もう一度ログインしてください。",
+    });
+  }, []);
+
+  const finishPasswordChange = useCallback(() => {
+    setAuth({
+      status: "anonymous",
+      message:
+        "パスワードを変更しました。新しいパスワードでログインしてください。",
+    });
+  }, []);
 
   useEffect(() => {
     let active = true;
 
-    fetch("/api/v1/health")
-      .then((response) => {
-        if (active) {
-          setApiState(response.ok ? "online" : "offline");
-        }
+    getCurrentUser()
+      .then((user) => {
+        if (active) setAuth({ status: "authenticated", user });
       })
-      .catch(() => {
-        if (active) {
-          setApiState("offline");
-        }
+      .catch((error: unknown) => {
+        if (!active) return;
+        setAuth({
+          status: "anonymous",
+          message:
+            error instanceof ApiError && error.status !== 401
+              ? "サーバーに接続できませんでした。しばらくしてからお試しください。"
+              : undefined,
+        });
       });
 
     return () => {
@@ -25,38 +50,32 @@ export function App() {
     };
   }, []);
 
-  return (
-    <main className="app-shell">
-      <section className="panel" aria-labelledby="page-title">
-        <div>
-          <p className="eyebrow">Smart Gate</p>
-          <h1 id="page-title">出欠確認システム</h1>
-          <p className="lead">
-            LAN内で出欠イベントを受け取り、管理画面から状態を確認するための開発環境です。
-          </p>
-        </div>
+  if (auth.status === "checking") {
+    return (
+      <main className="centered-page" aria-busy="true">
+        <div className="loading-mark" aria-label="ログイン状態を確認中" />
+      </main>
+    );
+  }
 
-        <dl className="status-list">
-          <div>
-            <dt>API</dt>
-            <dd data-state={apiState}>
-              {apiState === "checking"
-                ? "確認中"
-                : apiState === "online"
-                  ? "接続済み"
-                  : "未接続"}
-            </dd>
-          </div>
-          <div>
-            <dt>対象</dt>
-            <dd>Web / API</dd>
-          </div>
-          <div>
-            <dt>認証アプリ</dt>
-            <dd>別リポジトリ</dd>
-          </div>
-        </dl>
-      </section>
-    </main>
+  if (auth.status === "anonymous") {
+    return (
+      <LoginPage
+        initialMessage={auth.message}
+        onLogin={(user) => setAuth({ status: "authenticated", user })}
+      />
+    );
+  }
+
+  return (
+    <HistoryPage
+      user={auth.user}
+      onSessionExpired={expireSession}
+      onPasswordChanged={finishPasswordChange}
+      onLogout={async () => {
+        await logout().catch(() => undefined);
+        setAuth({ status: "anonymous" });
+      }}
+    />
   );
 }
