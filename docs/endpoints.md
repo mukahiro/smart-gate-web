@@ -449,3 +449,21 @@ GET /api/v1/attendance-events/me/daily?date=2026-07-12
 - 入室または退出が連続した場合、対応しない側を不足として扱う
 - 完成した組だけを参考滞在時間へ加算し、自動補完はしない
 - 日をまたぐ組は、参考滞在時間を入室日に計上する
+
+## 管理者APIとパスワード変更API
+
+以下はPhase 5で実装予定であり、現在は利用できない。詳細な権限、監査ログ、一時パスワードの方針は `docs/admin-api.md` を参照する。
+
+- `POST /api/v1/auth/change-password`
+- `GET /api/v1/admin/users`
+- `POST /api/v1/admin/users`
+- `GET /api/v1/admin/users/:userId`
+- `PATCH /api/v1/admin/users/:userId`
+- `POST /api/v1/admin/users/:userId/enable`
+- `POST /api/v1/admin/users/:userId/disable`
+- `POST /api/v1/admin/users/:userId/unlock`
+- `POST /api/v1/admin/users/:userId/revoke-sessions`
+- `POST /api/v1/admin/users/:userId/reset-password`
+- `GET /api/v1/admin/audit-logs`
+
+管理者APIは利用者管理に限定し、他人の入退室履歴を取得するAPIは提供しない。管理者アカウントの作成・昇格・降格も管理者APIでは提供しない。

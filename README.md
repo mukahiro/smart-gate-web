@@ -10,6 +10,7 @@ Raspberry Pi上で動作する、ローカルネットワーク向け研究室�
 - `requirements.md`：要件定義
 - `endpoints.md`：APIエンドポイント仕様
 - `web-authentication.md`：Web利用者認証・セッション・学籍番号の設計
+- `admin-api.md`：管理者API・権限・監査ログの設計
 
 ## 想定構成
 
