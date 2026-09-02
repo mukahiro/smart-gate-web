@@ -21,6 +21,7 @@ export const createAuthRoute = ({
 }: AuthRouteOptions) => {
   const route = new Hono<AuthEnv>();
   const authService = createAuthService(authRepository);
+  // 再起動後も残る期限切れセッションを、API起動時にまとめて破棄する。
   authService.deleteExpiredSessions();
   const cookieOptions = {
     httpOnly: true,

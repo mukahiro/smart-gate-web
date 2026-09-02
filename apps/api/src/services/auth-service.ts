@@ -5,6 +5,7 @@ import type {
   AuthenticatedUser,
 } from "../repositories/auth-repository";
 
+// 未登録メールでもArgon2検証を行い、応答時間から登録有無を推測されにくくする。
 const dummyPasswordHash =
   "$argon2id$v=19$m=19456,p=1,t=2$wACRsVTnxQBjexXlmK3kZw$wFWyFNWU539XQfOV207ELe8ZPbKvtdQqyXhgDa5xKyU";
 const lockThreshold = 5;
@@ -13,6 +14,7 @@ const idleDurationMs = 2 * 60 * 60 * 1000;
 const absoluteDurationMs = 12 * 60 * 60 * 1000;
 const touchIntervalMs = 5 * 60 * 1000;
 
+// 生のセッショントークンをDBへ残さず、DB流出時の悪用を防ぐ。
 export const hashSessionToken = (token: string) =>
   createHash("sha256").update(token).digest("hex");
 
@@ -45,6 +47,7 @@ export const createAuthService = (
       record?.lockedUntil && record.lockedUntil > currentTime,
     );
 
+    // 利用者の状態を外部から判別できないよう、失敗理由は統一する。
     if (!record || !passwordMatches || !record.isActive || isLocked) {
       if (record?.isActive && !passwordMatches && !isLocked) {
         repository.recordLoginFailure(
@@ -104,10 +107,12 @@ export const createAuthService = (
       return null;
     }
 
+    // アイドル期限は延長しつつ、アクセスごとのDB書き込みは避ける。
     if (
       currentDate.getTime() - Date.parse(session.lastSeenAt) >=
       touchIntervalMs
     ) {
+      // アイドル期限を更新しても、セッションの絶対期限は越えない。
       const idleExpiresAt = new Date(
         Math.min(
           currentDate.getTime() + idleDurationMs,

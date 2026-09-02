@@ -47,6 +47,7 @@ export const createDrizzleAttendanceEventRepository = (
           receivedAt,
           confidence: event.confidence ?? null,
         })
+        // eventIdの一意制約を使い、再送されても同じイベントを二重保存しない。
         .onConflictDoNothing()
         .run();
       const row = tx

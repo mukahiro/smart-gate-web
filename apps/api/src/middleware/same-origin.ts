@@ -2,6 +2,7 @@ import type { MiddlewareHandler } from "hono";
 
 export const requireSameOrigin: MiddlewareHandler = async (c, next) => {
   const origin = c.req.header("origin");
+  // Cookie認証の変更系APIを、別オリジンからのリクエストから保護する。
   const host = (c.req.header("host") ?? new URL(c.req.url).host).toLowerCase();
   let originHost: string | undefined;
 

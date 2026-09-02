@@ -23,6 +23,7 @@ export const isValidBearerToken = (
   const actualBuffer = Buffer.from(actualToken);
   const expectedBuffer = Buffer.from(expectedToken);
 
+  // 通常の文字列比較を避け、比較時間からトークン内容を推測されにくくする。
   return (
     actualBuffer.length === expectedBuffer.length &&
     timingSafeEqual(actualBuffer, expectedBuffer)

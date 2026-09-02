@@ -46,6 +46,7 @@ export const createDrizzleAuthRepository = (
         return;
       }
 
+      // ロック期間が終了した後の失敗は、新しい試行回数として数え直す。
       const previousCount = credential.lockedUntil
         ? 0
         : credential.failedLoginCount;
