@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
+import type { AuthRepository } from "./repositories/auth-repository";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
+import { createAuthRoute } from "./routes/auth";
 import type { AttendanceEventLogger } from "./services/attendance-event-service";
 
 export const readAuthAppBearerToken = (
@@ -19,12 +21,16 @@ type AppOptions = {
   authToken?: string;
   attendanceEventRepository: AttendanceEventRepository;
   attendanceEventLogger?: AttendanceEventLogger;
+  authRepository?: AuthRepository;
+  secureCookie?: boolean;
 };
 
 export const createApp = ({
   authToken = process.env.AUTH_APP_BEARER_TOKEN,
   attendanceEventRepository,
   attendanceEventLogger = () => {},
+  authRepository,
+  secureCookie = process.env.SESSION_COOKIE_SECURE === "true",
 }: AppOptions) => {
   const app = new Hono().basePath("/api/v1");
 
@@ -43,6 +49,10 @@ export const createApp = ({
       attendanceEventLogger,
     }),
   );
+
+  if (authRepository) {
+    app.route("/auth", createAuthRoute({ authRepository, secureCookie }));
+  }
 
   app.notFound((c) =>
     c.json(

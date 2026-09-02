@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { createSqliteDatabase } from "../../src/db/client";
-import { users } from "../../src/db/schema";
+import { users } from "../../src/db/user-schema";
 import { createDrizzleAttendanceEventRepository } from "../../src/repositories/drizzle-attendance-event-repository";
 import type { AttendanceEventInput } from "../../src/schemas/attendance-event";
 

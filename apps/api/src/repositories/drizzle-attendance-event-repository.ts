@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
+import { attendanceEvents } from "../db/attendance-event-schema";
 import type { SqliteDatabase } from "../db/client";
-import { attendanceEvents, users } from "../db/schema";
+import { users } from "../db/user-schema";
 import type {
   AttendanceEventRepository,
   StoredAttendanceEvent,

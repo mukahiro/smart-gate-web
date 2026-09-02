@@ -78,6 +78,39 @@ npm exec pnpm@9.15.4 -- install
 npm exec pnpm@9.15.4 -- dev
 ```
 
+## 環境変数
+
+| Name | Description |
+| --- | --- |
+| `AUTH_APP_BEARER_TOKEN` | Python認証アプリ用Bearerトークン。未設定時はAPIを起動しない |
+| `DATABASE_PATH` | SQLiteファイルのパス。既定値は `./data/smart-gate.sqlite3` |
+| `DATABASE_MIGRATIONS_PATH` | migrationディレクトリ。既定値は `./drizzle` |
+| `API_PORT` | APIの待受ポート。既定値は `3000` |
+| `SESSION_COOKIE_SECURE` | HTTPS運用時は `true`。現在の既定値は `false` |
+
+`SESSION_COOKIE_SECURE=false` では起動時に警告する。HTTPSの本番方針はデプロイ設計時に確定する。
+
+## Web認証API
+
+Web認証APIは同一オリジンから呼び出す。次の例はCookieを一時ファイルへ保存して、ログイン中利用者を取得する。
+
+```sh
+curl --request POST http://localhost:3000/api/v1/auth/login \
+  --header 'Origin: http://localhost:3000' \
+  --header 'Content-Type: application/json' \
+  --cookie-jar /tmp/smart-gate-cookie.txt \
+  --data '{"email":"user@example.com","password":"example-password"}'
+
+curl http://localhost:3000/api/v1/auth/me \
+  --cookie /tmp/smart-gate-cookie.txt
+
+curl --request POST http://localhost:3000/api/v1/auth/logout \
+  --header 'Origin: http://localhost:3000' \
+  --cookie /tmp/smart-gate-cookie.txt
+```
+
+セッションの無操作期限は2時間、絶対期限は12時間である。ログインに5回連続で失敗すると15分間ロックされる。メール未登録、パスワード不一致、利用者無効、ロック中はすべて同じ認証エラーを返す。
+
 ## Python認証アプリからのイベント送信
 
 Python認証アプリからBearerトークン付きで `POST /api/v1/attendance-events` を呼び出す。

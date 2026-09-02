@@ -5,13 +5,10 @@ import { pathToFileURL } from "node:url";
 import argon2 from "argon2";
 import { and, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
+import { attendanceEvents } from "../src/db/attendance-event-schema";
+import { sessions, userCredentials } from "../src/db/auth-schema";
 import { type SqliteDatabase, createSqliteDatabase } from "../src/db/client";
-import {
-  attendanceEvents,
-  sessions,
-  userCredentials,
-  users,
-} from "../src/db/schema";
+import { users } from "../src/db/user-schema";
 
 const studentNumberSchema = z
   .string()

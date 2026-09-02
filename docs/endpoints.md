@@ -234,7 +234,7 @@ request bodyがschemaに合わない場合。
 
 メールアドレスとパスワードでWeb利用者を認証し、サーバー管理型セッションを作成する。
 
-**実装状態:** 設計済み・未実装。
+**実装状態:** 実装済み。
 
 <details>
 <summary>詳細</summary>
@@ -292,11 +292,29 @@ Status: `401 Unauthorized`
 
 </details>
 
+<details>
+<summary>Origin error</summary>
+
+Originがない、または受信したHostと一致しない場合。
+
+Status: `403 Forbidden`
+
+```json
+{
+  "error": {
+    "code": "INVALID_ORIGIN",
+    "message": "許可されていないリクエストです"
+  }
+}
+```
+
+</details>
+
 ## POST /auth/logout
 
 現在のWebセッションを失効させ、Cookieを削除する。
 
-**実装状態:** 設計済み・未実装。
+**実装状態:** 実装済み。
 
 <details>
 <summary>詳細</summary>
@@ -313,7 +331,7 @@ Status: `204 No Content`
 
 Cookieセッションに紐づくログイン中利用者を返す。
 
-**実装状態:** 設計済み・未実装。
+**実装状態:** 実装済み。
 
 <details>
 <summary>詳細</summary>

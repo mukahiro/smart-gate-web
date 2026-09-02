@@ -12,13 +12,10 @@ import {
   setUserActive,
   unlockUser,
 } from "../../scripts/manage-user";
+import { attendanceEvents } from "../../src/db/attendance-event-schema";
+import { sessions, userCredentials } from "../../src/db/auth-schema";
 import { createSqliteDatabase } from "../../src/db/client";
-import {
-  attendanceEvents,
-  sessions,
-  userCredentials,
-  users,
-} from "../../src/db/schema";
+import { users } from "../../src/db/user-schema";
 import { createDrizzleAttendanceEventRepository } from "../../src/repositories/drizzle-attendance-event-repository";
 
 const migrationsFolder = fileURLToPath(
