@@ -310,7 +310,13 @@ p {
   margin-top: 52px;
   padding: 28px;
 }
-.history-card:has(+ .detail-panel) {
+.daily-detail-overlay {
+  display: contents;
+}
+.daily-detail-dismiss {
+  display: none;
+}
+.history-card:has(+ .daily-detail-overlay) {
   grid-column: 1;
 }
 .history-heading,
@@ -1255,7 +1261,7 @@ p {
   .content-shell.has-detail {
     grid-template-columns: 1fr;
   }
-  .history-card:has(+ .detail-panel),
+  .history-card:has(+ .daily-detail-overlay),
   .detail-panel {
     grid-column: 1;
   }
@@ -1386,7 +1392,44 @@ p {
     padding: 8px 2px;
   }
   .detail-panel {
+    width: min(100%, 520px);
+    max-height: calc(100dvh - 40px);
     padding: 20px;
+    overflow-y: auto;
+    animation: detail-modal-enter 180ms ease-out both;
+    transform-origin: center;
+  }
+  .daily-detail-overlay {
+    position: fixed;
+    z-index: 100;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgb(0 0 0 / 48%);
+  }
+  .daily-detail-dismiss {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: transparent;
+  }
+  .daily-detail-overlay .detail-panel {
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    justify-self: center;
+  }
+  @keyframes detail-modal-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
   .account-panel {
     padding: 25px 20px;

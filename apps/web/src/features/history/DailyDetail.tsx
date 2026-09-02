@@ -47,82 +47,94 @@ export function DailyDetail({
   }, [date, onSessionExpired]);
 
   return (
-    <aside className="detail-panel" aria-labelledby="detail-title">
-      <header className="detail-header">
-        <div>
-          <h2 id="detail-title">{formatDate(date)}</h2>
-        </div>
-        <button
-          className="icon-button close-button"
-          type="button"
-          onClick={onClose}
-          aria-label="日別詳細を閉じる"
-        >
-          <X aria-hidden="true" />
-        </button>
-      </header>
-
-      {error && (
-        <div className="notice error-notice" role="alert">
-          {error}
-        </div>
-      )}
-      {!history && !error && <div className="detail-loading">読み込み中…</div>}
-      {history && history.events.length === 0 && (
-        <div className="empty-detail">
-          <strong>記録はありません</strong>
-          <span>この日の入退室イベントはありません。</span>
-        </div>
-      )}
-      {history && history.events.length > 0 && (
-        <>
-          {(history.hasMissingCheckIn || history.hasMissingCheckOut) && (
-            <div className="notice warning-notice">
-              <strong>記録が不足しています</strong>
-              <span>
-                {history.hasMissingCheckIn && "対応する入室記録がありません。"}
-                {history.hasMissingCheckOut && "対応する退出記録がありません。"}
-              </span>
-            </div>
-          )}
-          <ol className="event-list">
-            {history.events.map((event) => (
-              <li key={event.eventId}>
-                <span
-                  className="event-icon"
-                  data-type={event.eventType}
-                  aria-hidden="true"
-                >
-                  {event.eventType === "check_in" ? (
-                    <LogIn aria-hidden="true" />
-                  ) : (
-                    <LogOut aria-hidden="true" />
-                  )}
-                </span>
-                <div className="event-main">
-                  <strong>
-                    {event.eventType === "check_in" ? "入室" : "退出"}
-                  </strong>
-                  <span>
-                    {event.method === "card" ? "カード認証" : "顔認証"}
-                  </span>
-                </div>
-                <time dateTime={event.authenticatedAt}>
-                  {formatTime(event.authenticatedAt)}
-                </time>
-                {event.pairingStatus !== "paired" && (
-                  <span className="missing-badge">対応記録なし</span>
-                )}
-              </li>
-            ))}
-          </ol>
-          <div className="duration-card">
-            <span>参考滞在時間</span>
-            <strong>{formatDuration(history.stayDurationMinutes)}</strong>
-            <small>完成した入退室の組から算出した参考値です</small>
+    <div className="daily-detail-overlay">
+      <button
+        className="daily-detail-dismiss"
+        type="button"
+        onClick={onClose}
+        aria-label="日別詳細を閉じる"
+      />
+      <aside className="detail-panel" aria-labelledby="detail-title">
+        <header className="detail-header">
+          <div>
+            <h2 id="detail-title">{formatDate(date)}</h2>
           </div>
-        </>
-      )}
-    </aside>
+          <button
+            className="icon-button close-button"
+            type="button"
+            onClick={onClose}
+            aria-label="日別詳細を閉じる"
+          >
+            <X aria-hidden="true" />
+          </button>
+        </header>
+
+        {error && (
+          <div className="notice error-notice" role="alert">
+            {error}
+          </div>
+        )}
+        {!history && !error && (
+          <div className="detail-loading">読み込み中…</div>
+        )}
+        {history && history.events.length === 0 && (
+          <div className="empty-detail">
+            <strong>記録はありません</strong>
+            <span>この日の入退室イベントはありません。</span>
+          </div>
+        )}
+        {history && history.events.length > 0 && (
+          <>
+            {(history.hasMissingCheckIn || history.hasMissingCheckOut) && (
+              <div className="notice warning-notice">
+                <strong>記録が不足しています</strong>
+                <span>
+                  {history.hasMissingCheckIn &&
+                    "対応する入室記録がありません。"}
+                  {history.hasMissingCheckOut &&
+                    "対応する退出記録がありません。"}
+                </span>
+              </div>
+            )}
+            <ol className="event-list">
+              {history.events.map((event) => (
+                <li key={event.eventId}>
+                  <span
+                    className="event-icon"
+                    data-type={event.eventType}
+                    aria-hidden="true"
+                  >
+                    {event.eventType === "check_in" ? (
+                      <LogIn aria-hidden="true" />
+                    ) : (
+                      <LogOut aria-hidden="true" />
+                    )}
+                  </span>
+                  <div className="event-main">
+                    <strong>
+                      {event.eventType === "check_in" ? "入室" : "退出"}
+                    </strong>
+                    <span>
+                      {event.method === "card" ? "カード認証" : "顔認証"}
+                    </span>
+                  </div>
+                  <time dateTime={event.authenticatedAt}>
+                    {formatTime(event.authenticatedAt)}
+                  </time>
+                  {event.pairingStatus !== "paired" && (
+                    <span className="missing-badge">対応記録なし</span>
+                  )}
+                </li>
+              ))}
+            </ol>
+            <div className="duration-card">
+              <span>参考滞在時間</span>
+              <strong>{formatDuration(history.stayDurationMinutes)}</strong>
+              <small>完成した入退室の組から算出した参考値です</small>
+            </div>
+          </>
+        )}
+      </aside>
+    </div>
   );
 }
