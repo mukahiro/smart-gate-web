@@ -1,3 +1,4 @@
+import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 
 type TemporaryPasswordDialogProps = {
@@ -42,6 +43,11 @@ export function TemporaryPasswordDialog({
             type="button"
             onClick={() => void copy()}
           >
+            {copied ? (
+              <Check aria-hidden="true" />
+            ) : (
+              <Copy aria-hidden="true" />
+            )}
             {copied ? "コピー済み" : "コピー"}
           </button>
         </div>

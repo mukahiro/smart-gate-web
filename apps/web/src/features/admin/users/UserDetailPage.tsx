@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import {
   getAdminUser,
@@ -156,7 +157,8 @@ export function UserDetailPage({
     return (
       <section className="admin-card admin-form-card">
         <button className="back-button" type="button" onClick={onBack}>
-          ← 利用者一覧
+          <ArrowLeft aria-hidden="true" />
+          利用者一覧
         </button>
         {error ? (
           <div className="notice error-notice" role="alert">
@@ -201,7 +203,8 @@ export function UserDetailPage({
         aria-labelledby="user-detail-title"
       >
         <button className="back-button" type="button" onClick={onBack}>
-          ← 利用者一覧
+          <ArrowLeft aria-hidden="true" />
+          利用者一覧
         </button>
         <div className="admin-page-heading detail-title-row">
           <div>

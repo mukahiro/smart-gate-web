@@ -125,6 +125,24 @@ p {
   font-weight: 750;
   cursor: pointer;
 }
+.primary-button svg,
+.secondary-button svg,
+.icon-button svg,
+.back-button svg,
+.user-menu button svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+.primary-button,
+.secondary-button,
+.back-button,
+.user-menu button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
 .primary-button {
   padding: 8px 16px;
   border: 1px solid var(--color-theme);
@@ -217,6 +235,11 @@ p {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.menu-chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted);
+}
 .avatar {
   display: grid;
   width: 34px;
@@ -240,6 +263,10 @@ p {
   box-shadow: 0 15px 35px rgb(0 0 0 / 14%);
 }
 .user-menu button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
   padding: 8px 16px;
   border: 0;
   border-radius: 8px;
@@ -292,11 +319,16 @@ p {
   gap: 8px;
 }
 .icon-button {
+  display: inline-grid;
+  place-items: center;
   width: 40px;
   padding: 0;
   border: 1px solid var(--color-border);
   background: #fff;
-  font-size: 1.5rem;
+}
+.icon-button svg {
+  width: 20px;
+  height: 20px;
 }
 .calendar-legend {
   display: flex;
@@ -493,8 +525,10 @@ p {
   border-radius: 9px;
   color: var(--color-theme-hover);
   background: var(--color-theme-soft);
-  font-size: 0.75rem;
-  font-weight: 800;
+}
+.event-icon svg {
+  width: 18px;
+  height: 18px;
 }
 .event-icon[data-type="check_out"] {
   color: #72532f;
@@ -584,6 +618,9 @@ p {
 }
 .admin-nav button {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   border: 0;
   border-radius: 8px;
@@ -592,6 +629,10 @@ p {
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
+}
+.admin-nav button svg {
+  width: 16px;
+  height: 16px;
 }
 .admin-nav button:hover {
   color: var(--color-theme);
@@ -767,7 +808,6 @@ p {
 }
 .text-button,
 .back-button {
-  display: inline-block;
   border: 0;
   color: var(--color-theme-hover);
   background: transparent;
@@ -782,6 +822,7 @@ p {
   text-decoration: underline;
 }
 .back-button {
+  justify-content: flex-start;
   margin: 0 0 16px;
   font-size: 0.7rem;
 }
@@ -1032,7 +1073,7 @@ p {
     grid-column: 3 / -1;
   }
 }
-@media (max-width: 740px) {
+@media (max-width: 800px) {
   .login-page {
     padding: 24px 16px 18px;
   }
@@ -1060,9 +1101,16 @@ p {
   }
   .admin-nav button {
     flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
     padding: 0 5px;
     font-size: 0.7rem;
     border-radius: 0;
+  }
+  .admin-nav button svg {
+    width: 14px;
+    height: 14px;
   }
   .admin-nav button[data-active]::after {
     right: 28px;

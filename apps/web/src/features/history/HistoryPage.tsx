@@ -1,3 +1,13 @@
+import {
+  CalendarDays,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  KeyRound,
+  LogOut,
+  ScrollText,
+  Users,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
   ApiError,
@@ -120,6 +130,7 @@ export function HistoryPage({
               data-active={screen.kind === "history" || undefined}
               onClick={showHistory}
             >
+              <CalendarDays aria-hidden="true" />
               自分の履歴
             </button>
             <button
@@ -127,6 +138,7 @@ export function HistoryPage({
               data-active={screen.kind.startsWith("admin-user") || undefined}
               onClick={() => navigate({ kind: "admin-users" })}
             >
+              <Users aria-hidden="true" />
               利用者管理
             </button>
             <button
@@ -134,6 +146,7 @@ export function HistoryPage({
               data-active={screen.kind === "admin-audit" || undefined}
               onClick={() => navigate({ kind: "admin-audit" })}
             >
+              <ScrollText aria-hidden="true" />
               監査ログ
             </button>
           </nav>
@@ -152,7 +165,7 @@ export function HistoryPage({
               <strong>{user.name}</strong>
               <small>{user.studentNumber}</small>
             </span>
-            <span aria-hidden="true">⌄</span>
+            <ChevronDown className="menu-chevron" aria-hidden="true" />
           </button>
           {menuOpen && (
             <div className="user-menu">
@@ -164,9 +177,11 @@ export function HistoryPage({
                   setMenuOpen(false);
                 }}
               >
+                <KeyRound aria-hidden="true" />
                 パスワード変更
               </button>
               <button type="button" onClick={() => void onLogout()}>
+                <LogOut aria-hidden="true" />
                 ログアウト
               </button>
             </div>
@@ -234,7 +249,7 @@ export function HistoryPage({
                     onClick={() => moveMonth(-1)}
                     aria-label="前月"
                   >
-                    ‹
+                    <ChevronLeft aria-hidden="true" />
                   </button>
                   <button
                     className="icon-button"
@@ -242,7 +257,7 @@ export function HistoryPage({
                     onClick={() => moveMonth(1)}
                     aria-label="翌月"
                   >
-                    ›
+                    <ChevronRight aria-hidden="true" />
                   </button>
                 </div>
               </div>

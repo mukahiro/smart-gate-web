@@ -1,3 +1,4 @@
+import { LogIn, LogOut, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApiError, type DailyHistory, getDailyHistory } from "../../api/client";
 import { formatDate, formatDuration } from "./calendar";
@@ -57,7 +58,7 @@ export function DailyDetail({
           onClick={onClose}
           aria-label="日別詳細を閉じる"
         >
-          ×
+          <X aria-hidden="true" />
         </button>
       </header>
 
@@ -92,7 +93,11 @@ export function DailyDetail({
                   data-type={event.eventType}
                   aria-hidden="true"
                 >
-                  {event.eventType === "check_in" ? "入" : "退"}
+                  {event.eventType === "check_in" ? (
+                    <LogIn aria-hidden="true" />
+                  ) : (
+                    <LogOut aria-hidden="true" />
+                  )}
                 </span>
                 <div className="event-main">
                   <strong>

@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { ApiError } from "../../../api/client";
 import { createAdminUser } from "../client";
@@ -79,7 +80,8 @@ export function CreateUserPage({
         aria-labelledby="create-user-title"
       >
         <button className="back-button" type="button" onClick={onBack}>
-          ← 利用者一覧
+          <ArrowLeft aria-hidden="true" />
+          利用者一覧
         </button>
         <div className="admin-page-heading">
           <div>
