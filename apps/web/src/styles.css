@@ -90,6 +90,13 @@ button {
 :root[data-theme="dark"] .temporary-password {
   background: #292f37;
 }
+:root[data-theme="dark"] .event-list li {
+  border-bottom-color: var(--color-border);
+}
+:root[data-theme="dark"] .event-icon[data-type="check_out"] {
+  color: #edc88e;
+  background: #4a3824;
+}
 :root[data-theme="dark"] .role-badge,
 :root[data-theme="dark"] .status-badge[data-state="inactive"] {
   color: #c7ced8;
