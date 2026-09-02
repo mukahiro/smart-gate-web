@@ -42,7 +42,9 @@ export function LoginPage({ initialMessage, onLogin }: LoginPageProps) {
           </h1>
         </header>
         <form className="login-form" onSubmit={submit}>
-          <span>メールアドレスやパスワードを忘れた場合は、管理者に問い合わせてください。</span>
+          <span>
+            メールアドレスやパスワードを忘れた場合は、管理者に問い合わせてください。
+          </span>
           <label>
             メールアドレス
             <input
