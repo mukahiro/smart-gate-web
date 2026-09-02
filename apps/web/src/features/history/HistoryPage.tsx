@@ -107,9 +107,11 @@ export function HistoryPage({
             showHistory();
           }}
         >
-          <span>
-            <strong>入退室記録</strong>
-          </span>
+          <img
+            className="header-logo"
+            src="/assets/images/smart-gate-logo.png"
+            alt="Smart Gate"
+          />
         </a>
         {user.role === "admin" && (
           <nav className="admin-nav" aria-label="管理者メニュー">

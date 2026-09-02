@@ -33,7 +33,13 @@ export function LoginPage({ initialMessage, onLogin }: LoginPageProps) {
     <main className="login-page">
       <section className="login-card" aria-labelledby="login-title">
         <header className="brand-block">
-          <h1 id="login-title">入退室記録</h1>
+          <h1 id="login-title">
+            <img
+              className="login-logo"
+              src="/assets/images/smart-gate-logo.png"
+              alt="Smart Gate"
+            />
+          </h1>
         </header>
         <form className="login-form" onSubmit={submit}>
           <label>

@@ -1,6 +1,6 @@
 :root {
   color: #202020;
-  background: #f6f6f6;
+  background: #fafafa;
   font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   font-synthesis: none;
@@ -65,8 +65,13 @@ p {
   margin-top: 0;
 }
 .login-card h1 {
-  margin: 0 0 28px;
-  font-size: 1.45rem;
+  margin: 0 0 30px;
+  line-height: 0;
+}
+.login-logo {
+  display: block;
+  width: min(100%, 270px);
+  height: auto;
 }
 .login-form {
   display: grid;
@@ -152,6 +157,11 @@ p {
   color: inherit;
   text-decoration: none;
 }
+.header-logo {
+  display: block;
+  width: 164px;
+  height: auto;
+}
 .app-brand > span:last-child,
 .user-button > span:nth-child(2) {
   display: grid;
@@ -233,10 +243,9 @@ p {
 .history-card,
 .detail-panel,
 .account-panel {
-  border: 1px solid #d8d8d8;
-  border-radius: 4px;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
   background: #fff;
-  box-shadow: none;
 }
 .history-card {
   grid-column: 1 / -1;
@@ -1037,6 +1046,9 @@ p {
   .user-button > span:nth-child(2),
   .app-brand small {
     display: none;
+  }
+  .header-logo {
+    width: 132px;
   }
   .content-shell {
     width: 100%;
