@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { attendanceEventInputSchema } from "./attendance-event";
+import { attendanceEventInputSchema } from "../../src/schemas/attendance-event";
 
 describe("attendanceEventInputSchema", () => {
   it("accepts a valid attendance event", () => {

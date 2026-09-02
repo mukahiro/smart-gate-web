@@ -1,51 +1,66 @@
 import { Hono } from "hono";
-import { validator } from "hono/validator";
 import { createBearerAuthMiddleware } from "../middleware/bearer-auth";
 import type { AttendanceEventRepository } from "../repositories/attendance-event-repository";
 import { attendanceEventInputSchema } from "../schemas/attendance-event";
-import { createAttendanceEventService } from "../services/attendance-event-service";
+import {
+  type AttendanceEventLogger,
+  createAttendanceEventService,
+} from "../services/attendance-event-service";
 
 type AttendanceEventsRouteOptions = {
   authToken?: string;
   attendanceEventRepository: AttendanceEventRepository;
+  attendanceEventLogger: AttendanceEventLogger;
 };
 
 export const createAttendanceEventsRoute = ({
   authToken,
   attendanceEventRepository,
+  attendanceEventLogger,
 }: AttendanceEventsRouteOptions) => {
   const route = new Hono();
   const attendanceEventService = createAttendanceEventService(
     attendanceEventRepository,
+    attendanceEventLogger,
   );
 
-  route.post(
-    "/",
-    createBearerAuthMiddleware(authToken),
-    validator("json", (value, c) => {
-      const result = attendanceEventInputSchema.safeParse(value);
+  route.post("/", createBearerAuthMiddleware(authToken), async (c) => {
+    let value: unknown;
 
-      if (!result.success) {
-        return c.json(
-          {
-            error: {
-              code: "VALIDATION_ERROR",
-              message: "入力内容に誤りがあります",
-              details: result.error.flatten(),
-            },
+    try {
+      value = await c.req.json();
+    } catch {
+      return c.json(
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "入力内容に誤りがあります",
+            details: {},
           },
-          400,
-        );
-      }
+        },
+        400,
+      );
+    }
 
-      return result.data;
-    }),
-    (c) => {
-      const result = attendanceEventService.record(c.req.valid("json"));
+    const result = attendanceEventInputSchema.safeParse(value);
 
-      return c.json(result.body, result.status);
-    },
-  );
+    if (!result.success) {
+      return c.json(
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "入力内容に誤りがあります",
+            details: result.error.flatten(),
+          },
+        },
+        400,
+      );
+    }
+
+    const recordResult = attendanceEventService.record(result.data);
+
+    return c.json(recordResult.body, recordResult.status);
+  });
 
   return route;
 };

@@ -1,13 +1,17 @@
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { createSqliteDatabase } from "../db/client";
-import type { AttendanceEventInput } from "../schemas/attendance-event";
-import { createDrizzleAttendanceEventRepository } from "./drizzle-attendance-event-repository";
+import { createSqliteDatabase } from "../../src/db/client";
+import { createDrizzleAttendanceEventRepository } from "../../src/repositories/drizzle-attendance-event-repository";
+import type { AttendanceEventInput } from "../../src/schemas/attendance-event";
 
 const createDatabasePath = () =>
   join(mkdtempSync(join(tmpdir(), "smart-gate-api-test-")), "test.sqlite3");
+const migrationsFolder = fileURLToPath(
+  new URL("../../drizzle", import.meta.url),
+);
 
 const attendanceEvent: AttendanceEventInput = {
   eventId: "event-001",
@@ -19,7 +23,9 @@ const attendanceEvent: AttendanceEventInput = {
 };
 
 const createAttendanceEventRepository = (databasePath: string) =>
-  createDrizzleAttendanceEventRepository(createSqliteDatabase(databasePath));
+  createDrizzleAttendanceEventRepository(
+    createSqliteDatabase(databasePath, { migrationsFolder }),
+  );
 
 describe("createDrizzleAttendanceEventRepository", () => {
   it("saves attendance events to SQLite", () => {

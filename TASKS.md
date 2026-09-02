@@ -19,12 +19,12 @@
 - [x] `eventId` による再送時の二重登録防止を実装する
 - [x] Drizzle ORM + SQLiteで入退室イベントを永続化する
 - [x] Drizzle migrationを導入する
-- [ ] `AUTH_APP_BEARER_TOKEN` 未設定時に起動失敗させる
-- [ ] APIエラー形式を共通化する
-- [ ] 入退室イベント保存時のログ出力方針を決める
-- [ ] deviceIdごとの受信制限や無効化方針を検討する
+- [x] `AUTH_APP_BEARER_TOKEN` 未設定時に起動失敗させる
+- [x] APIエラー形式を共通化する
+- [x] 入退室イベント保存時のログ出力方針を決める
+- [x] deviceIdごとの受信制限や無効化方針を検討する
 - [ ] 短時間重複判定を実装する
-- [ ] Python認証アプリ向けのAPI利用例をREADMEに追加する
+- [x] Python認証アプリ向けのAPI利用例をREADMEに追加する
 
 ## Phase 2: データモデル整備
 

@@ -4,6 +4,17 @@ import type {
 } from "../repositories/attendance-event-repository";
 import type { AttendanceEventInput } from "../schemas/attendance-event";
 
+export type AttendanceEventLogger = (entry: {
+  timestamp: string;
+  level: "info";
+  event: "attendance_event_saved";
+  eventId: string;
+  deviceId: string;
+  method: AttendanceEventInput["method"];
+  eventType: AttendanceEventInput["eventType"];
+  result: "recorded" | "duplicate";
+}) => void;
+
 export type AttendanceEventResponseBody = {
   eventId: string;
   status: "recorded" | "duplicate";
@@ -36,9 +47,23 @@ const toResponse = (
 
 export const createAttendanceEventService = (
   attendanceEventRepository: AttendanceEventRepository,
+  logger: AttendanceEventLogger,
 ) => ({
   record(event: AttendanceEventInput): RecordAttendanceEventResult {
     const receivedAt = new Date().toISOString();
-    return toResponse(attendanceEventRepository.save(event, receivedAt));
+    const result = attendanceEventRepository.save(event, receivedAt);
+
+    logger({
+      timestamp: receivedAt,
+      level: "info",
+      event: "attendance_event_saved",
+      eventId: event.eventId,
+      deviceId: event.deviceId,
+      method: event.method,
+      eventType: event.eventType,
+      result: result.kind === "created" ? "recorded" : "duplicate",
+    });
+
+    return toResponse(result);
   },
 });

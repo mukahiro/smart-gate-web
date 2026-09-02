@@ -1,10 +1,10 @@
-import { describe, expect, it } from "vitest";
-import { createApp } from "./app";
+import { describe, expect, it, vi } from "vitest";
+import { createApp } from "../src/app";
 import type {
   AttendanceEventRepository,
   StoredAttendanceEvent,
-} from "./repositories/attendance-event-repository";
-import type { AttendanceEventInput } from "./schemas/attendance-event";
+} from "../src/repositories/attendance-event-repository";
+import type { AttendanceEventInput } from "../src/schemas/attendance-event";
 
 const createInMemoryAttendanceEventRepository =
   (): AttendanceEventRepository => {
@@ -150,5 +150,109 @@ describe("app", () => {
     });
 
     expect(response.status).toBe(400);
+  });
+
+  it("returns a validation error for malformed JSON", async () => {
+    const response = await app.request("/api/v1/attendance-events", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...authorizationHeaders,
+      },
+      body: "{",
+    });
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: {
+        code: "VALIDATION_ERROR",
+      },
+    });
+  });
+
+  it("returns the common error format for unknown endpoints", async () => {
+    const response = await app.request("/api/v1/unknown");
+
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: "NOT_FOUND",
+        message: "エンドポイントが見つかりません",
+      },
+    });
+  });
+
+  it("returns the common error format for unexpected errors", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const failingApp = createApp({
+      authToken: "test-token",
+      attendanceEventRepository: {
+        save() {
+          throw new Error("database unavailable");
+        },
+      },
+    });
+    const response = await failingApp.request("/api/v1/attendance-events", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...authorizationHeaders,
+      },
+      body: JSON.stringify({
+        eventId: "event-error-001",
+        personId: "person-001",
+        deviceId: "device-001",
+        method: "card",
+        eventType: "check_in",
+        authenticatedAt: "2026-07-12T08:45:12+09:00",
+      }),
+    });
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "サーバー内部でエラーが発生しました",
+      },
+    });
+    expect(consoleError).toHaveBeenCalledOnce();
+    consoleError.mockRestore();
+  });
+
+  it("logs attendance event results without the person id", async () => {
+    const logger = vi.fn();
+    const loggingApp = createApp({
+      authToken: "test-token",
+      attendanceEventRepository: createInMemoryAttendanceEventRepository(),
+      attendanceEventLogger: logger,
+    });
+    const response = await loggingApp.request("/api/v1/attendance-events", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...authorizationHeaders,
+      },
+      body: JSON.stringify({
+        eventId: "event-log-001",
+        personId: "person-private-001",
+        deviceId: "device-001",
+        method: "card",
+        eventType: "check_in",
+        authenticatedAt: "2026-07-12T08:45:12+09:00",
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    expect(logger).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "attendance_event_saved",
+        eventId: "event-log-001",
+        deviceId: "device-001",
+        result: "recorded",
+      }),
+    );
+    expect(logger.mock.calls[0]?.[0]).not.toHaveProperty("personId");
   });
 });

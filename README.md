@@ -30,6 +30,7 @@ Python認証アプリ
 ├─ apps/
 │  ├─ api/                 # Hono + Node.js のバックエンドAPI
 │  │  ├─ drizzle/          # Drizzle Kitが生成するmigration
+│  │  ├─ tests/            # APIのテスト
 │  │  └─ src/
 │  │     ├─ db/            # DB接続、Drizzle schemaなどDB基盤
 │  │     ├─ middleware/    # Hono middleware
@@ -75,3 +76,33 @@ pnpm build
 npm exec pnpm@9.15.4 -- install
 npm exec pnpm@9.15.4 -- dev
 ```
+
+## Python認証アプリからのイベント送信
+
+現在の実装では、Python認証アプリからBearerトークン付きで `POST /api/v1/attendance-events` を呼び出す。
+
+```sh
+curl --request POST http://localhost:3000/api/v1/attendance-events \
+  --header 'Authorization: Bearer replace-with-a-long-random-token' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "eventId": "event-001",
+    "personId": "person-001",
+    "deviceId": "raspberry-pi-001",
+    "method": "card",
+    "eventType": "check_in",
+    "authenticatedAt": "2026-07-12T08:45:12+09:00"
+  }'
+```
+
+`eventId` は認証アプリ側で認証イベントごとに生成し、通信失敗後の再送でも同じ値を使用する。`201 Created` と `200 OK` はどちらも保存済みとして扱い、再送を終了する。接続失敗と `5xx` は再送対象とし、`400` と `401` は入力または設定を修正するまで自動再送しない。
+
+`personId` は現在の実装上のフィールドである。数字10桁の `studentNumber` へ変更し、未登録学籍番号も保存する目標仕様は `docs/endpoints.md` と `docs/web-authentication.md` を参照する。
+
+## 入退室イベントのログ
+
+APIは入退室イベントの保存結果を1行1JSONで標準出力へ記録する。ログには日時、イベントID、端末ID、認証方式、入退室種別、保存結果を含める。Bearerトークン、request body、`personId` は記録しない。運用時はsystemd/journaldで標準出力を収集する想定である。
+
+## 認証端末の扱い
+
+Phase 1では、イベント送信元を単一のRaspberry Piとし、Bearerトークンで保護する。`deviceId` は受信元の記録と調査に使用するが、端末ごとの許可・無効化は行わない。複数端末へ拡張するときに、端末ごとの認証情報と許可リストを導入する。
