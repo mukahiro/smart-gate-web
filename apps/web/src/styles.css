@@ -121,7 +121,7 @@ p {
 .secondary-button,
 .icon-button {
   min-height: 40px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-weight: 750;
   cursor: pointer;
 }
@@ -161,7 +161,7 @@ p {
 .secondary-button {
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border);
   background: #fff;
   font-size: 0.82rem;
 }
@@ -285,7 +285,7 @@ p {
   gap: 20px;
   width: min(calc(100% - 48px), 1240px);
   margin: 0 auto;
-  padding: 24px 0 48px;
+  padding: 24px 0 24px;
 }
 .history-card,
 .detail-panel,
@@ -391,7 +391,7 @@ p {
   position: relative;
   display: flex;
   min-width: 0;
-  min-height: 108px;
+  min-height: 100px;
   flex-direction: column;
   align-items: flex-start;
   gap: 14px;
@@ -759,11 +759,14 @@ p {
   background: var(--color-row-hover);
 }
 .user-table td:first-child {
-  display: grid;
-  gap: 4px;
   min-width: 210px;
 }
+.user-table td:first-child strong,
 .user-table td:first-child span {
+  display: block;
+}
+.user-table td:first-child span {
+  margin-top: 4px;
   color: var(--color-text-muted);
   font-size: 0.69rem;
 }
@@ -816,6 +819,13 @@ p {
   border-radius: 999px;
   border: 1px solid var(--color-theme);
   padding: 4px 12px;
+  white-space: nowrap;
+}
+.text-button {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.65rem;
 }
 .text-button:hover,
 .back-button:hover {
@@ -1005,16 +1015,27 @@ p {
   border-radius: 10px;
   overflow: hidden;
 }
-.audit-entry {
+.audit-entry,
+.audit-table-header {
   display: grid;
   grid-template-columns: 145px 140px minmax(150px, 1fr) minmax(150px, 1fr) minmax(
       130px,
       0.8fr
     );
   gap: 14px;
+}
+.audit-entry {
   align-items: center;
   padding: 16px;
   border-bottom: 1px solid var(--color-border);
+}
+.audit-table-header {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  background: var(--color-surface-muted);
+  font-size: 0.67rem;
+  font-weight: 700;
 }
 .audit-entry:last-child {
   border-bottom: 0;
@@ -1051,42 +1072,6 @@ p {
   padding-top: 22px;
 }
 
-@media (min-width: 901px) and (min-height: 740px) {
-  .application:has(.history-card:not(:has(+ .detail-panel))) {
-    display: flex;
-    height: 100dvh;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  .application:has(.history-card:not(:has(+ .detail-panel))) .app-header {
-    flex: 0 0 72px;
-  }
-  .application:has(.history-card:not(:has(+ .detail-panel))) .content-shell {
-    flex: 1;
-    min-height: 0;
-    padding: 16px 0 24px;
-  }
-  .history-card:not(:has(+ .detail-panel)) {
-    display: flex;
-    min-height: 0;
-    flex-direction: column;
-    padding-block: 20px;
-  }
-  .history-card:not(:has(+ .detail-panel)) .calendar-wrap {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-  }
-  .history-card:not(:has(+ .detail-panel)) .calendar-grid {
-    flex: 1;
-    grid-auto-rows: minmax(0, 1fr);
-  }
-  .history-card:not(:has(+ .detail-panel)) .calendar-day {
-    min-height: 0;
-    gap: clamp(5px, 1.2vh, 14px);
-  }
-}
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -1101,7 +1086,7 @@ p {
 
 @media (max-width: 900px) {
   .content-shell {
-    padding: 16px 0 48px;
+    padding: 16px 0 24px;
     grid-template-columns: 1fr;
   }
   .history-card:has(+ .detail-panel),
@@ -1117,11 +1102,19 @@ p {
     border-right: 0;
     border-bottom: 1px solid #e2e2e2;
   }
-  .audit-entry {
-    grid-template-columns: 125px 125px 1fr 1fr;
+  .audit-list {
+    overflow-x: auto;
   }
-  .changed-fields {
-    grid-column: 3 / -1;
+  .audit-entry {
+    min-width: 800px;
+    grid-template-columns: 145px 140px minmax(150px, 1fr) minmax(150px, 1fr) minmax(
+        130px,
+        0.8fr
+      );
+    gap: 14px;
+  }
+  .audit-table-header {
+    min-width: 800px;
   }
 }
 @media (max-width: 800px) {
@@ -1244,6 +1237,12 @@ p {
   .user-table td:nth-child(3) {
     display: none;
   }
+  .user-table td:last-child {
+    width: 1%;
+    padding-right: 8px;
+    padding-left: 6px;
+    white-space: nowrap;
+  }
   .action-row {
     align-items: flex-start;
   }
@@ -1253,17 +1252,6 @@ p {
   .temporary-password {
     align-items: stretch;
     flex-direction: column;
-  }
-  .audit-entry {
-    grid-template-columns: 1fr 1fr;
-    gap: 11px;
-  }
-  .audit-entry > time,
-  .audit-action {
-    grid-column: auto;
-  }
-  .changed-fields {
-    grid-column: 1 / -1;
   }
   .form-actions {
     flex-direction: column-reverse;

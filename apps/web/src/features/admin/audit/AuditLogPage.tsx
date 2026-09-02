@@ -134,6 +134,13 @@ export function AuditLogPage({
       )}
       {logs && logs.length > 0 && (
         <div className="audit-list">
+          <div className="audit-table-header" aria-hidden="true">
+            <span>日時</span>
+            <span>操作</span>
+            <span>操作した管理者</span>
+            <span>対象利用者</span>
+            <span>変更項目</span>
+          </div>
           {logs.map((log) => (
             <article className="audit-entry" key={log.id}>
               <time dateTime={log.occurredAt}>
@@ -141,21 +148,18 @@ export function AuditLogPage({
               </time>
               <span className="audit-action">{actionLabels[log.action]}</span>
               <div>
-                <span className="audit-label">操作した管理者</span>
                 <UserReference
                   user={usersById.get(log.actorUserId)}
                   userId={log.actorUserId}
                 />
               </div>
               <div>
-                <span className="audit-label">対象利用者</span>
                 <UserReference
                   user={usersById.get(log.targetUserId)}
                   userId={log.targetUserId}
                 />
               </div>
               <div className="changed-fields">
-                <span className="audit-label">変更項目</span>
                 <span>
                   {log.changedFields.length > 0
                     ? log.changedFields

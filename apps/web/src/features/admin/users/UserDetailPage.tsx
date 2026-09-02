@@ -286,7 +286,11 @@ export function UserDetailPage({
               </time>
             </div>
             <div className="form-actions">
-              <button className="secondary-button" type="button" onClick={onBack}>
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={onBack}
+              >
                 キャンセル
               </button>
               <button className="primary-button" type="submit" disabled={busy}>
