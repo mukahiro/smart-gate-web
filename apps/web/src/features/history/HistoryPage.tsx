@@ -50,6 +50,8 @@ export function HistoryPage({
   );
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
+  const [userListRefreshKey, setUserListRefreshKey] = useState(0);
   const [reloadCount, setReloadCount] = useState(0);
 
   const navigate = useCallback((nextScreen: AppScreen, replace = false) => {
@@ -105,6 +107,13 @@ export function HistoryPage({
   const moveMonth = (amount: number) => {
     setMonth((current) => shiftMonth(current, amount));
     setSelectedDate(null);
+  };
+
+  const closeCreateUserDialog = () => {
+    setCreateUserDialogOpen(false);
+    if (screen.kind === "admin-user-new") {
+      navigate({ kind: "admin-users" }, true);
+    }
   };
 
   return (
@@ -190,18 +199,13 @@ export function HistoryPage({
       </header>
 
       <main className="content-shell">
-        {screen.kind === "admin-users" ? (
+        {screen.kind === "admin-users" || screen.kind === "admin-user-new" ? (
           <UserListPage
-            onCreate={() => navigate({ kind: "admin-user-new" })}
+            key={userListRefreshKey}
+            onCreate={() => setCreateUserDialogOpen(true)}
             onSelect={(userId) =>
               navigate({ kind: "admin-user-detail", userId })
             }
-            onSessionExpired={onSessionExpired}
-            onPermissionDenied={showHistory}
-          />
-        ) : screen.kind === "admin-user-new" ? (
-          <CreateUserPage
-            onBack={() => navigate({ kind: "admin-users" })}
             onSessionExpired={onSessionExpired}
             onPermissionDenied={showHistory}
           />
@@ -311,6 +315,14 @@ export function HistoryPage({
           onCancel={() => setPasswordDialogOpen(false)}
           onSessionExpired={onSessionExpired}
           onChanged={onPasswordChanged}
+        />
+      )}
+      {(createUserDialogOpen || screen.kind === "admin-user-new") && (
+        <CreateUserPage
+          onBack={closeCreateUserDialog}
+          onCreated={() => setUserListRefreshKey((key) => key + 1)}
+          onSessionExpired={onSessionExpired}
+          onPermissionDenied={showHistory}
         />
       )}
     </div>

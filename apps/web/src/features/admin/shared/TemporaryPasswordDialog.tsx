@@ -3,6 +3,7 @@ import { useState } from "react";
 
 type TemporaryPasswordDialogProps = {
   password: string;
+  email?: string;
   title?: string;
   note?: string;
   onClose: () => void;
@@ -10,6 +11,7 @@ type TemporaryPasswordDialogProps = {
 
 export function TemporaryPasswordDialog({
   password,
+  email,
   title = "一時パスワードを発行しました",
   note,
   onClose,
@@ -36,6 +38,11 @@ export function TemporaryPasswordDialog({
         <h2 id="temporary-password-title">{title}</h2>
         <p>この画面を閉じると、同じ一時パスワードは再表示できません。</p>
         {note && <p className="dialog-note">{note}</p>}
+        {email && (
+          <p className="temporary-password-email">
+            メールアドレス: <strong>{email}</strong>
+          </p>
+        )}
         <div className="temporary-password">
           <code>{password}</code>
           <button

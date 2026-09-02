@@ -939,7 +939,7 @@ p {
   margin: 0;
   padding: 28px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 16px;
   background: #fff;
   box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
 }
@@ -952,6 +952,12 @@ p {
   overflow-y: auto;
   border-radius: 16px;
 }
+.create-user-dialog {
+  width: min(100%, 720px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  border-radius: 16px;
+}
 .password-dialog-header {
   display: flex;
   align-items: flex-start;
@@ -959,6 +965,15 @@ p {
   gap: 16px;
 }
 .password-dialog-header h2 {
+  margin-bottom: 12px;
+}
+.create-user-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.create-user-dialog-header h2 {
   margin-bottom: 12px;
 }
 .dialog-card > p {
@@ -987,6 +1002,9 @@ p {
   border: 1px solid var(--color-border);
   border-radius: 9px;
   background: var(--color-surface-muted);
+}
+.temporary-password-email {
+  overflow-wrap: anywhere;
 }
 .temporary-password code {
   min-width: 0;
