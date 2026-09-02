@@ -5,7 +5,7 @@ describe("attendanceEventInputSchema", () => {
   it("accepts a valid attendance event", () => {
     const result = attendanceEventInputSchema.safeParse({
       eventId: "event-001",
-      personId: "person-001",
+      studentNumber: "1234567890",
       deviceId: "device-001",
       method: "card",
       eventType: "check_in",
@@ -19,7 +19,7 @@ describe("attendanceEventInputSchema", () => {
   it("rejects invalid confidence", () => {
     const result = attendanceEventInputSchema.safeParse({
       eventId: "event-001",
-      personId: "person-001",
+      studentNumber: "1234567890",
       deviceId: "device-001",
       method: "face",
       eventType: "check_in",
@@ -33,7 +33,7 @@ describe("attendanceEventInputSchema", () => {
   it("requires confidence for face authentication", () => {
     const result = attendanceEventInputSchema.safeParse({
       eventId: "event-001",
-      personId: "person-001",
+      studentNumber: "1234567890",
       deviceId: "device-001",
       method: "face",
       eventType: "check_in",
@@ -42,4 +42,20 @@ describe("attendanceEventInputSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it.each(["123456789", "12345678901", "12-3456-789-0", "abcdefghij"])(
+    "rejects a non-canonical student number (%s)",
+    (studentNumber) => {
+      const result = attendanceEventInputSchema.safeParse({
+        eventId: "event-001",
+        studentNumber,
+        deviceId: "device-001",
+        method: "card",
+        eventType: "check_in",
+        authenticatedAt: "2026-07-12T08:45:12+09:00",
+      });
+
+      expect(result.success).toBe(false);
+    },
+  );
 });

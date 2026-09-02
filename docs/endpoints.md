@@ -79,7 +79,7 @@ Status: `200 OK`
 
 同一 `eventId` の再送は二重登録せず、既存イベントとして扱う。
 
-**実装状態:** 一部実装済み。現在のコードは `personId` を受け取る。以下は、`personId` を数字10桁の `studentNumber` へ変更し、未登録学籍番号も保存するための目標仕様である。
+**実装状態:** 実装済み。
 
 <details>
 <summary>詳細</summary>

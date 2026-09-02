@@ -21,6 +21,7 @@ export const createSqliteDatabase = (
   mkdirSync(dirname(resolvedDatabasePath), { recursive: true });
 
   const sqlite = new Database(resolvedDatabasePath, { timeout: 5000 });
+  sqlite.pragma("foreign_keys = ON");
   const db = drizzle(sqlite);
 
   migrate(db, { migrationsFolder: resolve(migrationsFolder) });

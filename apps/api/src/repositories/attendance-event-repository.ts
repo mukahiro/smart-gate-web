@@ -1,6 +1,8 @@
 import type { AttendanceEventInput } from "../schemas/attendance-event";
 
 export type StoredAttendanceEvent = AttendanceEventInput & {
+  userId: string | null;
+  lcdDisplayName: string | null;
   receivedAt: string;
 };
 

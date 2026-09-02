@@ -6,7 +6,7 @@ export const attendanceEventTypeSchema = z.enum(["check_in", "check_out"]);
 export const attendanceEventInputSchema = z
   .object({
     eventId: z.string().min(1),
-    personId: z.string().min(1),
+    studentNumber: z.string().regex(/^[0-9]{10}$/),
     deviceId: z.string().min(1),
     method: attendanceMethodSchema,
     eventType: attendanceEventTypeSchema,

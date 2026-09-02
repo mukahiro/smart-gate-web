@@ -9,10 +9,16 @@
     "start": "node dist/index.js",
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
-    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "user:create": "tsx scripts/manage-user.ts create",
+    "user:reset-password": "tsx scripts/manage-user.ts reset-password",
+    "user:enable": "tsx scripts/manage-user.ts enable",
+    "user:disable": "tsx scripts/manage-user.ts disable",
+    "user:unlock": "tsx scripts/manage-user.ts unlock"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
+    "argon2": "^0.45.1",
     "better-sqlite3": "^12.11.1",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.6.16",

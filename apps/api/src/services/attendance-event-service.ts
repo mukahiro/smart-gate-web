@@ -18,11 +18,11 @@ export type AttendanceEventLogger = (entry: {
 export type AttendanceEventResponseBody = {
   eventId: string;
   status: "recorded" | "duplicate";
-  resultCode: "RECORDED" | "DUPLICATE_EVENT";
+  resultCode: "RECORDED" | "RECORDED_UNMATCHED" | "DUPLICATE_EVENT";
   eventType: AttendanceEventInput["eventType"];
   recordedAt: string;
   receivedAt: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
 };
 
 export type RecordAttendanceEventResult = {
@@ -32,18 +32,27 @@ export type RecordAttendanceEventResult = {
 
 const toResponse = (
   result: SaveAttendanceEventResult,
-): RecordAttendanceEventResult => ({
-  status: result.kind === "created" ? 201 : 200,
-  body: {
-    eventId: result.event.eventId,
-    status: result.kind === "created" ? "recorded" : "duplicate",
-    resultCode: result.kind === "created" ? "RECORDED" : "DUPLICATE_EVENT",
-    eventType: result.event.eventType,
-    recordedAt: result.event.authenticatedAt,
-    receivedAt: result.event.receivedAt,
-    lcdDisplayName: result.event.personId,
-  },
-});
+): RecordAttendanceEventResult => {
+  const isDuplicate = result.kind === "duplicate";
+  const resultCode = isDuplicate
+    ? "DUPLICATE_EVENT"
+    : result.event.userId === null
+      ? "RECORDED_UNMATCHED"
+      : "RECORDED";
+
+  return {
+    status: isDuplicate ? 200 : 201,
+    body: {
+      eventId: result.event.eventId,
+      status: isDuplicate ? "duplicate" : "recorded",
+      resultCode,
+      eventType: result.event.eventType,
+      recordedAt: result.event.authenticatedAt,
+      receivedAt: result.event.receivedAt,
+      lcdDisplayName: result.event.lcdDisplayName,
+    },
+  };
+};
 
 export const createAttendanceEventService = (
   attendanceEventRepository: AttendanceEventRepository,

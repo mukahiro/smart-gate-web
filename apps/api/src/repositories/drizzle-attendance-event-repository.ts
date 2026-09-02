@@ -1,16 +1,20 @@
 import { eq } from "drizzle-orm";
 import type { SqliteDatabase } from "../db/client";
-import { attendanceEvents } from "../db/schema";
+import { attendanceEvents, users } from "../db/schema";
 import type {
   AttendanceEventRepository,
   StoredAttendanceEvent,
 } from "./attendance-event-repository";
 
-type AttendanceEventRow = typeof attendanceEvents.$inferSelect;
+type AttendanceEventRow = typeof attendanceEvents.$inferSelect & {
+  lcdDisplayName: string | null;
+};
 
 const rowToStoredEvent = (row: AttendanceEventRow): StoredAttendanceEvent => ({
   eventId: row.eventId,
-  personId: row.personId,
+  studentNumber: row.studentNumberSnapshot,
+  userId: row.userId,
+  lcdDisplayName: row.lcdDisplayName,
   deviceId: row.deviceId,
   method: row.method,
   eventType: row.eventType,
@@ -23,33 +27,53 @@ export const createDrizzleAttendanceEventRepository = (
   db: SqliteDatabase,
 ): AttendanceEventRepository => ({
   save(event, receivedAt) {
-    const insertResult = db
-      .insert(attendanceEvents)
-      .values({
-        eventId: event.eventId,
-        personId: event.personId,
-        deviceId: event.deviceId,
-        method: event.method,
-        eventType: event.eventType,
-        authenticatedAt: event.authenticatedAt,
-        receivedAt,
-        confidence: event.confidence ?? null,
-      })
-      .onConflictDoNothing()
-      .run();
-    const row = db
-      .select()
-      .from(attendanceEvents)
-      .where(eq(attendanceEvents.eventId, event.eventId))
-      .get();
+    return db.transaction((tx) => {
+      const user = tx
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.studentNumber, event.studentNumber))
+        .get();
+      const insertResult = tx
+        .insert(attendanceEvents)
+        .values({
+          eventId: event.eventId,
+          studentNumberSnapshot: event.studentNumber,
+          userId: user?.id ?? null,
+          deviceId: event.deviceId,
+          method: event.method,
+          eventType: event.eventType,
+          authenticatedAt: event.authenticatedAt,
+          receivedAt,
+          confidence: event.confidence ?? null,
+        })
+        .onConflictDoNothing()
+        .run();
+      const row = tx
+        .select({
+          eventId: attendanceEvents.eventId,
+          studentNumberSnapshot: attendanceEvents.studentNumberSnapshot,
+          userId: attendanceEvents.userId,
+          deviceId: attendanceEvents.deviceId,
+          method: attendanceEvents.method,
+          eventType: attendanceEvents.eventType,
+          authenticatedAt: attendanceEvents.authenticatedAt,
+          receivedAt: attendanceEvents.receivedAt,
+          confidence: attendanceEvents.confidence,
+          lcdDisplayName: users.lcdDisplayName,
+        })
+        .from(attendanceEvents)
+        .leftJoin(users, eq(attendanceEvents.userId, users.id))
+        .where(eq(attendanceEvents.eventId, event.eventId))
+        .get();
 
-    if (!row) {
-      throw new Error(`Failed to load attendance event: ${event.eventId}`);
-    }
+      if (!row) {
+        throw new Error(`Failed to load attendance event: ${event.eventId}`);
+      }
 
-    return {
-      kind: insertResult.changes === 1 ? "created" : "duplicate",
-      event: rowToStoredEvent(row),
-    };
+      return {
+        kind: insertResult.changes === 1 ? "created" : "duplicate",
+        event: rowToStoredEvent(row),
+      };
+    });
   },
 });

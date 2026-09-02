@@ -30,6 +30,7 @@ Python認証アプリ
 ├─ apps/
 │  ├─ api/                 # Hono + Node.js のバックエンドAPI
 │  │  ├─ drizzle/          # Drizzle Kitが生成するmigration
+│  │  ├─ scripts/          # 保守者向けCLI
 │  │  ├─ tests/            # APIのテスト
 │  │  └─ src/
 │  │     ├─ db/            # DB接続、Drizzle schemaなどDB基盤
@@ -79,7 +80,7 @@ npm exec pnpm@9.15.4 -- dev
 
 ## Python認証アプリからのイベント送信
 
-現在の実装では、Python認証アプリからBearerトークン付きで `POST /api/v1/attendance-events` を呼び出す。
+Python認証アプリからBearerトークン付きで `POST /api/v1/attendance-events` を呼び出す。
 
 ```sh
 curl --request POST http://localhost:3000/api/v1/attendance-events \
@@ -87,7 +88,7 @@ curl --request POST http://localhost:3000/api/v1/attendance-events \
   --header 'Content-Type: application/json' \
   --data '{
     "eventId": "event-001",
-    "personId": "person-001",
+    "studentNumber": "1234567890",
     "deviceId": "raspberry-pi-001",
     "method": "card",
     "eventType": "check_in",
@@ -97,12 +98,41 @@ curl --request POST http://localhost:3000/api/v1/attendance-events \
 
 `eventId` は認証アプリ側で認証イベントごとに生成し、通信失敗後の再送でも同じ値を使用する。`201 Created` と `200 OK` はどちらも保存済みとして扱い、再送を終了する。接続失敗と `5xx` は再送対象とし、`400` と `401` は入力または設定を修正するまで自動再送しない。
 
-`personId` は現在の実装上のフィールドである。数字10桁の `studentNumber` へ変更し、未登録学籍番号も保存する目標仕様は `docs/endpoints.md` と `docs/web-authentication.md` を参照する。
+`studentNumber` はハイフンなしの数字10桁を指定する。利用者が未登録でもイベントは保存され、レスポンスの `resultCode` は `RECORDED_UNMATCHED` になる。利用者登録後、同じ学籍番号の未照合イベントは自動的にその利用者へ紐付く。
 
 ## 入退室イベントのログ
 
-APIは入退室イベントの保存結果を1行1JSONで標準出力へ記録する。ログには日時、イベントID、端末ID、認証方式、入退室種別、保存結果を含める。Bearerトークン、request body、`personId` は記録しない。運用時はsystemd/journaldで標準出力を収集する想定である。
+APIは入退室イベントの保存結果を1行1JSONで標準出力へ記録する。ログには日時、イベントID、端末ID、認証方式、入退室種別、保存結果を含める。Bearerトークン、request body、学籍番号は記録しない。運用時はsystemd/journaldで標準出力を収集する想定である。
 
 ## 認証端末の扱い
 
 Phase 1では、イベント送信元を単一のRaspberry Piとし、Bearerトークンで保護する。`deviceId` は受信元の記録と調査に使用するが、端末ごとの許可・無効化は行わない。複数端末へ拡張するときに、端末ごとの認証情報と許可リストを導入する。
+
+## 利用者の保守
+
+利用者登録とパスワードなどの保守はAPIパッケージの対話式CLIで行う。パスワードは端末へ表示されず、コマンドライン引数にも残らない。
+
+```sh
+pnpm --filter @smart-gate/api user:create
+pnpm --filter @smart-gate/api user:reset-password
+pnpm --filter @smart-gate/api user:enable
+pnpm --filter @smart-gate/api user:disable
+pnpm --filter @smart-gate/api user:unlock
+```
+
+`user:create` は `12-3456-789-0` と `1234567890` の両形式を受け付け、DBにはハイフンなしの数字10桁を保存する。利用者作成と未照合イベントの紐付けは同一トランザクションで行う。パスワード再設定と利用者無効化では、その利用者の全セッションを削除する。
+
+## migration運用
+
+Drizzle schemaを変更したら、APIパッケージを作業ディレクトリとしてmigrationを生成する。
+
+```sh
+cd apps/api
+pnpm exec drizzle-kit generate --config drizzle.config.ts
+```
+
+- 生成されたSQLとsnapshotをレビューする
+- 適用済みmigrationは書き換えず、新しいmigrationを追加する
+- migrationは空DBと現行migration適用済みDBの両方でテストする
+- 既存データを削除・変換するmigrationは、バックアップ手順を決めてから実環境へ適用する
+- API起動時に未適用migrationが自動適用されるため、実運用では起動前にSQLiteをバックアップする

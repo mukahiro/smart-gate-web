@@ -23,6 +23,8 @@ const createInMemoryAttendanceEventRepository =
 
         const storedEvent = {
           ...event,
+          userId: null,
+          lcdDisplayName: null,
           receivedAt,
         };
 
@@ -62,7 +64,7 @@ describe("app", () => {
       },
       body: JSON.stringify({
         eventId: "event-001",
-        personId: "person-001",
+        studentNumber: "1234567890",
         deviceId: "device-001",
         method: "card",
         eventType: "check_in",
@@ -74,17 +76,17 @@ describe("app", () => {
     await expect(response.json()).resolves.toMatchObject({
       eventId: "event-001",
       status: "recorded",
-      resultCode: "RECORDED",
+      resultCode: "RECORDED_UNMATCHED",
       eventType: "check_in",
       recordedAt: "2026-07-12T08:45:12+09:00",
-      lcdDisplayName: "person-001",
+      lcdDisplayName: null,
     });
   });
 
   it("returns duplicate for a resent event id", async () => {
     const event = {
       eventId: "event-duplicate-001",
-      personId: "person-001",
+      studentNumber: "1234567890",
       deviceId: "device-001",
       method: "card",
       eventType: "check_in",
@@ -125,7 +127,7 @@ describe("app", () => {
       },
       body: JSON.stringify({
         eventId: "event-unauthorized-001",
-        personId: "person-001",
+        studentNumber: "1234567890",
         deviceId: "device-001",
         method: "card",
         eventType: "check_in",
@@ -202,7 +204,7 @@ describe("app", () => {
       },
       body: JSON.stringify({
         eventId: "event-error-001",
-        personId: "person-001",
+        studentNumber: "1234567890",
         deviceId: "device-001",
         method: "card",
         eventType: "check_in",
@@ -221,7 +223,7 @@ describe("app", () => {
     consoleError.mockRestore();
   });
 
-  it("logs attendance event results without the person id", async () => {
+  it("logs attendance event results without the student number", async () => {
     const logger = vi.fn();
     const loggingApp = createApp({
       authToken: "test-token",
@@ -236,7 +238,7 @@ describe("app", () => {
       },
       body: JSON.stringify({
         eventId: "event-log-001",
-        personId: "person-private-001",
+        studentNumber: "1234567890",
         deviceId: "device-001",
         method: "card",
         eventType: "check_in",
@@ -253,6 +255,6 @@ describe("app", () => {
         result: "recorded",
       }),
     );
-    expect(logger.mock.calls[0]?.[0]).not.toHaveProperty("personId");
+    expect(logger.mock.calls[0]?.[0]).not.toHaveProperty("studentNumber");
   });
 });
