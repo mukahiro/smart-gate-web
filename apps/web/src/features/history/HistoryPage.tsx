@@ -199,7 +199,9 @@ export function HistoryPage({
       </header>
 
       <main className="content-shell">
-        {screen.kind === "admin-users" || screen.kind === "admin-user-new" ? (
+        {screen.kind === "admin-users" ||
+        screen.kind === "admin-user-new" ||
+        screen.kind === "admin-user-detail" ? (
           <UserListPage
             key={userListRefreshKey}
             onCreate={() => setCreateUserDialogOpen(true)}
@@ -208,15 +210,6 @@ export function HistoryPage({
             }
             onSessionExpired={onSessionExpired}
             onPermissionDenied={showHistory}
-          />
-        ) : screen.kind === "admin-user-detail" ? (
-          <UserDetailPage
-            userId={screen.userId}
-            currentUserId={user.id}
-            onBack={() => navigate({ kind: "admin-users" })}
-            onSessionExpired={onSessionExpired}
-            onPermissionDenied={showHistory}
-            onSelfSessionsRevoked={onSelfSessionsRevoked}
           />
         ) : screen.kind === "admin-audit" ? (
           <AuditLogPage
@@ -323,6 +316,19 @@ export function HistoryPage({
           onCreated={() => setUserListRefreshKey((key) => key + 1)}
           onSessionExpired={onSessionExpired}
           onPermissionDenied={showHistory}
+        />
+      )}
+      {screen.kind === "admin-user-detail" && (
+        <UserDetailPage
+          userId={screen.userId}
+          currentUserId={user.id}
+          onBack={() => {
+            setUserListRefreshKey((key) => key + 1);
+            navigate({ kind: "admin-users" }, true);
+          }}
+          onSessionExpired={onSessionExpired}
+          onPermissionDenied={showHistory}
+          onSelfSessionsRevoked={onSelfSessionsRevoked}
         />
       )}
     </div>

@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { X } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import {
   getAdminUser,
@@ -155,15 +155,17 @@ export function UserDetailPage({
 
   if (!user) {
     return (
-      <section className="admin-card admin-form-card">
-        {error ? (
-          <div className="notice error-notice" role="alert">
-            {error}
-          </div>
-        ) : (
-          <div className="admin-loading">利用者を読み込んでいます…</div>
-        )}
-      </section>
+      <div className="dialog-backdrop" role="presentation">
+        <dialog open className="dialog-card user-detail-dialog">
+          {error ? (
+            <div className="notice error-notice" role="alert">
+              {error}
+            </div>
+          ) : (
+            <div className="admin-loading">利用者を読み込んでいます…</div>
+          )}
+        </dialog>
+      </div>
     );
   }
 
@@ -194,183 +196,210 @@ export function UserDetailPage({
 
   return (
     <>
-      <section
-        className="admin-card admin-detail-card"
-        aria-labelledby="user-detail-title"
-      >
-        <div className="admin-page-heading detail-title-row">
-          <div>
-            <h1 id="user-detail-title">{user.name}</h1>
-            <div className="title-badges">
-              <span className="role-badge" data-role={user.role}>
-                {user.role === "admin" ? "管理者" : "一般利用者"}
-              </span>
-              <span
-                className="status-badge"
-                data-state={user.isActive ? "active" : "inactive"}
-              >
-                {user.isActive ? "有効" : "無効"}
-              </span>
-              {locked && (
-                <span className="status-badge" data-state="locked">
-                  ロック中
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {error && (
-          <div className="notice error-notice" role="alert">
-            {error}
-          </div>
-        )}
-        {success && (
-          <output className="notice success-notice">{success}</output>
-        )}
-
-        <div className="admin-detail-grid">
-          <form className="admin-form detail-form" onSubmit={save}>
-            <h2>基本情報</h2>
-            <label>
-              学籍番号
-              <input readOnly value={formatStudentNumber(user.studentNumber)} />
-              <small>学籍番号は管理者画面から変更できません</small>
-            </label>
-            <label>
-              役割
-              <input
-                readOnly
-                value={user.role === "admin" ? "管理者" : "一般利用者"}
-              />
-              <small>役割の変更は保守者向けCLIで行います</small>
-            </label>
-            <label>
-              氏名
-              <input
-                required
-                maxLength={100}
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
-            </label>
-            <label>
-              LCD表示名
-              <input
-                required
-                maxLength={20}
-                value={lcdDisplayName}
-                onChange={(event) => setLcdDisplayName(event.target.value)}
-              />
-            </label>
-            <label>
-              メールアドレス
-              <input
-                required
-                type="email"
-                maxLength={254}
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </label>
-            <div className="metadata-row">
-              <span>作成日時</span>
-              <time dateTime={user.createdAt}>
-                {formatAdminDateTime(user.createdAt)}
-              </time>
-            </div>
-            <div className="metadata-row">
-              <span>更新日時</span>
-              <time dateTime={user.updatedAt}>
-                {formatAdminDateTime(user.updatedAt)}
-              </time>
-            </div>
-            <div className="form-actions">
+      <div className="dialog-backdrop" role="presentation">
+        <dialog
+          open
+          className="dialog-card user-detail-dialog"
+          aria-labelledby="user-detail-title"
+          aria-modal="true"
+        >
+          <section className="admin-card admin-detail-card">
+            <div className="admin-page-heading detail-title-row">
+              <div>
+                <h1 id="user-detail-title">{user.name}</h1>
+                <div className="title-badges">
+                  <span className="role-badge" data-role={user.role}>
+                    {user.role === "admin" ? "管理者" : "一般利用者"}
+                  </span>
+                  <span
+                    className="status-badge"
+                    data-state={user.isActive ? "active" : "inactive"}
+                  >
+                    {user.isActive ? "有効" : "無効"}
+                  </span>
+                  {locked && (
+                    <span className="status-badge" data-state="locked">
+                      ロック中
+                    </span>
+                  )}
+                </div>
+              </div>
               <button
-                className="secondary-button"
+                className="icon-button close-button"
                 type="button"
                 onClick={onBack}
+                aria-label="利用者詳細を閉じる"
               >
-                キャンセル
-              </button>
-              <button className="primary-button" type="submit" disabled={busy}>
-                基本情報を保存
+                <X aria-hidden="true" />
               </button>
             </div>
-          </form>
 
-          <div className="account-actions">
-            <h2>アカウント操作</h2>
-            <div className="action-row">
-              <div>
-                <strong>
-                  {user.isActive ? "利用者を無効化" : "利用者を有効化"}
-                </strong>
-                <span>
-                  {user.isActive
-                    ? "ログインを禁止し、全セッションを失効します。"
-                    : "再びログインできる状態にします。"}
-                </span>
+            {error && (
+              <div className="notice error-notice" role="alert">
+                {error}
               </div>
-              <button
-                className={
-                  user.isActive ? "danger-outline-button" : "secondary-button"
-                }
-                type="button"
-                disabled={busy || self}
-                title={self ? "自分自身は無効化できません" : undefined}
-                onClick={() =>
-                  user.isActive ? setConfirmAction("disable") : setActive(true)
-                }
-              >
-                {user.isActive ? "無効化" : "有効化"}
-              </button>
-            </div>
-            <div className="action-row">
-              <div>
-                <strong>ログインロックを解除</strong>
-                <span>失敗回数とロック期限をリセットします。</span>
+            )}
+            {success && (
+              <output className="notice success-notice">{success}</output>
+            )}
+
+            <div className="admin-detail-grid">
+              <form className="admin-form detail-form" onSubmit={save}>
+                <h2>基本情報</h2>
+                <label>
+                  学籍番号
+                  <input
+                    readOnly
+                    value={formatStudentNumber(user.studentNumber)}
+                  />
+                  <small>学籍番号は管理者画面から変更できません</small>
+                </label>
+                <label>
+                  役割
+                  <input
+                    readOnly
+                    value={user.role === "admin" ? "管理者" : "一般利用者"}
+                  />
+                  <small>役割の変更は保守者向けCLIで行います</small>
+                </label>
+                <label>
+                  氏名
+                  <input
+                    required
+                    maxLength={100}
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                  />
+                </label>
+                <label>
+                  LCD表示名
+                  <input
+                    required
+                    maxLength={20}
+                    value={lcdDisplayName}
+                    onChange={(event) => setLcdDisplayName(event.target.value)}
+                  />
+                </label>
+                <label>
+                  メールアドレス
+                  <input
+                    required
+                    type="email"
+                    maxLength={254}
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                  />
+                </label>
+                <div className="metadata-row">
+                  <span>作成日時</span>
+                  <time dateTime={user.createdAt}>
+                    {formatAdminDateTime(user.createdAt)}
+                  </time>
+                </div>
+                <div className="metadata-row">
+                  <span>更新日時</span>
+                  <time dateTime={user.updatedAt}>
+                    {formatAdminDateTime(user.updatedAt)}
+                  </time>
+                </div>
+                <div className="form-actions">
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    onClick={onBack}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    className="primary-button"
+                    type="submit"
+                    disabled={busy}
+                  >
+                    基本情報を保存
+                  </button>
+                </div>
+              </form>
+
+              <div className="account-actions">
+                <h2>アカウント操作</h2>
+                <div className="action-row">
+                  <div>
+                    <strong>
+                      {user.isActive ? "利用者を無効化" : "利用者を有効化"}
+                    </strong>
+                    <span>
+                      {user.isActive
+                        ? "ログインを禁止し、全セッションを失効します。"
+                        : "再びログインできる状態にします。"}
+                    </span>
+                  </div>
+                  <button
+                    className={
+                      user.isActive
+                        ? "danger-outline-button"
+                        : "secondary-button"
+                    }
+                    type="button"
+                    disabled={busy || self}
+                    title={self ? "自分自身は無効化できません" : undefined}
+                    onClick={() =>
+                      user.isActive
+                        ? setConfirmAction("disable")
+                        : setActive(true)
+                    }
+                  >
+                    {user.isActive ? "無効化" : "有効化"}
+                  </button>
+                </div>
+                <div className="action-row">
+                  <div>
+                    <strong>ログインロックを解除</strong>
+                    <span>失敗回数とロック期限をリセットします。</span>
+                  </div>
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    disabled={busy || !locked}
+                    onClick={unlock}
+                  >
+                    ロック解除
+                  </button>
+                </div>
+                <div className="action-row">
+                  <div>
+                    <strong>全セッションを失効</strong>
+                    <span>すべての端末からログアウトさせます。</span>
+                  </div>
+                  <button
+                    className="danger-outline-button"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setConfirmAction("revoke")}
+                  >
+                    失効
+                  </button>
+                </div>
+                <div className="action-row">
+                  <div>
+                    <strong>一時パスワードを再発行</strong>
+                    <span>
+                      現在のパスワードと全セッションが無効になります。
+                    </span>
+                  </div>
+                  <button
+                    className="danger-outline-button"
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setConfirmAction("reset")}
+                  >
+                    再発行
+                  </button>
+                </div>
               </div>
-              <button
-                className="secondary-button"
-                type="button"
-                disabled={busy || !locked}
-                onClick={unlock}
-              >
-                ロック解除
-              </button>
             </div>
-            <div className="action-row">
-              <div>
-                <strong>全セッションを失効</strong>
-                <span>すべての端末からログアウトさせます。</span>
-              </div>
-              <button
-                className="danger-outline-button"
-                type="button"
-                disabled={busy}
-                onClick={() => setConfirmAction("revoke")}
-              >
-                失効
-              </button>
-            </div>
-            <div className="action-row">
-              <div>
-                <strong>一時パスワードを再発行</strong>
-                <span>現在のパスワードと全セッションが無効になります。</span>
-              </div>
-              <button
-                className="danger-outline-button"
-                type="button"
-                disabled={busy}
-                onClick={() => setConfirmAction("reset")}
-              >
-                再発行
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        </dialog>
+      </div>
       {confirm && (
         <ConfirmDialog
           title={confirm.title}

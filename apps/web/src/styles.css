@@ -958,6 +958,17 @@ p {
   overflow-y: auto;
   border-radius: 16px;
 }
+.user-detail-dialog {
+  width: min(100%, 980px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  border-radius: 16px;
+}
+.user-detail-dialog .admin-card {
+  padding: 0;
+  box-shadow: none;
+  background: transparent;
+}
 .password-dialog-header {
   display: flex;
   align-items: flex-start;
