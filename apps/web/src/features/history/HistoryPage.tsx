@@ -3,12 +3,14 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Info,
   KeyRound,
   LogOut,
   Moon,
   ScrollText,
   Sun,
   Users,
+  X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -83,6 +85,7 @@ export function HistoryPage({
   );
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
   const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
   const [userListRefreshKey, setUserListRefreshKey] = useState(0);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
@@ -245,6 +248,16 @@ export function HistoryPage({
               >
                 <KeyRound aria-hidden="true" />
                 パスワード変更
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCreditsDialogOpen(true);
+                  setMenuOpen(false);
+                }}
+              >
+                <Info aria-hidden="true" />
+                クレジット
               </button>
               <button type="button" onClick={() => void onLogout()}>
                 <LogOut aria-hidden="true" />
@@ -412,6 +425,73 @@ export function HistoryPage({
           onSessionExpired={onSessionExpired}
           onChanged={onPasswordChanged}
         />
+      )}
+      {creditsDialogOpen && (
+        <div className="dialog-backdrop" role="presentation">
+          <dialog
+            open
+            className="dialog-card credits-dialog"
+            aria-labelledby="credits-title"
+            aria-modal="true"
+          >
+            <header className="dialog-header">
+              <h2 id="credits-title">クレジット</h2>
+              <button
+                className="icon-button close-button"
+                type="button"
+                aria-label="閉じる"
+                onClick={() => setCreditsDialogOpen(false)}
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+            <dl className="credit-details">
+              <div>
+                <dt>Repository</dt>
+                <dd>
+                  <a
+                    href="https://github.com/mukahiro/smart-gate-web"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    mukahiro/smart-gate-web
+                  </a>
+                  <a
+                    href="https://github.com/mukahiro/smart-gate-auth"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    mukahiro/smart-gate-auth
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt>Developer</dt>
+                <dd>
+                  <ul className="credit-developers">
+                    {[
+                      "mukahiro",
+                      "f081vgw",
+                      "rin631",
+                      "kai-14144",
+                      "kawamura213",
+                    ].map((developer) => (
+                      <li key={developer}>
+                        <a
+                          href={`https://github.com/${developer}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {developer}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            </dl>
+          </dialog>
+        </div>
       )}
       {monthPickerOpen && (
         <div className="dialog-backdrop" role="presentation">

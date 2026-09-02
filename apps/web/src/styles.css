@@ -1236,6 +1236,43 @@ p {
 .month-picker-dialog {
   width: min(100%, 360px);
 }
+.credits-dialog {
+  width: min(100%, 520px);
+}
+.credit-details {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+.credit-details div {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.credit-details dt {
+  padding-top: 2px;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+.credit-details dd {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  font-size: 0.85rem;
+}
+.credit-details a {
+  overflow-wrap: anywhere;
+  color: var(--color-theme-hover);
+}
+.credit-developers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 .month-picker-form,
 .month-picker-form label {
   display: grid;
