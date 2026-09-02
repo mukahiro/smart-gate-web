@@ -311,7 +311,7 @@ p {
 }
 .history-heading h1 {
   margin: 0;
-  font-size: clamp(1.55rem, 2vw, 1.8rem);
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
   font-variant-numeric: tabular-nums;
 }
 .month-controls {
@@ -668,7 +668,7 @@ p {
 }
 .admin-page-heading h1 {
   margin-bottom: 8px;
-  font-size: clamp(1.55rem, 2vw, 1.8rem);
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
 }
 .admin-page-heading p {
   margin: 0;
@@ -1035,6 +1035,43 @@ p {
   display: flex;
   justify-content: center;
   padding-top: 22px;
+}
+
+@media (min-width: 901px) and (min-height: 740px) {
+  .application:has(.history-card:not(:has(+ .detail-panel))) {
+    display: flex;
+    height: 100dvh;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .application:has(.history-card:not(:has(+ .detail-panel))) .app-header {
+    flex: 0 0 72px;
+  }
+  .application:has(.history-card:not(:has(+ .detail-panel))) .content-shell {
+    flex: 1;
+    min-height: 0;
+    padding: 16px 0 24px;
+  }
+  .history-card:not(:has(+ .detail-panel)) {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    padding-block: 20px;
+  }
+  .history-card:not(:has(+ .detail-panel)) .calendar-wrap {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+  .history-card:not(:has(+ .detail-panel)) .calendar-grid {
+    flex: 1;
+    grid-auto-rows: minmax(0, 1fr);
+  }
+  .history-card:not(:has(+ .detail-panel)) .calendar-day {
+    min-height: 0;
+    gap: clamp(5px, 1.2vh, 14px);
+  }
 }
 .visually-hidden {
   position: absolute;
