@@ -15,6 +15,20 @@
   --color-surface-muted: #f7f7f7;
   --color-row-hover: #fafafa;
 }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  color: #e7e9ed;
+  background: #17191d;
+  --color-theme: #78b5ee;
+  --color-theme-hover: #9bc9f4;
+  --color-theme-strong: #b5d8f8;
+  --color-theme-soft: #22374a;
+  --color-theme-focus: rgb(120 181 238 / 28%);
+  --color-border: #3b414a;
+  --color-text-muted: #aab1bb;
+  --color-surface-muted: #252a31;
+  --color-row-hover: #262b32;
+}
 
 * {
   box-sizing: border-box;
@@ -30,6 +44,64 @@ input {
 }
 button {
   color: inherit;
+}
+:root[data-theme="dark"] .login-page {
+  background: #17191d;
+}
+:root[data-theme="dark"] .login-card,
+:root[data-theme="dark"] .history-card,
+:root[data-theme="dark"] .detail-panel,
+:root[data-theme="dark"] .account-panel,
+:root[data-theme="dark"] .admin-card,
+:root[data-theme="dark"] .dialog-card,
+:root[data-theme="dark"] .user-menu {
+  background: #20242a;
+}
+:root[data-theme="dark"] .secondary-button,
+:root[data-theme="dark"] .icon-button,
+:root[data-theme="dark"] .month-tab-current,
+:root[data-theme="dark"] .calendar-day,
+:root[data-theme="dark"] .danger-outline-button {
+  background: #20242a;
+}
+:root[data-theme="dark"] .login-form input,
+:root[data-theme="dark"] .user-filters input,
+:root[data-theme="dark"] .user-filters select,
+:root[data-theme="dark"] .admin-form input,
+:root[data-theme="dark"] .month-picker-form input {
+  color: #e7e9ed;
+  background: #292f37;
+}
+:root[data-theme="dark"] .login-form label,
+:root[data-theme="dark"] .user-filters label,
+:root[data-theme="dark"] .admin-form label,
+:root[data-theme="dark"] .month-picker-form label,
+:root[data-theme="dark"] .month-tab-current,
+:root[data-theme="dark"] .empty-detail strong {
+  color: #e7e9ed;
+}
+:root[data-theme="dark"] .calendar-day[data-outside] {
+  background: #1c2025;
+}
+:root[data-theme="dark"] .month-tab-current {
+  border-bottom-color: #20242a;
+}
+:root[data-theme="dark"] .duration-card,
+:root[data-theme="dark"] .temporary-password {
+  background: #292f37;
+}
+:root[data-theme="dark"] .role-badge,
+:root[data-theme="dark"] .status-badge[data-state="inactive"] {
+  color: #c7ced8;
+  background: #343a43;
+}
+:root[data-theme="dark"] .role-badge[data-role="admin"] {
+  color: #d8c7ee;
+  background: #3e354b;
+}
+:root[data-theme="dark"] .status-badge[data-state="locked"] {
+  color: #f0c689;
+  background: #4c3823;
 }
 
 .centered-page,

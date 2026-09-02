@@ -5,7 +5,9 @@ import {
   ChevronRight,
   KeyRound,
   LogOut,
+  Moon,
   ScrollText,
+  Sun,
   Users,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -30,6 +32,8 @@ type HistoryPageProps = {
   onSessionExpired: () => void;
   onPasswordChanged: () => void;
   onSelfSessionsRevoked: () => void;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
   onLogout: () => Promise<void>;
 };
 
@@ -65,6 +69,8 @@ export function HistoryPage({
   onSessionExpired,
   onPasswordChanged,
   onSelfSessionsRevoked,
+  theme,
+  onToggleTheme,
   onLogout,
 }: HistoryPageProps) {
   const today = currentJapanDate();
@@ -168,7 +174,11 @@ export function HistoryPage({
         >
           <img
             className="header-logo"
-            src="/assets/images/smart-gate-logo.png"
+            src={
+              theme === "dark"
+                ? "/assets/images/smart-gate-logo-dark.png"
+                : "/assets/images/smart-gate-logo.png"
+            }
             alt="Smart Gate"
           />
         </a>
@@ -218,6 +228,14 @@ export function HistoryPage({
           </button>
           {menuOpen && (
             <div className="user-menu">
+              <button type="button" onClick={onToggleTheme}>
+                {theme === "dark" ? (
+                  <Sun aria-hidden="true" />
+                ) : (
+                  <Moon aria-hidden="true" />
+                )}
+                {theme === "dark" ? "ライトテーマ" : "ダークテーマ"}
+              </button>
               <button
                 type="button"
                 onClick={() => {

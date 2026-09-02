@@ -3,10 +3,11 @@ import { ApiError, type User, login } from "../../api/client";
 
 type LoginPageProps = {
   initialMessage?: string;
+  theme: "light" | "dark";
   onLogin: (user: User) => void;
 };
 
-export function LoginPage({ initialMessage, onLogin }: LoginPageProps) {
+export function LoginPage({ initialMessage, theme, onLogin }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(initialMessage ?? "");
@@ -36,7 +37,11 @@ export function LoginPage({ initialMessage, onLogin }: LoginPageProps) {
           <h1 id="login-title">
             <img
               className="login-logo"
-              src="/assets/images/smart-gate-logo.png"
+              src={
+                theme === "dark"
+                  ? "/assets/images/smart-gate-logo-dark.png"
+                  : "/assets/images/smart-gate-logo.png"
+              }
               alt="Smart Gate"
             />
           </h1>

@@ -8,8 +8,19 @@ type AuthState =
   | { status: "anonymous"; message?: string }
   | { status: "authenticated"; user: User };
 
+type Theme = "light" | "dark";
+
+const readTheme = (): Theme =>
+  window.localStorage.getItem("theme") === "dark" ? "dark" : "light";
+
 export function App() {
   const [auth, setAuth] = useState<AuthState>({ status: "checking" });
+  const [theme, setTheme] = useState<Theme>(readTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const expireSession = useCallback(() => {
     setAuth({
@@ -70,6 +81,7 @@ export function App() {
     return (
       <LoginPage
         initialMessage={auth.message}
+        theme={theme}
         onLogin={(user) => setAuth({ status: "authenticated", user })}
       />
     );
@@ -81,6 +93,10 @@ export function App() {
       onSessionExpired={expireSession}
       onPasswordChanged={finishPasswordChange}
       onSelfSessionsRevoked={finishSelfSessionRevocation}
+      theme={theme}
+      onToggleTheme={() =>
+        setTheme((current) => (current === "light" ? "dark" : "light"))
+      }
       onLogout={async () => {
         await logout().catch(() => undefined);
         setAuth({ status: "anonymous" });
