@@ -1,5 +1,6 @@
 import type { MiddlewareHandler } from "hono";
 import { deleteCookie, getCookie } from "hono/cookie";
+import { AuthenticationRequiredError } from "../errors/auth-errors";
 import type { AuthenticatedUser } from "../repositories/auth-repository";
 import type { AuthenticateSessionUseCase } from "../services/auth/authenticate-session";
 
@@ -25,15 +26,7 @@ export const createSessionAuthMiddleware =
         path: "/api/v1",
         secure,
       });
-      return c.json(
-        {
-          error: {
-            code: "AUTHENTICATION_REQUIRED",
-            message: "ログインが必要です",
-          },
-        },
-        401,
-      );
+      throw new AuthenticationRequiredError();
     }
 
     c.set("authenticatedUser", user);

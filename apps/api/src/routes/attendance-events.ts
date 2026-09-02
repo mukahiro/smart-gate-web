@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { ValidationError } from "../errors/request-errors";
 import { createBearerAuthMiddleware } from "../middleware/bearer-auth";
 import type { AttendanceEventRepository } from "../repositories/attendance-event-repository";
 import { attendanceEventInputSchema } from "../schemas/attendance-event";
@@ -30,31 +31,13 @@ export const createAttendanceEventsRoute = ({
     try {
       value = await c.req.json();
     } catch {
-      return c.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "入力内容に誤りがあります",
-            details: {},
-          },
-        },
-        400,
-      );
+      throw new ValidationError();
     }
 
     const result = attendanceEventInputSchema.safeParse(value);
 
     if (!result.success) {
-      return c.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "入力内容に誤りがあります",
-            details: result.error.flatten(),
-          },
-        },
-        400,
-      );
+      throw new ValidationError(result.error.flatten());
     }
 
     const recordResult = recordAttendanceEvent.execute(result.data);

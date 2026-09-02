@@ -1,4 +1,5 @@
 import type { MiddlewareHandler } from "hono";
+import { InvalidOriginError } from "../errors/auth-errors";
 
 export const requireSameOrigin: MiddlewareHandler = async (c, next) => {
   const origin = c.req.header("origin");
@@ -13,15 +14,7 @@ export const requireSameOrigin: MiddlewareHandler = async (c, next) => {
   }
 
   if (!host || originHost !== host) {
-    return c.json(
-      {
-        error: {
-          code: "INVALID_ORIGIN",
-          message: "許可されていないリクエストです",
-        },
-      },
-      403,
-    );
+    throw new InvalidOriginError();
   }
 
   await next();

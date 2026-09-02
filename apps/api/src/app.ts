@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { AppError } from "./errors/app-error";
 import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
 import type { AuthRepository } from "./repositories/auth-repository";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
@@ -67,6 +68,19 @@ export const createApp = ({
   );
 
   app.onError((error, c) => {
+    if (error instanceof AppError) {
+      return c.json(
+        {
+          error: {
+            code: error.code,
+            message: error.message,
+            ...(error.details === undefined ? {} : { details: error.details }),
+          },
+        },
+        error.status,
+      );
+    }
+
     console.error(
       JSON.stringify({
         timestamp: new Date().toISOString(),

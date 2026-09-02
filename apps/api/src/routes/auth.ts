@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { ValidationError } from "../errors/request-errors";
 import { requireSameOrigin } from "../middleware/same-origin";
 import {
   type AuthEnv,
@@ -45,44 +46,15 @@ export const createAuthRoute = ({
     try {
       value = await c.req.json();
     } catch {
-      return c.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "入力内容に誤りがあります",
-            details: {},
-          },
-        },
-        400,
-      );
+      throw new ValidationError();
     }
 
     const parsed = loginInputSchema.safeParse(value);
     if (!parsed.success) {
-      return c.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "入力内容に誤りがあります",
-            details: parsed.error.flatten(),
-          },
-        },
-        400,
-      );
+      throw new ValidationError(parsed.error.flatten());
     }
 
     const result = await login.execute(parsed.data);
-    if (result.kind === "invalid") {
-      return c.json(
-        {
-          error: {
-            code: "INVALID_CREDENTIALS",
-            message: "メールアドレスまたはパスワードが正しくありません",
-          },
-        },
-        401,
-      );
-    }
 
     setCookie(c, sessionCookieName, result.token, cookieOptions);
     return c.json({ user: result.user }, 200);

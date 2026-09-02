@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import type { MiddlewareHandler } from "hono";
+import { UnauthorizedError } from "../errors/auth-errors";
 
 const extractBearerToken = (authorization: string | undefined) => {
   const match = authorization?.match(/^Bearer (.+)$/i);
@@ -38,13 +39,5 @@ export const createBearerAuthMiddleware =
       return;
     }
 
-    return c.json(
-      {
-        error: {
-          code: "UNAUTHORIZED",
-          message: "認証が必要です",
-        },
-      },
-      401,
-    );
+    throw new UnauthorizedError();
   };

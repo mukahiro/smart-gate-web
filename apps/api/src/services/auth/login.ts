@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import argon2 from "argon2";
+import { InvalidCredentialsError } from "../../errors/auth-errors";
 import type {
   AuthRepository,
   AuthenticatedUser,
@@ -71,7 +72,7 @@ export class LoginUseCase {
           lockDurationMs,
         );
       }
-      return { kind: "invalid" as const };
+      throw new InvalidCredentialsError();
     }
 
     this.repository.clearLoginFailures(record.id, currentTime);
@@ -100,6 +101,6 @@ export class LoginUseCase {
       email: record.email,
     };
 
-    return { kind: "success" as const, token, user };
+    return { token, user };
   }
 }
