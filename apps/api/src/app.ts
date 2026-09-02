@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { AppError } from "./errors/app-error";
 import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
+import type { AttendanceHistoryRepository } from "./repositories/attendance-history-repository";
 import type { AuthRepository } from "./repositories/auth-repository";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
+import { createAttendanceHistoryRoute } from "./routes/attendance-history";
 import { createAuthRoute } from "./routes/auth";
 import type { AttendanceEventLogger } from "./services/attendance-events/record-attendance-event";
 
@@ -23,6 +25,7 @@ type AppOptions = {
   attendanceEventRepository: AttendanceEventRepository;
   attendanceEventLogger?: AttendanceEventLogger;
   authRepository?: AuthRepository;
+  attendanceHistoryRepository?: AttendanceHistoryRepository;
   secureCookie?: boolean;
 };
 
@@ -31,6 +34,7 @@ export const createApp = ({
   attendanceEventRepository,
   attendanceEventLogger = () => {},
   authRepository,
+  attendanceHistoryRepository,
   secureCookie = process.env.SESSION_COOKIE_SECURE === "true",
 }: AppOptions) => {
   const app = new Hono().basePath("/api/v1");
@@ -53,6 +57,17 @@ export const createApp = ({
 
   if (authRepository) {
     app.route("/auth", createAuthRoute({ authRepository, secureCookie }));
+  }
+
+  if (authRepository && attendanceHistoryRepository) {
+    app.route(
+      "/attendance-events/me",
+      createAttendanceHistoryRoute({
+        authRepository,
+        attendanceHistoryRepository,
+        secureCookie,
+      }),
+    );
   }
 
   app.notFound((c) =>

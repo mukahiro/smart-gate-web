@@ -369,10 +369,83 @@ Status: `401 Unauthorized`
 
 </details>
 
-## その他の未実装エンドポイント候補
+## GET /attendance-events/me/monthly
 
-今後の実装候補。詳細仕様は実装前に確認する。
+ログイン中利用者本人の月別履歴概要を返す。
 
-- `GET /attendance-events/me`
-- `GET /attendance-events/me/monthly`
-- `GET /attendance-events/me/daily`
+**実装状態:** 実装済み。
+
+### Request
+
+Query parameter `month` に `YYYY-MM` を指定する。利用者IDと学籍番号は指定できない。
+
+```http
+GET /api/v1/attendance-events/me/monthly?month=2026-07
+```
+
+### Success response
+
+履歴が存在する日だけを `days` に含める。
+
+```json
+{
+  "month": "2026-07",
+  "timeZone": "Asia/Tokyo",
+  "days": [
+    {
+      "date": "2026-07-12",
+      "eventCount": 2,
+      "hasMissingCheckIn": false,
+      "hasMissingCheckOut": false,
+      "stayDurationMinutes": 480
+    }
+  ]
+}
+```
+
+## GET /attendance-events/me/daily
+
+ログイン中利用者本人の日別詳細を返す。
+
+**実装状態:** 実装済み。
+
+### Request
+
+Query parameter `date` に実在する `YYYY-MM-DD` を指定する。利用者IDと学籍番号は指定できない。
+
+```http
+GET /api/v1/attendance-events/me/daily?date=2026-07-12
+```
+
+### Success response
+
+```json
+{
+  "date": "2026-07-12",
+  "timeZone": "Asia/Tokyo",
+  "events": [
+    {
+      "eventId": "event-001",
+      "eventType": "check_in",
+      "method": "card",
+      "authenticatedAt": "2026-07-12T08:45:12+09:00",
+      "confidence": null,
+      "pairingStatus": "paired"
+    }
+  ],
+  "hasMissingCheckIn": false,
+  "hasMissingCheckOut": false,
+  "stayDurationMinutes": 480
+}
+```
+
+`pairingStatus` は `paired`、`missing_check_in`、`missing_check_out` のいずれかとする。
+
+## 履歴集計の共通仕様
+
+- DBには認証アプリから受け取ったoffset付きISO 8601日時を保存する
+- 月・日の境界と日付表示は `Asia/Tokyo` を使用する
+- 時刻順に入室の次に現れる退出を1組として扱う
+- 入室または退出が連続した場合、対応しない側を不足として扱う
+- 完成した組だけを参考滞在時間へ加算し、自動補完はしない
+- 日をまたぐ組は、参考滞在時間を入室日に計上する

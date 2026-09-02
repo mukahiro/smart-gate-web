@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { createApp, readAuthAppBearerToken } from "./app";
 import { createSqliteDatabase } from "./db/client";
 import { DrizzleAttendanceEventRepository } from "./repositories/drizzle-attendance-event-repository";
+import { DrizzleAttendanceHistoryRepository } from "./repositories/drizzle-attendance-history-repository";
 import { DrizzleAuthRepository } from "./repositories/drizzle-auth-repository";
 
 const port = Number(process.env.API_PORT ?? 3000);
@@ -21,6 +22,7 @@ const app = createApp({
     console.log(JSON.stringify(entry));
   },
   authRepository: new DrizzleAuthRepository(db),
+  attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
   secureCookie,
 });
 

@@ -111,6 +111,20 @@ curl --request POST http://localhost:3000/api/v1/auth/logout \
 
 セッションの無操作期限は2時間、絶対期限は12時間である。ログインに5回連続で失敗すると15分間ロックされる。メール未登録、パスワード不一致、利用者無効、ロック中はすべて同じ認証エラーを返す。
 
+## 履歴確認API
+
+ログイン中の利用者は、Cookieを使って本人の履歴だけを取得できる。利用者IDや学籍番号を指定して他人の履歴を取得することはできない。
+
+```sh
+curl 'http://localhost:3000/api/v1/attendance-events/me/monthly?month=2026-07' \
+  --cookie /tmp/smart-gate-cookie.txt
+
+curl 'http://localhost:3000/api/v1/attendance-events/me/daily?date=2026-07-12' \
+  --cookie /tmp/smart-gate-cookie.txt
+```
+
+日付境界と集計は日本時間（`Asia/Tokyo`）を使用する。入室の次に現れる退出を1組とし、日をまたぐ場合の参考滞在時間は入室日に計上する。不足した記録は補完しない。
+
 ## Python認証アプリからのイベント送信
 
 Python認証アプリからBearerトークン付きで `POST /api/v1/attendance-events` を呼び出す。
