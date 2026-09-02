@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ApiError,
   type MonthlyHistory,
@@ -6,6 +6,11 @@ import {
   getMonthlyHistory,
 } from "../../api/client";
 import { PasswordPanel } from "../account/PasswordPanel";
+import { AuditLogPage } from "../admin/audit/AuditLogPage";
+import { type AppScreen, pathForScreen, screenFromPath } from "../admin/routes";
+import { CreateUserPage } from "../admin/users/CreateUserPage";
+import { UserDetailPage } from "../admin/users/UserDetailPage";
+import { UserListPage } from "../admin/users/UserListPage";
 import { DailyDetail } from "./DailyDetail";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { currentJapanDate, formatMonth, shiftMonth } from "./calendar";
@@ -14,15 +19,15 @@ type HistoryPageProps = {
   user: User;
   onSessionExpired: () => void;
   onPasswordChanged: () => void;
+  onSelfSessionsRevoked: () => void;
   onLogout: () => Promise<void>;
 };
-
-type View = "history" | "password";
 
 export function HistoryPage({
   user,
   onSessionExpired,
   onPasswordChanged,
+  onSelfSessionsRevoked,
   onLogout,
 }: HistoryPageProps) {
   const today = currentJapanDate();
@@ -30,13 +35,42 @@ export function HistoryPage({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [history, setHistory] = useState<MonthlyHistory | null>(null);
   const [error, setError] = useState("");
-  const [view, setView] = useState<View>("history");
+  const [screen, setScreen] = useState<AppScreen>(() =>
+    screenFromPath(window.location.pathname, user.role === "admin"),
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const [reloadCount, setReloadCount] = useState(0);
 
+  const navigate = useCallback((nextScreen: AppScreen, replace = false) => {
+    const path = pathForScreen(nextScreen);
+    window.history[replace ? "replaceState" : "pushState"]({}, "", path);
+    setScreen(nextScreen);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const showHistory = useCallback(
+    () => navigate({ kind: "history" }),
+    [navigate],
+  );
+
+  useEffect(() => {
+    if (
+      user.role !== "admin" &&
+      window.location.pathname.startsWith("/admin")
+    ) {
+      navigate({ kind: "history" }, true);
+    }
+    const handlePopState = () =>
+      setScreen(
+        screenFromPath(window.location.pathname, user.role === "admin"),
+      );
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [navigate, user.role]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: 同じ表示月の再取得にも反応させる。
   useEffect(() => {
-    if (view !== "history") return;
+    if (screen.kind !== "history") return;
     let active = true;
     setHistory(null);
     setError("");
@@ -55,7 +89,7 @@ export function HistoryPage({
     return () => {
       active = false;
     };
-  }, [month, onSessionExpired, reloadCount, view]);
+  }, [month, onSessionExpired, reloadCount, screen.kind]);
 
   const moveMonth = (amount: number) => {
     setMonth((current) => shiftMonth(current, amount));
@@ -70,7 +104,7 @@ export function HistoryPage({
           href="/"
           onClick={(event) => {
             event.preventDefault();
-            setView("history");
+            showHistory();
           }}
         >
           <span className="brand-mark" aria-hidden="true">
@@ -81,6 +115,31 @@ export function HistoryPage({
             <small>入退室履歴</small>
           </span>
         </a>
+        {user.role === "admin" && (
+          <nav className="admin-nav" aria-label="管理者メニュー">
+            <button
+              type="button"
+              data-active={screen.kind === "history" || undefined}
+              onClick={showHistory}
+            >
+              自分の履歴
+            </button>
+            <button
+              type="button"
+              data-active={screen.kind.startsWith("admin-user") || undefined}
+              onClick={() => navigate({ kind: "admin-users" })}
+            >
+              利用者管理
+            </button>
+            <button
+              type="button"
+              data-active={screen.kind === "admin-audit" || undefined}
+              onClick={() => navigate({ kind: "admin-audit" })}
+            >
+              監査ログ
+            </button>
+          </nav>
+        )}
         <div className="user-menu-wrap">
           <button
             className="user-button"
@@ -102,7 +161,7 @@ export function HistoryPage({
               <button
                 type="button"
                 onClick={() => {
-                  setView("password");
+                  navigate({ kind: "password" });
                   setSelectedDate(null);
                   setMenuOpen(false);
                 }}
@@ -118,11 +177,40 @@ export function HistoryPage({
       </header>
 
       <main className="content-shell">
-        {view === "password" ? (
+        {screen.kind === "password" ? (
           <PasswordPanel
-            onCancel={() => setView("history")}
+            onCancel={showHistory}
             onSessionExpired={onSessionExpired}
             onChanged={onPasswordChanged}
+          />
+        ) : screen.kind === "admin-users" ? (
+          <UserListPage
+            onCreate={() => navigate({ kind: "admin-user-new" })}
+            onSelect={(userId) =>
+              navigate({ kind: "admin-user-detail", userId })
+            }
+            onSessionExpired={onSessionExpired}
+            onPermissionDenied={showHistory}
+          />
+        ) : screen.kind === "admin-user-new" ? (
+          <CreateUserPage
+            onBack={() => navigate({ kind: "admin-users" })}
+            onSessionExpired={onSessionExpired}
+            onPermissionDenied={showHistory}
+          />
+        ) : screen.kind === "admin-user-detail" ? (
+          <UserDetailPage
+            userId={screen.userId}
+            currentUserId={user.id}
+            onBack={() => navigate({ kind: "admin-users" })}
+            onSessionExpired={onSessionExpired}
+            onPermissionDenied={showHistory}
+            onSelfSessionsRevoked={onSelfSessionsRevoked}
+          />
+        ) : screen.kind === "admin-audit" ? (
+          <AuditLogPage
+            onSessionExpired={onSessionExpired}
+            onPermissionDenied={showHistory}
           />
         ) : (
           <>

@@ -27,6 +27,14 @@ export function App() {
     });
   }, []);
 
+  const finishSelfSessionRevocation = useCallback(() => {
+    setAuth({
+      status: "anonymous",
+      message:
+        "すべてのセッションを失効しました。もう一度ログインしてください。",
+    });
+  }, []);
+
   useEffect(() => {
     let active = true;
 
@@ -72,6 +80,7 @@ export function App() {
       user={auth.user}
       onSessionExpired={expireSession}
       onPasswordChanged={finishPasswordChange}
+      onSelfSessionsRevoked={finishSelfSessionRevocation}
       onLogout={async () => {
         await logout().catch(() => undefined);
         setAuth({ status: "anonymous" });

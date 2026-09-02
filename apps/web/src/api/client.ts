@@ -21,7 +21,10 @@ export class ApiError extends Error {
   }
 }
 
-const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+export const apiRequest = async <T>(
+  path: string,
+  init?: RequestInit,
+): Promise<T> => {
   let response: Response;
   try {
     response = await fetch(path, init);
@@ -42,36 +45,40 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
   return response.json() as Promise<T>;
 };
 
-const jsonRequest = (body?: unknown): RequestInit => ({
-  method: "POST",
+export const jsonRequest = (
+  method: "POST" | "PATCH",
+  body?: unknown,
+): RequestInit => ({
+  method,
   headers:
     body === undefined ? undefined : { "content-type": "application/json" },
   body: body === undefined ? undefined : JSON.stringify(body),
 });
 
 export const login = (email: string, password: string) =>
-  request<{ user: User }>(
+  apiRequest<{ user: User }>(
     "/api/v1/auth/login",
-    jsonRequest({ email, password }),
+    jsonRequest("POST", { email, password }),
   ).then(({ user }) => user);
 
-export const logout = () => request<void>("/api/v1/auth/logout", jsonRequest());
+export const logout = () =>
+  apiRequest<void>("/api/v1/auth/logout", jsonRequest("POST"));
 
 export const getCurrentUser = () =>
-  request<{ user: User }>("/api/v1/auth/me").then(({ user }) => user);
+  apiRequest<{ user: User }>("/api/v1/auth/me").then(({ user }) => user);
 
 export const getMonthlyHistory = (month: string) =>
-  request<MonthlyHistory>(
+  apiRequest<MonthlyHistory>(
     `/api/v1/attendance-events/me/monthly?month=${encodeURIComponent(month)}`,
   );
 
 export const getDailyHistory = (date: string) =>
-  request<DailyHistory>(
+  apiRequest<DailyHistory>(
     `/api/v1/attendance-events/me/daily?date=${encodeURIComponent(date)}`,
   );
 
 export const changePassword = (currentPassword: string, newPassword: string) =>
-  request<void>(
+  apiRequest<void>(
     "/api/v1/auth/change-password",
-    jsonRequest({ currentPassword, newPassword }),
+    jsonRequest("POST", { currentPassword, newPassword }),
   );
