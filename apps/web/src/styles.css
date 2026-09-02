@@ -423,12 +423,19 @@ p {
   width: 20px;
   height: 20px;
 }
+.calendar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin: 0 0 16px;
+}
 .calendar-legend {
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
   padding: 0 8px;
-  margin: 0 0 16px;
   color: var(--color-text-muted);
   font-size: 0.73rem;
 }
@@ -436,6 +443,38 @@ p {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+.monthly-statistics {
+  display: flex;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.monthly-statistics div {
+  display: grid;
+  gap: 2px;
+  padding: 0 12px;
+  border-right: 1px solid var(--color-border);
+}
+.monthly-statistics div:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+.monthly-statistics dt {
+  color: var(--color-text-muted);
+  font-size: 0.61rem;
+}
+.monthly-statistics dd {
+  margin: 0;
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 750;
+  color: var(--color-theme);
+}
+.monthly-statistics dd small {
+  margin-left: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.72em;
+  font-weight: 600;
 }
 .event-dot {
   display: inline-block;
@@ -730,7 +769,7 @@ p {
 
 .admin-nav {
   gap: 4px;
-  margin: 0 20px 0 auto;
+  margin: 0 0 0 auto;
 }
 .admin-nav button {
   position: relative;
@@ -1379,7 +1418,7 @@ p {
   .month-tab-current h1 {
     font-size: 1rem;
   }
-  .calendar-legend {
+  .calendar-meta {
     margin-top: 18px;
   }
   .calendar-day {
@@ -1490,6 +1529,11 @@ p {
   }
   .form-actions button {
     width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .calendar-meta {
+    justify-content: center;
   }
 }
 @media (prefers-reduced-motion: reduce) {

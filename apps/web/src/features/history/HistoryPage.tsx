@@ -33,6 +33,33 @@ type HistoryPageProps = {
   onLogout: () => Promise<void>;
 };
 
+const DurationStatistic = ({ minutes }: { minutes: number }) => {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+
+  if (hours === 0) {
+    return (
+      <>
+        {rest}
+        <small>分</small>
+      </>
+    );
+  }
+
+  return (
+    <>
+      {hours}
+      <small>時間</small>
+      {rest > 0 && (
+        <>
+          {rest}
+          <small>分</small>
+        </>
+      )}
+    </>
+  );
+};
+
 export function HistoryPage({
   user,
   onSessionExpired,
@@ -117,6 +144,16 @@ export function HistoryPage({
       navigate({ kind: "admin-users" }, true);
     }
   };
+
+  const monthlyStatistics = history?.days.reduce(
+    (statistics, day) => ({
+      totalStayDurationMinutes:
+        statistics.totalStayDurationMinutes + day.stayDurationMinutes,
+      recordedDays: statistics.recordedDays + 1,
+      eventCount: statistics.eventCount + day.eventCount,
+    }),
+    { totalStayDurationMinutes: 0, recordedDays: 0, eventCount: 0 },
+  );
 
   return (
     <div className="application">
@@ -270,19 +307,47 @@ export function HistoryPage({
                   </button>
                 </nav>
               </header>
-              <div className="calendar-legend">
-                <span>
-                  <i className="event-dot" />
-                  記録あり
-                </span>
-                <span>
-                  <i className="event-dot" data-warning />
-                  記録不足あり
-                </span>
-                <span>
-                  <i className="today-symbol" />
-                  本日
-                </span>
+              <div className="calendar-meta">
+                <div className="calendar-legend">
+                  <span>
+                    <i className="event-dot" />
+                    記録あり
+                  </span>
+                  <span>
+                    <i className="event-dot" data-warning />
+                    記録不足あり
+                  </span>
+                  <span>
+                    <i className="today-symbol" />
+                    本日
+                  </span>
+                </div>
+                {monthlyStatistics && (
+                  <dl className="monthly-statistics">
+                    <div>
+                      <dt>参考合計滞在時間</dt>
+                      <dd>
+                        <DurationStatistic
+                          minutes={monthlyStatistics.totalStayDurationMinutes}
+                        />
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>記録日数</dt>
+                      <dd>
+                        {monthlyStatistics.recordedDays}
+                        <small>日</small>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>入退室件数</dt>
+                      <dd>
+                        {monthlyStatistics.eventCount}
+                        <small>件</small>
+                      </dd>
+                    </div>
+                  </dl>
+                )}
               </div>
               {error && (
                 <div className="notice error-notice" role="alert">
