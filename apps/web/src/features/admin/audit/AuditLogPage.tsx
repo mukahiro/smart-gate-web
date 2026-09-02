@@ -107,12 +107,12 @@ export function AuditLogPage({
 
   return (
     <section className="admin-card audit-card" aria-labelledby="audit-title">
-      <div className="admin-page-heading">
+      <header className="admin-page-heading card-header">
         <div>
           <h1 id="audit-title">監査ログ</h1>
           <p>管理者が実行した利用者管理操作を新しい順に表示します。</p>
         </div>
-      </div>
+      </header>
       {error && (
         <div className="notice error-notice" role="alert">
           {error}

@@ -219,7 +219,7 @@ export function HistoryPage({
         ) : (
           <>
             <section className="history-card" aria-labelledby="history-title">
-              <div className="history-heading">
+              <header className="history-heading card-header">
                 <div>
                   <h1 id="history-title">{formatMonth(month)}</h1>
                 </div>
@@ -251,7 +251,7 @@ export function HistoryPage({
                     <ChevronRight aria-hidden="true" />
                   </button>
                 </div>
-              </div>
+              </header>
               <div className="calendar-legend">
                 <span>
                   <i className="event-dot" />

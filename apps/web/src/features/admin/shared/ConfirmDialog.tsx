@@ -26,7 +26,9 @@ export function ConfirmDialog({
         aria-labelledby="confirm-title"
         aria-describedby="confirm-description"
       >
-        <h2 id="confirm-title">{title}</h2>
+        <header className="dialog-header">
+          <h2 id="confirm-title">{title}</h2>
+        </header>
         <p id="confirm-description">{description}</p>
         <div className="dialog-actions">
           <button

@@ -87,7 +87,7 @@ export function CreateUserPage({
             aria-labelledby="create-user-title"
             aria-modal="true"
           >
-            <div className="create-user-dialog-header">
+            <header className="dialog-header">
               <h2 id="create-user-title">利用者を登録</h2>
               <button
                 className="icon-button close-button"
@@ -97,7 +97,7 @@ export function CreateUserPage({
               >
                 <X aria-hidden="true" />
               </button>
-            </div>
+            </header>
             <p>一般利用者を作成し、一時パスワードを発行します。</p>
             <form className="admin-form" onSubmit={submit}>
               <label>

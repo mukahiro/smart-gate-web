@@ -64,7 +64,7 @@ export function PasswordPanel({
         aria-labelledby="password-title"
         aria-modal="true"
       >
-        <div className="password-dialog-header">
+        <header className="dialog-header">
           <h2 id="password-title">パスワード変更</h2>
           <button
             className="icon-button close-button"
@@ -74,7 +74,7 @@ export function PasswordPanel({
           >
             <X aria-hidden="true" />
           </button>
-        </div>
+        </header>
         <p>
           パスワードを変更すると、すべての端末からログアウトします。新しいパスワードで再度ログインしてください。
         </p>

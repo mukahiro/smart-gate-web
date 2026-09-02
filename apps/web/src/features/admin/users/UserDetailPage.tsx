@@ -204,7 +204,7 @@ export function UserDetailPage({
           aria-modal="true"
         >
           <section className="admin-card admin-detail-card">
-            <div className="admin-page-heading detail-title-row">
+            <header className="admin-page-heading detail-title-row card-header">
               <div>
                 <h1 id="user-detail-title">{user.name}</h1>
                 <div className="title-badges">
@@ -232,7 +232,7 @@ export function UserDetailPage({
               >
                 <X aria-hidden="true" />
               </button>
-            </div>
+            </header>
 
             {error && (
               <div className="notice error-notice" role="alert">

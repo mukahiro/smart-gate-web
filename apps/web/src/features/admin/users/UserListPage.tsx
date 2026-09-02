@@ -60,7 +60,7 @@ export function UserListPage({
       className="admin-card admin-users-card"
       aria-labelledby="admin-users-title"
     >
-      <div className="admin-page-heading">
+      <header className="admin-page-heading card-header">
         <div>
           <h1 id="admin-users-title">利用者管理</h1>
           <p>
@@ -70,7 +70,7 @@ export function UserListPage({
         <button className="primary-button" type="button" onClick={onCreate}>
           利用者を登録
         </button>
-      </div>
+      </header>
 
       <div className="user-filters" aria-label="利用者の検索と絞り込み">
         <label className="search-field">
