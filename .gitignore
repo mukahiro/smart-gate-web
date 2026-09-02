@@ -5,5 +5,4 @@ coverage/
 .env
 .env.*
 !.env.example
-data/*.sqlite
-data/*.sqlite-*
+apps/api/data/*.sqlite*
