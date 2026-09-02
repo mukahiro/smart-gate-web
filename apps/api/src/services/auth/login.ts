@@ -99,6 +99,7 @@ export class LoginUseCase {
       name: record.name,
       lcdDisplayName: record.lcdDisplayName,
       email: record.email,
+      role: record.role,
     };
 
     return { token, user };

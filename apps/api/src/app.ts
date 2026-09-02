@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { AppError } from "./errors/app-error";
+import type { AdminRepository } from "./repositories/admin-repository";
 import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
 import type { AttendanceHistoryRepository } from "./repositories/attendance-history-repository";
 import type { AuthRepository } from "./repositories/auth-repository";
+import { createAdminRoute } from "./routes/admin";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
 import { createAttendanceHistoryRoute } from "./routes/attendance-history";
 import { createAuthRoute } from "./routes/auth";
@@ -25,6 +27,7 @@ type AppOptions = {
   attendanceEventRepository: AttendanceEventRepository;
   attendanceEventLogger?: AttendanceEventLogger;
   authRepository?: AuthRepository;
+  adminRepository?: AdminRepository;
   attendanceHistoryRepository?: AttendanceHistoryRepository;
   secureCookie?: boolean;
 };
@@ -34,6 +37,7 @@ export const createApp = ({
   attendanceEventRepository,
   attendanceEventLogger = () => {},
   authRepository,
+  adminRepository,
   attendanceHistoryRepository,
   secureCookie = process.env.SESSION_COOKIE_SECURE === "true",
 }: AppOptions) => {
@@ -67,6 +71,13 @@ export const createApp = ({
         attendanceHistoryRepository,
         secureCookie,
       }),
+    );
+  }
+
+  if (authRepository && adminRepository) {
+    app.route(
+      "/admin",
+      createAdminRoute({ authRepository, adminRepository, secureCookie }),
     );
   }
 

@@ -3,12 +3,13 @@ import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
 import { pathToFileURL } from "node:url";
 import argon2 from "argon2";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { attendanceEvents } from "../src/db/attendance-event-schema";
 import { sessions, userCredentials } from "../src/db/auth-schema";
 import { type SqliteDatabase, createSqliteDatabase } from "../src/db/client";
 import { users } from "../src/db/user-schema";
+import type { UserRole } from "../src/db/user-schema";
 
 const studentNumberSchema = z
   .string()
@@ -32,7 +33,7 @@ export const createUser = async (
     email: string;
     password: string;
   },
-  options: { userId?: string; now?: string } = {},
+  options: { userId?: string; now?: string; role?: UserRole } = {},
 ) => {
   const userId = options.userId ?? randomUUID();
   const now = options.now ?? new Date().toISOString();
@@ -58,6 +59,7 @@ export const createUser = async (
         lcdDisplayName,
         email,
         emailNormalized,
+        role: options.role ?? "member",
         createdAt: now,
         updatedAt: now,
       })
@@ -134,25 +136,32 @@ export const setUserActive = (
   const studentNumber = normalizeStudentNumber(studentNumberInput);
 
   return db.transaction((tx) => {
+    const user = tx
+      .select()
+      .from(users)
+      .where(eq(users.studentNumber, studentNumber))
+      .get();
+    if (!user) {
+      throw new Error("利用者が見つかりません");
+    }
+    if (!isActive && user.isActive && user.role === "admin") {
+      const activeAdmins = tx
+        .select({ value: count() })
+        .from(users)
+        .where(and(eq(users.role, "admin"), eq(users.isActive, true)))
+        .get()?.value;
+      if ((activeAdmins ?? 0) <= 1) {
+        throw new Error("最後の有効な管理者は無効化できません");
+      }
+    }
     const updated = tx
       .update(users)
       .set({ isActive, updatedAt: now })
       .where(eq(users.studentNumber, studentNumber))
       .run();
 
-    if (updated.changes !== 1) {
-      throw new Error("利用者が見つかりません");
-    }
-
     if (!isActive) {
-      const user = tx
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.studentNumber, studentNumber))
-        .get();
-      if (user) {
-        tx.delete(sessions).where(eq(sessions.userId, user.id)).run();
-      }
+      tx.delete(sessions).where(eq(sessions.userId, user.id)).run();
     }
   });
 };
@@ -177,6 +186,43 @@ export const unlockUser = (
     .set({ failedLoginCount: 0, lockedUntil: null, updatedAt: now })
     .where(eq(userCredentials.userId, user.id))
     .run();
+};
+
+export const setUserRole = (
+  db: SqliteDatabase,
+  studentNumberInput: string,
+  role: UserRole,
+  now = new Date().toISOString(),
+) => {
+  const studentNumber = normalizeStudentNumber(studentNumberInput);
+
+  db.transaction((tx) => {
+    const user = tx
+      .select()
+      .from(users)
+      .where(eq(users.studentNumber, studentNumber))
+      .get();
+    if (!user) {
+      throw new Error("利用者が見つかりません");
+    }
+    if (user.role === role) {
+      return;
+    }
+    if (user.role === "admin" && role === "member" && user.isActive) {
+      const activeAdmins = tx
+        .select({ value: count() })
+        .from(users)
+        .where(and(eq(users.role, "admin"), eq(users.isActive, true)))
+        .get()?.value;
+      if ((activeAdmins ?? 0) <= 1) {
+        throw new Error("最後の有効な管理者は降格できません");
+      }
+    }
+    tx.update(users)
+      .set({ role, updatedAt: now })
+      .where(eq(users.id, user.id))
+      .run();
+  });
 };
 
 const ask = async (question: string) => {
@@ -226,19 +272,17 @@ const run = async () => {
   const databasePath = process.env.DATABASE_PATH ?? "./data/smart-gate.sqlite3";
   const db = createSqliteDatabase(databasePath);
 
-  if (command === "create") {
+  if (command === "create" || command === "create-admin") {
     const studentNumber = await ask("学籍番号: ");
     const name = await ask("氏名: ");
     const lcdDisplayName = await ask("LCD表示名: ");
     const email = await ask("メールアドレス: ");
     const password = await askPassword();
-    const result = await createUser(db, {
-      studentNumber,
-      name,
-      lcdDisplayName,
-      email,
-      password,
-    });
+    const result = await createUser(
+      db,
+      { studentNumber, name, lcdDisplayName, email, password },
+      { role: command === "create-admin" ? "admin" : "member" },
+    );
     stdout.write(
       `利用者を作成しました。未照合イベント紐付け件数: ${result.linkedEventCount}\n`,
     );
@@ -252,9 +296,15 @@ const run = async () => {
     setUserActive(db, studentNumber, command === "enable");
   } else if (command === "unlock") {
     unlockUser(db, studentNumber);
+  } else if (command === "promote-admin" || command === "demote-admin") {
+    setUserRole(
+      db,
+      studentNumber,
+      command === "promote-admin" ? "admin" : "member",
+    );
   } else {
     throw new Error(
-      "create, reset-password, enable, disable, unlockを指定してください",
+      "create, create-admin, reset-password, enable, disable, unlock, promote-admin, demote-adminを指定してください",
     );
   }
   stdout.write("更新しました。\n");

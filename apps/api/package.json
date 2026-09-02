@@ -11,10 +11,13 @@
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
     "user:create": "tsx scripts/manage-user.ts create",
+    "user:create-admin": "tsx scripts/manage-user.ts create-admin",
     "user:reset-password": "tsx scripts/manage-user.ts reset-password",
     "user:enable": "tsx scripts/manage-user.ts enable",
     "user:disable": "tsx scripts/manage-user.ts disable",
-    "user:unlock": "tsx scripts/manage-user.ts unlock"
+    "user:unlock": "tsx scripts/manage-user.ts unlock",
+    "user:promote-admin": "tsx scripts/manage-user.ts promote-admin",
+    "user:demote-admin": "tsx scripts/manage-user.ts demote-admin"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",

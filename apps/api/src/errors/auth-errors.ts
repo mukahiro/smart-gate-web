@@ -35,3 +35,21 @@ export class UnauthorizedError extends AppError {
     super("認証が必要です");
   }
 }
+
+export class InvalidCurrentPasswordError extends AppError {
+  readonly code = "INVALID_CURRENT_PASSWORD";
+  readonly status = 401;
+
+  constructor() {
+    super("現在のパスワードが正しくありません");
+  }
+}
+
+export class PasswordMustDifferError extends AppError {
+  readonly code = "PASSWORD_MUST_DIFFER";
+  readonly status = 400;
+
+  constructor() {
+    super("新しいパスワードには現在と異なる値を指定してください");
+  }
+}

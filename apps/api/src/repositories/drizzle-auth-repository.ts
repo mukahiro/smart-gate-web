@@ -23,6 +23,7 @@ export class DrizzleAuthRepository implements AuthRepository {
           name: users.name,
           lcdDisplayName: users.lcdDisplayName,
           email: users.email,
+          role: users.role,
           isActive: users.isActive,
           passwordHash: userCredentials.passwordHash,
           failedLoginCount: userCredentials.failedLoginCount,
@@ -97,6 +98,7 @@ export class DrizzleAuthRepository implements AuthRepository {
         name: users.name,
         lcdDisplayName: users.lcdDisplayName,
         email: users.email,
+        role: users.role,
         isUserActive: users.isActive,
         createdAt: sessions.createdAt,
         lastSeenAt: sessions.lastSeenAt,
@@ -120,6 +122,7 @@ export class DrizzleAuthRepository implements AuthRepository {
         name: row.name,
         lcdDisplayName: row.lcdDisplayName,
         email: row.email,
+        role: row.role,
       },
       isUserActive: row.isUserActive,
       createdAt: row.createdAt,
@@ -155,5 +158,30 @@ export class DrizzleAuthRepository implements AuthRepository {
         ),
       )
       .run();
+  }
+
+  changePassword(input: {
+    userId: string;
+    passwordHash: string;
+    changedAt: string;
+  }): boolean {
+    return this.db.transaction((tx) => {
+      const updated = tx
+        .update(userCredentials)
+        .set({
+          passwordHash: input.passwordHash,
+          failedLoginCount: 0,
+          lockedUntil: null,
+          passwordChangedAt: input.changedAt,
+          updatedAt: input.changedAt,
+        })
+        .where(eq(userCredentials.userId, input.userId))
+        .run();
+      if (updated.changes !== 1) {
+        return false;
+      }
+      tx.delete(sessions).where(eq(sessions.userId, input.userId)).run();
+      return true;
+    });
   }
 }

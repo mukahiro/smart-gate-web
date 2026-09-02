@@ -268,7 +268,8 @@ Status: `200 OK`
     "studentNumber": "1234567890",
     "name": "向原 大翔",
     "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ",
-    "email": "user@example.com"
+    "email": "user@example.com",
+    "role": "member"
   }
 }
 ```
@@ -347,7 +348,8 @@ Status: `200 OK`
     "studentNumber": "1234567890",
     "name": "向原 大翔",
     "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ",
-    "email": "user@example.com"
+    "email": "user@example.com",
+    "role": "member"
   }
 }
 ```
@@ -452,7 +454,7 @@ GET /api/v1/attendance-events/me/daily?date=2026-07-12
 
 ## 管理者APIとパスワード変更API
 
-以下はPhase 5で実装予定であり、現在は利用できない。詳細な権限、監査ログ、一時パスワードの方針は `docs/admin-api.md` を参照する。
+以下はPhase 5で実装済みである。詳細な権限、request・response、監査ログ、一時パスワードの方針は `docs/admin-api.md` を参照する。
 
 - `POST /api/v1/auth/change-password`
 - `GET /api/v1/admin/users`

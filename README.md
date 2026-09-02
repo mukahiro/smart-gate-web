@@ -162,13 +162,18 @@ Phase 1では、イベント送信元を単一のRaspberry Piとし、Bearerト�
 
 ```sh
 pnpm --filter @smart-gate/api user:create
+pnpm --filter @smart-gate/api user:create-admin
 pnpm --filter @smart-gate/api user:reset-password
 pnpm --filter @smart-gate/api user:enable
 pnpm --filter @smart-gate/api user:disable
 pnpm --filter @smart-gate/api user:unlock
+pnpm --filter @smart-gate/api user:promote-admin
+pnpm --filter @smart-gate/api user:demote-admin
 ```
 
 `user:create` は `12-3456-789-0` と `1234567890` の両形式を受け付け、DBにはハイフンなしの数字10桁を保存する。利用者作成と未照合イベントの紐付けは同一トランザクションで行う。パスワード再設定と利用者無効化では、その利用者の全セッションを削除する。
+
+管理者アカウントの作成・昇格・降格はCLIだけで行う。管理者APIは `/api/v1/admin` 配下で利用者管理と監査ログ確認を提供するが、他人の入退室履歴は返さない。利用者作成とパスワード再設定では、一時パスワードをレスポンスで一度だけ返す。
 
 ## migration運用
 

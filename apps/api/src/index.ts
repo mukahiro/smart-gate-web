@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { createApp, readAuthAppBearerToken } from "./app";
 import { createSqliteDatabase } from "./db/client";
+import { DrizzleAdminRepository } from "./repositories/drizzle-admin-repository";
 import { DrizzleAttendanceEventRepository } from "./repositories/drizzle-attendance-event-repository";
 import { DrizzleAttendanceHistoryRepository } from "./repositories/drizzle-attendance-history-repository";
 import { DrizzleAuthRepository } from "./repositories/drizzle-auth-repository";
@@ -22,6 +23,7 @@ const app = createApp({
     console.log(JSON.stringify(entry));
   },
   authRepository: new DrizzleAuthRepository(db),
+  adminRepository: new DrizzleAdminRepository(db),
   attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
   secureCookie,
 });

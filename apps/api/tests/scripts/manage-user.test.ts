@@ -10,6 +10,7 @@ import {
   normalizeStudentNumber,
   resetPassword,
   setUserActive,
+  setUserRole,
   unlockUser,
 } from "../../scripts/manage-user";
 import { attendanceEvents } from "../../src/db/attendance-event-schema";
@@ -176,5 +177,43 @@ describe("manage user", () => {
       failedLoginCount: 0,
       lockedUntil: null,
     });
+  });
+
+  it("manages admin roles and preserves the last active admin", async () => {
+    const db = createDatabase();
+    await createUser(
+      db,
+      {
+        studentNumber: "1234567890",
+        name: "管理者一",
+        lcdDisplayName: "ADMIN 1",
+        email: "admin1@example.com",
+        password: "a-secure-password",
+      },
+      { userId: "admin-001", role: "admin" },
+    );
+
+    expect(() => setUserRole(db, "1234567890", "member")).toThrow(
+      "最後の有効な管理者は降格できません",
+    );
+    expect(() => setUserActive(db, "1234567890", false)).toThrow(
+      "最後の有効な管理者は無効化できません",
+    );
+
+    await createUser(
+      db,
+      {
+        studentNumber: "0987654321",
+        name: "管理者二",
+        lcdDisplayName: "ADMIN 2",
+        email: "admin2@example.com",
+        password: "a-secure-password",
+      },
+      { userId: "admin-002", role: "admin" },
+    );
+    setUserRole(db, "1234567890", "member");
+    expect(
+      db.select().from(users).where(eq(users.id, "admin-001")).get()?.role,
+    ).toBe("member");
   });
 });

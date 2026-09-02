@@ -1,9 +1,12 @@
+import type { UserRole } from "../db/user-schema";
+
 export type AuthenticatedUser = {
   id: string;
   studentNumber: string;
   name: string;
   lcdDisplayName: string;
   email: string;
+  role: UserRole;
 };
 
 export type UserAuthenticationRecord = AuthenticatedUser & {
@@ -52,4 +55,9 @@ export interface AuthRepository {
   ): void;
   deleteSession(tokenHash: string): void;
   deleteExpiredSessions(now: string): void;
+  changePassword(input: {
+    userId: string;
+    passwordHash: string;
+    changedAt: string;
+  }): boolean;
 }

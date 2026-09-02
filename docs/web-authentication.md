@@ -52,6 +52,7 @@
 | `lcd_display_name` | LCD表示名 |
 | `email` | 表示用メールアドレス |
 | `email_normalized` | 前後空白除去・小文字化した検索用メールアドレス、UNIQUE |
+| `role` | `member` または `admin`。既定値は `member` |
 | `is_active` | 利用者の有効状態 |
 | `created_at` | 作成日時 |
 | `updated_at` | 更新日時 |
@@ -144,8 +145,9 @@ HTTPSの導入判断は保留中である。`Secure=false` の場合は起動時
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/logout`
 - `GET /api/v1/auth/me`
+- `POST /api/v1/auth/change-password`
 
-本人が任意でパスワードを変更する `POST /api/v1/auth/change-password` を追加予定である。一時パスワードからの変更も強制せず、通常のパスワード変更として扱う。変更成功時は現在を含む全セッションを失効させ、再ログインを求める。
+本人が任意でパスワードを変更する `POST /api/v1/auth/change-password` を実装済みである。一時パスワードからの変更も強制せず、通常のパスワード変更として扱う。変更成功時は現在を含む全セッションを失効させ、再ログインを求める。
 
 認証必須APIはCookieからセッションを検証し、Hono Contextへ内部利用者IDを格納する。本人の履歴を取得するAPIは、リクエストから任意の利用者IDや学籍番号を受け取らず、Context上の内部利用者IDだけを使用する。
 
@@ -153,7 +155,7 @@ WebとAPIは同一オリジンで運用し、Cookie認証を使うAPIではOrigi
 
 ## 利用者の保守
 
-一般利用者向けのサインアップとパスワードリセット画面は作成しない。現行の保守者向けCLIに加えて、管理者向けの利用者管理APIをPhase 5で追加する予定である。
+一般利用者向けのサインアップとパスワードリセット画面は作成しない。現行の保守者向けCLIに加えて、管理者向けの利用者管理APIをPhase 5で実装した。
 
 - 管理者アカウントの作成・昇格・降格はCLIだけで行う
 - 管理者APIで作成する利用者は一般利用者とする

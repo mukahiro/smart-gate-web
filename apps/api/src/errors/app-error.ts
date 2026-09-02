@@ -3,9 +3,17 @@ export type AppErrorCode =
   | "INVALID_CREDENTIALS"
   | "AUTHENTICATION_REQUIRED"
   | "INVALID_ORIGIN"
-  | "UNAUTHORIZED";
+  | "UNAUTHORIZED"
+  | "ADMIN_PERMISSION_REQUIRED"
+  | "USER_NOT_FOUND"
+  | "USER_EMAIL_ALREADY_EXISTS"
+  | "USER_STUDENT_NUMBER_ALREADY_EXISTS"
+  | "LAST_ADMIN_REQUIRED"
+  | "CANNOT_DISABLE_SELF"
+  | "INVALID_CURRENT_PASSWORD"
+  | "PASSWORD_MUST_DIFFER";
 
-export type AppErrorStatus = 400 | 401 | 403;
+export type AppErrorStatus = 400 | 401 | 403 | 404 | 409;
 
 export abstract class AppError extends Error {
   abstract readonly code: AppErrorCode;
