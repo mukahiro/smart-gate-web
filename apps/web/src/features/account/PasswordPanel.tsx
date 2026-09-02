@@ -58,7 +58,7 @@ export function PasswordPanel({
   return (
     <section className="account-panel" aria-labelledby="password-title">
       <h2 id="password-title">パスワード変更</h2>
-      <p>変更すると、この端末を含むすべての端末からログアウトします。</p>
+      <p>パスワードを変更すると、すべての端末からログアウトします。新しいパスワードで再度ログインしてください。</p>
       <form className="login-form password-form" onSubmit={submit}>
         <label>
           現在のパスワード

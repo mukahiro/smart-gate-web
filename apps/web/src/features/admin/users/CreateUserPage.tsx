@@ -79,7 +79,7 @@ export function CreateUserPage({
         aria-labelledby="create-user-title"
       >
         <button className="back-button" type="button" onClick={onBack}>
-          ← 利用者一覧へ
+          ← 利用者一覧
         </button>
         <div className="admin-page-heading">
           <div>

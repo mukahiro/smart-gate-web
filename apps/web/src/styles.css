@@ -5,6 +5,10 @@
     sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  --color-theme: #5598da;
+  --color-theme-hover: #3b86d1;
+  --color-theme-soft: #eaf3fc;
+  --color-theme-focus: rgb(85 152 218 / 22%);
 }
 
 * {
@@ -33,7 +37,7 @@ button {
   width: 34px;
   height: 34px;
   border: 3px solid #d5ddd7;
-  border-top-color: #2f6b4f;
+  border-top-color: var(--color-theme);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -50,8 +54,8 @@ button {
 .login-card {
   width: min(100%, 440px);
   padding: 32px;
-  border: 1px solid #d8d8d8;
-  border-radius: 4px;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
   background: #fff;
 }
 .brand-block,
@@ -70,7 +74,7 @@ p {
 }
 .login-logo {
   display: block;
-  width: min(100%, 270px);
+  width: min(100%, 240px);
   height: auto;
 }
 .login-form {
@@ -87,16 +91,16 @@ p {
 .login-form input {
   width: 100%;
   padding: 12px 13px;
-  border: 1px solid #cbd4ce;
-  border-radius: 4px;
+  border-radius: 8px;
   outline: none;
-  background: #fff;
+  background: #f3f3f3;
+  border: none;
   font-size: 1rem;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .login-form input:focus {
-  border-color: #37745a;
-  box-shadow: 0 0 0 3px rgb(55 116 90 / 14%);
+  border-color: var(--color-theme);
+  box-shadow: 0 0 0 3px var(--color-theme-focus);
 }
 .login-form label small {
   color: #77837c;
@@ -117,26 +121,31 @@ p {
   cursor: pointer;
 }
 .primary-button {
-  padding: 11px 18px;
-  border: 1px solid #285c43;
+  padding: 8px 16px;
+  border: 1px solid var(--color-theme);
+  border-radius: 8px;
+  font-size: 0.82rem;
   color: #fff;
-  background: #285c43;
+  background: var(--color-theme);
 }
 .primary-button:hover {
-  background: #1f4d37;
+  background: var(--color-theme-hover);
 }
 .primary-button:disabled {
   cursor: wait;
   opacity: 0.65;
 }
 .secondary-button {
-  padding: 8px 14px;
+  padding: 8px 16px;
+  border-radius: 8px;
   border: 1px solid #ccd5ce;
   background: #fff;
+  font-size: 0.82rem;
 }
 .secondary-button:hover,
 .icon-button:hover {
-  background: #f0f4f0;
+  border-color: var(--color-theme);
+  background: var(--color-theme-soft);
 }
 
 .application {
@@ -150,17 +159,22 @@ p {
   align-items: center;
   justify-content: space-between;
   padding: 0 max(24px, calc((100vw - 1240px) / 2));
-  border-bottom: 1px solid #d8d8d8;
-  background: #fff;
 }
 .app-brand {
   color: inherit;
   text-decoration: none;
+  padding: 0 16px;
+  box-sizing: border-box;
+  transition: transform 0.15s ease-in-out;
 }
+.app-brand:hover {
+  transform: scale(1.025);
+}
+
 .header-logo {
   display: block;
-  width: 164px;
-  height: auto;
+  width: auto;
+  height: 36px;
 }
 .app-brand > span:last-child,
 .user-button > span:nth-child(2) {
@@ -181,15 +195,15 @@ p {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 8px;
+  padding: 8px 16px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   background: transparent;
   text-align: left;
   cursor: pointer;
 }
 .user-button:hover {
-  background: #f1f4f1;
+  background: var(--color-theme-soft);
 }
 .user-button strong {
   max-width: 180px;
@@ -203,9 +217,10 @@ p {
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: 4px;
-  color: #285c43;
-  background: #dfebe3;
+  border-radius: 999px;
+  border: 1px solid var(--color-theme);
+  color: var(--color-theme);
+  background: var(--color-theme-soft);
   font-weight: 800;
 }
 .user-menu {
@@ -214,22 +229,22 @@ p {
   right: 0;
   display: grid;
   width: 180px;
-  padding: 6px;
-  border: 1px solid #d8dfda;
-  border-radius: 10px;
+  padding: 8px;
+  border-radius: 16px;
   background: #fff;
   box-shadow: 0 15px 35px rgb(31 48 38 / 14%);
 }
 .user-menu button {
-  padding: 10px;
+  padding: 8px 16px;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-size: 0.82rem;
   background: transparent;
   text-align: left;
   cursor: pointer;
 }
 .user-menu button:hover {
-  background: #f0f4f0;
+  background: var(--color-theme-soft);
 }
 
 .content-shell {
@@ -238,7 +253,7 @@ p {
   gap: 20px;
   width: min(calc(100% - 48px), 1240px);
   margin: 0 auto;
-  padding: 34px 0 48px;
+  padding: 24px 0 48px;
 }
 .history-card,
 .detail-panel,
@@ -264,7 +279,7 @@ p {
 }
 .history-heading h1 {
   margin: 0;
-  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  font-size: clamp(1.55rem, 2vw, 1.8rem);
   font-variant-numeric: tabular-nums;
 }
 .month-controls {
@@ -296,7 +311,7 @@ p {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #3b8461;
+  background: var(--color-theme);
 }
 .event-dot[data-warning] {
   background: #c27b2f;
@@ -305,7 +320,7 @@ p {
   display: inline-block;
   width: 13px;
   height: 13px;
-  border: 2px solid #397457;
+  border: 2px solid var(--color-theme);
   border-radius: 50%;
 }
 .calendar-wrap {
@@ -358,7 +373,7 @@ p {
   border-bottom: 0;
 }
 .calendar-day:hover {
-  background: #f5f8f5;
+  background: var(--color-theme-soft);
 }
 .calendar-day[data-outside] {
   color: #a8b0ab;
@@ -366,7 +381,7 @@ p {
 }
 .calendar-day[data-selected] {
   z-index: 1;
-  box-shadow: inset 0 0 0 2px #397457;
+  box-shadow: inset 0 0 0 2px var(--color-theme);
 }
 .day-number {
   display: grid;
@@ -379,7 +394,7 @@ p {
 }
 .calendar-day[data-today] .day-number {
   color: #fff;
-  background: #397457;
+  background: var(--color-theme);
 }
 .day-summary {
   display: flex;
@@ -471,8 +486,8 @@ p {
   height: 34px;
   place-items: center;
   border-radius: 9px;
-  color: #2f6b4f;
-  background: #e3f0e7;
+  color: var(--color-theme-hover);
+  background: var(--color-theme-soft);
   font-size: 0.75rem;
   font-weight: 800;
 }
@@ -555,18 +570,18 @@ p {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 6px;
+  margin-top: 16px;
 }
 
 .admin-nav {
-  display: flex;
-  align-self: stretch;
   gap: 4px;
+  margin: 0 20px 0 auto;
 }
 .admin-nav button {
   position: relative;
-  padding: 0 14px;
+  padding: 8px 16px;
   border: 0;
+  border-radius: 8px;
   background: transparent;
   color: #607068;
   font-size: 0.8rem;
@@ -574,20 +589,19 @@ p {
   cursor: pointer;
 }
 .admin-nav button:hover {
-  color: #285c43;
-  background: #f5f7f5;
+  color: var(--color-theme);
+  background: var(--color-theme-soft);
 }
 .admin-nav button[data-active] {
-  color: #285c43;
+  color: var(--color-theme);
 }
 .admin-nav button[data-active]::after {
   position: absolute;
-  right: 12px;
+  right: 16px;
   bottom: 0;
-  left: 12px;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
-  background: #397457;
+  left: 16px;
+  height: 2px;
+  background: var(--color-theme);
   content: "";
 }
 
@@ -595,10 +609,9 @@ p {
   grid-column: 1 / -1;
   min-width: 0;
   padding: 30px;
-  border: 1px solid #d8d8d8;
-  border-radius: 4px;
+  box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
   background: #fff;
-  box-shadow: none;
 }
 .admin-page-heading {
   display: flex;
@@ -609,7 +622,7 @@ p {
 }
 .admin-page-heading h1 {
   margin-bottom: 8px;
-  font-size: clamp(1.55rem, 3vw, 2.25rem);
+  font-size: clamp(1.55rem, 2vw, 1.8rem);
 }
 .admin-page-heading p {
   margin: 0;
@@ -629,7 +642,7 @@ p {
   gap: 12px;
   padding: 16px;
   border-radius: 10px;
-  background: #f5f7f5;
+  border: 1px solid #dfe5e0;
 }
 .user-filters label,
 .admin-form label {
@@ -645,17 +658,17 @@ p {
   width: 100%;
   min-height: 42px;
   padding: 9px 11px;
-  border: 1px solid #cbd4ce;
   border-radius: 8px;
   outline: none;
-  background: #fff;
+  border: none;
+  background: #f3f3f3;
   color: #17231d;
 }
 .user-filters input:focus,
 .user-filters select:focus,
 .admin-form input:focus {
-  border-color: #37745a;
-  box-shadow: 0 0 0 3px rgb(55 116 90 / 14%);
+  border-color: var(--color-theme);
+  box-shadow: 0 0 0 3px var(--color-theme-focus);
 }
 .admin-form input[readonly] {
   color: #69766f;
@@ -730,8 +743,8 @@ p {
   background: #eee8f5;
 }
 .status-badge[data-state="active"] {
-  color: #226443;
-  background: #e2f1e8;
+  color: var(--color-theme-hover);
+  background: var(--color-theme-soft);
 }
 .status-badge[data-state="inactive"] {
   color: #6c706d;
@@ -749,20 +762,23 @@ p {
 }
 .text-button,
 .back-button {
+  display: inline-block;
   border: 0;
-  color: #2f6b4f;
+  color: var(--color-theme-hover);
   background: transparent;
   font-weight: 700;
   cursor: pointer;
+  border-radius: 999px;
+  border: 1px solid var(--color-theme);
+  padding: 4px 12px;
 }
 .text-button:hover,
 .back-button:hover {
   text-decoration: underline;
 }
 .back-button {
-  margin: 0 0 24px;
-  padding: 0;
-  font-size: 0.78rem;
+  margin: 0 0 16px;
+  font-size: 0.7rem;
 }
 .admin-form-card {
   width: min(100%, 720px);
@@ -889,8 +905,8 @@ p {
 .dialog-note {
   padding: 10px 12px;
   border-radius: 7px;
-  color: #275f43 !important;
-  background: #e9f4ec;
+  color: var(--color-theme-hover) !important;
+  background: var(--color-theme-soft);
 }
 .temporary-password {
   display: flex;
@@ -906,7 +922,7 @@ p {
   min-width: 0;
   flex: 1;
   overflow-wrap: anywhere;
-  color: #1e4f37;
+  color: var(--color-theme-hover);
   font-size: 1.08rem;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -988,6 +1004,7 @@ p {
 
 @media (max-width: 900px) {
   .content-shell {
+    padding: 16px 0 48px;
     grid-template-columns: 1fr;
   }
   .history-card:has(+ .detail-panel),
@@ -1010,7 +1027,7 @@ p {
     grid-column: 3 / -1;
   }
 }
-@media (max-width: 640px) {
+@media (max-width: 740px) {
   .login-page {
     padding: 24px 16px 18px;
   }
@@ -1024,43 +1041,41 @@ p {
   .admin-nav {
     position: fixed;
     z-index: 9;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
     height: 58px;
+    display: flex;
     justify-content: space-around;
-    border-top: 1px solid #dce2dd;
     background: #fff;
-    box-shadow: 0 -8px 24px rgb(29 52 39 / 8%);
+    border-radius: 999px;
+    box-shadow: 0 15px 35px rgb(31 48 38 / 14%);
+    margin: 0;
+    overflow: hidden;
   }
   .admin-nav button {
     flex: 1;
     padding: 0 5px;
     font-size: 0.7rem;
+    border-radius: 0;
   }
   .admin-nav button[data-active]::after {
-    top: 0;
-    bottom: auto;
-    border-radius: 0 0 3px 3px;
+    right: 28px;
+    left: 28px;
   }
   .user-button > span:nth-child(2),
   .app-brand small {
     display: none;
   }
   .header-logo {
-    width: 132px;
+    height: 32px;
   }
   .content-shell {
     width: 100%;
-    padding: 14px 10px 76px;
-  }
-  .history-card,
-  .detail-panel,
-  .account-panel {
-    border-radius: 4px;
+    padding: 8px 16px 88px;
   }
   .history-card {
-    padding: 18px 12px;
+    padding: 16px;
   }
   .history-heading {
     align-items: flex-end;
