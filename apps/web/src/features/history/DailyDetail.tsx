@@ -49,7 +49,6 @@ export function DailyDetail({
     <aside className="detail-panel" aria-labelledby="detail-title">
       <header className="detail-header">
         <div>
-          <p className="section-label">Daily detail</p>
           <h2 id="detail-title">{formatDate(date)}</h2>
         </div>
         <button

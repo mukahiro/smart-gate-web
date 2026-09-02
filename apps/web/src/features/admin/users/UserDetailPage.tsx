@@ -205,7 +205,6 @@ export function UserDetailPage({
         </button>
         <div className="admin-page-heading detail-title-row">
           <div>
-            <p className="section-label">User detail</p>
             <h1 id="user-detail-title">{user.name}</h1>
             <div className="title-badges">
               <span className="role-badge" data-role={user.role}>

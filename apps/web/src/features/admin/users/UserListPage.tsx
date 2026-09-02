@@ -62,7 +62,6 @@ export function UserListPage({
     >
       <div className="admin-page-heading">
         <div>
-          <p className="section-label">User management</p>
           <h1 id="admin-users-title">利用者管理</h1>
           <p>
             {users ? `${users.length}人の利用者` : "利用者を読み込んでいます"}

@@ -107,12 +107,8 @@ export function HistoryPage({
             showHistory();
           }}
         >
-          <span className="brand-mark" aria-hidden="true">
-            SG
-          </span>
           <span>
-            <strong>Smart Gate</strong>
-            <small>入退室履歴</small>
+            <strong>入退室記録</strong>
           </span>
         </a>
         {user.role === "admin" && (
@@ -217,7 +213,6 @@ export function HistoryPage({
             <section className="history-card" aria-labelledby="history-title">
               <div className="history-heading">
                 <div>
-                  <p className="section-label">Attendance history</p>
                   <h1 id="history-title">{formatMonth(month)}</h1>
                 </div>
                 <div className="month-controls" aria-label="表示月の移動">

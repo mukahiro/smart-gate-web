@@ -109,7 +109,6 @@ export function AuditLogPage({
     <section className="admin-card audit-card" aria-labelledby="audit-title">
       <div className="admin-page-heading">
         <div>
-          <p className="section-label">Audit log</p>
           <h1 id="audit-title">監査ログ</h1>
           <p>管理者が実行した利用者管理操作を新しい順に表示します。</p>
         </div>

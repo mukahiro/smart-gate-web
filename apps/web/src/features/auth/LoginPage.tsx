@@ -33,15 +33,8 @@ export function LoginPage({ initialMessage, onLogin }: LoginPageProps) {
     <main className="login-page">
       <section className="login-card" aria-labelledby="login-title">
         <header className="brand-block">
-          <span className="brand-mark" aria-hidden="true">
-            SG
-          </span>
-          <div>
-            <p className="eyebrow">Smart Gate</p>
-            <h1 id="login-title">入退室履歴</h1>
-          </div>
+          <h1 id="login-title">入退室記録</h1>
         </header>
-        <p className="login-intro">研究室での入室・退出記録を確認できます。</p>
         <form className="login-form" onSubmit={submit}>
           <label>
             メールアドレス
@@ -79,7 +72,6 @@ export function LoginPage({ initialMessage, onLogin }: LoginPageProps) {
           </button>
         </form>
       </section>
-      <p className="login-footnote">Smart Gate · Laboratory access history</p>
     </main>
   );
 }

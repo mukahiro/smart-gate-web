@@ -32,7 +32,6 @@ export function TemporaryPasswordDialog({
         className="dialog-card temporary-password-card"
         aria-labelledby="temporary-password-title"
       >
-        <p className="section-label">One-time display</p>
         <h2 id="temporary-password-title">{title}</h2>
         <p>この画面を閉じると、同じ一時パスワードは再表示できません。</p>
         {note && <p className="dialog-note">{note}</p>}

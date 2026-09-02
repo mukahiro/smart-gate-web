@@ -83,7 +83,6 @@ export function CreateUserPage({
         </button>
         <div className="admin-page-heading">
           <div>
-            <p className="section-label">New user</p>
             <h1 id="create-user-title">利用者を登録</h1>
             <p>一般利用者を作成し、一時パスワードを発行します。</p>
           </div>
