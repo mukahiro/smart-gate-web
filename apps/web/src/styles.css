@@ -287,6 +287,15 @@ p {
   margin: 0 auto;
   padding: 12px 0 24px;
 }
+@media (min-width: 901px) {
+  .content-shell {
+    grid-template-columns: minmax(0, 1fr) 0;
+    transition: grid-template-columns 180ms ease-out;
+  }
+  .content-shell.has-detail {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+}
 .history-card,
 .detail-panel,
 .account-panel {
@@ -440,9 +449,18 @@ p {
   border-radius: 50%;
 }
 .calendar-wrap {
+  animation: calendar-fade-in 160ms ease-out both;
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 10px;
+}
+@keyframes calendar-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .weekday-row,
 .calendar-grid {
@@ -536,7 +554,20 @@ p {
 
 .detail-panel {
   align-self: start;
+  min-width: 0;
   padding: 24px;
+  animation: detail-panel-enter 180ms ease-out both;
+  transform-origin: left center;
+}
+@keyframes detail-panel-enter {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
 }
 .detail-header {
   padding-bottom: 20px;
@@ -1221,6 +1252,9 @@ p {
     padding: 16px 0 24px;
     grid-template-columns: 1fr;
   }
+  .content-shell.has-detail {
+    grid-template-columns: 1fr;
+  }
   .history-card:has(+ .detail-panel),
   .detail-panel {
     grid-column: 1;
@@ -1405,6 +1439,12 @@ p {
 }
 @media (prefers-reduced-motion: reduce) {
   .loading-mark {
+    animation: none;
+  }
+  .detail-panel {
+    animation: none;
+  }
+  .calendar-wrap {
     animation: none;
   }
 }

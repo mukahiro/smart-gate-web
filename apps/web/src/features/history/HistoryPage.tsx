@@ -200,7 +200,7 @@ export function HistoryPage({
         </div>
       </header>
 
-      <main className="content-shell">
+      <main className={`content-shell${selectedDate ? " has-detail" : ""}`}>
         {screen.kind === "admin-users" ||
         screen.kind === "admin-user-new" ||
         screen.kind === "admin-user-detail" ? (
@@ -300,6 +300,7 @@ export function HistoryPage({
               )}
               {history && (
                 <MonthlyCalendar
+                  key={month}
                   month={month}
                   days={history.days}
                   today={today}
@@ -313,6 +314,7 @@ export function HistoryPage({
             </section>
             {selectedDate && (
               <DailyDetail
+                key={selectedDate}
                 date={selectedDate}
                 onSessionExpired={onSessionExpired}
                 onClose={() => setSelectedDate(null)}
