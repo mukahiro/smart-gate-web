@@ -10,8 +10,8 @@ import type {
   AdminRepository,
   AdminUser,
   CreateAdminUserInput,
-  RecordAdminAuditLogInput,
   UpdateAdminUserInput,
+  UpdateFaceImageCountInput,
 } from "./admin-repository";
 
 const selectedUser = {
@@ -22,6 +22,7 @@ const selectedUser = {
   email: users.email,
   role: users.role,
   isActive: users.isActive,
+  faceImageCount: users.faceImageCount,
   failedLoginCount: userCredentials.failedLoginCount,
   lockedUntil: userCredentials.lockedUntil,
   createdAt: users.createdAt,
@@ -318,18 +319,41 @@ export class DrizzleAdminRepository implements AdminRepository {
     return this.updateCredentialState(input, "reset", input.passwordHash);
   }
 
-  recordAuditLog(input: RecordAdminAuditLogInput): void {
-    this.db
-      .insert(adminAuditLogs)
-      .values({
-        id: input.auditId,
-        actorUserId: input.actorUserId,
-        action: input.action,
-        targetUserId: input.targetUserId,
-        occurredAt: input.occurredAt,
-        changedFields: JSON.stringify(input.changedFields),
-      })
-      .run();
+  updateFaceImageCount(input: UpdateFaceImageCountInput): AdminMutationResult {
+    const result = this.db.transaction((tx) => {
+      if (
+        !tx
+          .select({ id: users.id })
+          .from(users)
+          .where(eq(users.id, input.targetUserId))
+          .get()
+      ) {
+        return { kind: "not_found" as const };
+      }
+      tx.update(users)
+        .set({
+          faceImageCount: input.faceImageCount,
+          updatedAt: input.occurredAt,
+        })
+        .where(eq(users.id, input.targetUserId))
+        .run();
+      tx.insert(adminAuditLogs)
+        .values({
+          id: input.auditId,
+          actorUserId: input.actorUserId,
+          action: "user_face_images_updated",
+          targetUserId: input.targetUserId,
+          occurredAt: input.occurredAt,
+          changedFields: JSON.stringify(["faceImageCount"]),
+        })
+        .run();
+      return { kind: "success" as const, changed: true };
+    });
+    if (result.kind !== "success") return result;
+    return {
+      ...result,
+      user: this.findUser(input.targetUserId) as AdminUser,
+    };
   }
 
   listAuditLogs(input: {

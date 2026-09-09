@@ -111,6 +111,10 @@ button {
   color: #f0c689;
   background: #4c3823;
 }
+:root[data-theme="dark"] .status-badge[data-state="registered"] {
+  color: #b8d9f8;
+  background: #294158;
+}
 
 .centered-page,
 .login-page {
@@ -1030,6 +1034,11 @@ p {
   color: var(--color-theme-hover);
   background: var(--color-theme-soft);
 }
+.status-badge[data-state="registered"],
+.face-registration-status[data-registered="true"] {
+  color: var(--color-theme-hover);
+  background: var(--color-theme-soft);
+}
 .status-badge[data-state="inactive"] {
   color: #666;
   background: #eee;
@@ -1184,6 +1193,15 @@ p {
 }
 .face-image-form > button {
   justify-self: end;
+}
+.face-registration-status {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: var(--color-text-muted);
+  background: var(--color-surface-muted);
+  font-size: 0.7rem;
+  font-weight: 750;
 }
 .action-row {
   display: flex;

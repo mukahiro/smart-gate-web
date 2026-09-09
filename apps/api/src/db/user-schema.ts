@@ -15,6 +15,7 @@ export const users = sqliteTable(
     emailNormalized: text("email_normalized").notNull().unique(),
     role: text("role", { enum: userRoles }).notNull().default("member"),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+    faceImageCount: integer("face_image_count").notNull().default(0),
     createdAt: text("created_at").notNull(),
     updatedAt: text("updated_at").notNull(),
   },
@@ -30,6 +31,10 @@ export const users = sqliteTable(
     roleCheck: check(
       "users_role_check",
       sql`${table.role} IN ('member', 'admin')`,
+    ),
+    faceImageCountCheck: check(
+      "users_face_image_count_check",
+      sql`${table.faceImageCount} BETWEEN 0 AND 10`,
     ),
   }),
 );

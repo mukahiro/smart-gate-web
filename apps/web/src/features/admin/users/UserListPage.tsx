@@ -147,6 +147,7 @@ export function UserListPage({
                     <th>利用者</th>
                     <th>学籍番号</th>
                     <th>役割</th>
+                    <th>顔画像</th>
                     <th>状態</th>
                     <th>
                       <span className="visually-hidden">詳細</span>
@@ -166,6 +167,18 @@ export function UserListPage({
                       <td>
                         <span className="role-badge" data-role={user.role}>
                           {user.role === "admin" ? "管理者" : "一般"}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className="status-badge"
+                          data-state={
+                            user.faceImageCount > 0 ? "registered" : "inactive"
+                          }
+                        >
+                          {user.faceImageCount > 0
+                            ? `${user.faceImageCount}枚`
+                            : "未登録"}
                         </span>
                       </td>
                       <td>

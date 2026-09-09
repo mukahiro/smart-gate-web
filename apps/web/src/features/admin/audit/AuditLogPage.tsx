@@ -29,7 +29,7 @@ const fieldLabels: Record<string, string> = {
   lockedUntil: "ロック期限",
   password: "パスワード",
   sessions: "セッション",
-  faceImages: "顔認証用画像",
+  faceImageCount: "顔認証用画像",
 };
 
 const UserReference = ({

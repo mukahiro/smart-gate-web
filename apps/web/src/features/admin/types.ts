@@ -6,6 +6,7 @@ export type AdminUser = {
   email: string;
   role: "member" | "admin";
   isActive: boolean;
+  faceImageCount: number;
   failedLoginCount: number;
   lockedUntil: string | null;
   createdAt: string;

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { FaceAuthClient, FaceImage } from "../../clients/face-auth-client";
 import { UserNotFoundError } from "../../errors/admin-errors";
 import type { AdminRepository } from "../../repositories/admin-repository";
+import { resolveAdminMutation } from "./resolve-admin-mutation";
 
 type ReplaceUserFaceImagesOptions = {
   createId?: () => string;
@@ -24,13 +25,13 @@ export class ReplaceUserFaceImagesUseCase {
     if (!user) throw new UserNotFoundError();
 
     await this.faceAuthClient.replaceFaceImages(user.studentNumber, images);
-    this.repository.recordAuditLog({
+    const result = this.repository.updateFaceImageCount({
       auditId: (this.options.createId ?? randomUUID)(),
       actorUserId,
-      action: "user_face_images_updated",
       targetUserId,
       occurredAt: (this.options.now ?? (() => new Date()))().toISOString(),
-      changedFields: ["faceImages"],
+      faceImageCount: images.length,
     });
+    return resolveAdminMutation(result).user;
   }
 }

@@ -115,12 +115,12 @@ export const createAdminRoute = ({
             ? rawImages
             : [rawImages],
       );
-      await replaceFaceImages.execute(
+      const user = await replaceFaceImages.execute(
         c.get("authenticatedUser").id,
         c.req.param("userId"),
         images,
       );
-      return c.body(null, 204);
+      return c.json({ user }, 200);
     });
   }
 

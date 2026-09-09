@@ -9,6 +9,7 @@ export type AdminUser = {
   email: string;
   role: UserRole;
   isActive: boolean;
+  faceImageCount: number;
   failedLoginCount: number;
   lockedUntil: string | null;
   createdAt: string;
@@ -47,10 +48,9 @@ export type UpdateAdminUserInput = AuditInput & {
   };
 };
 
-export type RecordAdminAuditLogInput = AuditInput & {
-  action: AdminAuditAction;
+export type UpdateFaceImageCountInput = AuditInput & {
   targetUserId: string;
-  changedFields: string[];
+  faceImageCount: number;
 };
 
 export type AdminMutationResult =
@@ -78,7 +78,7 @@ export interface AdminRepository {
   resetUserPassword(
     input: AuditInput & { targetUserId: string; passwordHash: string },
   ): AdminMutationResult;
-  recordAuditLog(input: RecordAdminAuditLogInput): void;
+  updateFaceImageCount(input: UpdateFaceImageCountInput): AdminMutationResult;
   listAuditLogs(input: {
     limit: number;
     cursor?: { occurredAt: string; id: string };

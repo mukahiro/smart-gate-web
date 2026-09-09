@@ -149,10 +149,11 @@ describe("admin API", () => {
     expect(response.status).toBe(201);
     expect(response.headers.get("cache-control")).toBe("no-store");
     const body = (await response.json()) as {
-      user: { role: string };
+      user: { role: string; faceImageCount: number };
       temporaryPassword: string;
     };
     expect(body.user.role).toBe("member");
+    expect(body.user.faceImageCount).toBe(0);
     expect(body.temporaryPassword).toMatch(/^[A-Z2-9]{12}$/);
     expect(body.temporaryPassword).not.toMatch(/[ILO01]/);
     expect(
@@ -223,7 +224,10 @@ describe("admin API", () => {
       },
     );
 
-    expect(response.status).toBe(204);
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      user: { id: "member-001", faceImageCount: 2 },
+    });
     expect(faceRegistrations).toHaveLength(1);
     expect(faceRegistrations[0]).toMatchObject({
       studentNumber: "2222222222",
@@ -238,7 +242,7 @@ describe("admin API", () => {
     ).toMatchObject({
       actorUserId: "admin-001",
       targetUserId: "member-001",
-      changedFields: '["faceImages"]',
+      changedFields: '["faceImageCount"]',
     });
   });
 

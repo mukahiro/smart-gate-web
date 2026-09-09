@@ -160,7 +160,8 @@ export function UserDetailPage({
     event.preventDefault();
     if (!user || faceImages.length === 0) return;
     void run(async () => {
-      await replaceAdminUserFaceImages(user.id, faceImages);
+      const updated = await replaceAdminUserFaceImages(user.id, faceImages);
+      setUser(updated);
       setFaceImages([]);
       setSuccess("顔認証用画像を更新しました。");
     });
@@ -336,6 +337,14 @@ export function UserDetailPage({
               <div className="account-actions">
                 <form className="face-image-form" onSubmit={saveFaceImages}>
                   <h2>顔認証用画像</h2>
+                  <span
+                    className="face-registration-status"
+                    data-registered={user.faceImageCount > 0}
+                  >
+                    {user.faceImageCount > 0
+                      ? `登録済み（${user.faceImageCount}枚）`
+                      : "未登録"}
+                  </span>
                   <p>
                     選択した画像でPython顔認証アプリの登録内容を置き換えます。
                   </p>

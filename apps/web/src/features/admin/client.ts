@@ -39,10 +39,10 @@ export const updateAdminUser = (userId: string, input: UpdateAdminUserInput) =>
 export const replaceAdminUserFaceImages = (userId: string, images: File[]) => {
   const body = new FormData();
   for (const image of images) body.append("images", image, image.name);
-  return apiRequest<void>(
+  return apiRequest<{ user: AdminUser }>(
     `/api/v1/admin/users/${encodeURIComponent(userId)}/face-images`,
     { method: "PUT", body },
-  );
+  ).then(({ user }) => user);
 };
 
 export const setAdminUserActive = (userId: string, isActive: boolean) =>
