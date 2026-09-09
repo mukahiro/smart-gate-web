@@ -68,6 +68,7 @@ button {
 :root[data-theme="dark"] .user-filters input,
 :root[data-theme="dark"] .user-filters select,
 :root[data-theme="dark"] .admin-form input,
+:root[data-theme="dark"] .face-image-field input,
 :root[data-theme="dark"] .month-picker-form input {
   color: #e7e9ed;
   background: #292f37;
@@ -1082,6 +1083,70 @@ p {
   color: var(--color-text-muted);
   font-weight: 500;
 }
+.face-image-field {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+.face-image-field legend {
+  padding: 0 5px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+.face-image-field input[type="file"] {
+  min-height: auto;
+  padding: 8px;
+}
+.face-image-field small,
+.face-image-form > p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.69rem;
+  line-height: 1.5;
+}
+.selected-image-list {
+  display: grid;
+  gap: 5px;
+  margin: 3px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.selected-image-list li {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.72rem;
+}
+.selected-image-list li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.selected-image-list button {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+.selected-image-list button:hover {
+  background: var(--color-theme-soft);
+}
+.selected-image-list svg {
+  width: 15px;
+  height: 15px;
+}
 .field-error {
   color: #a23c33;
   font-weight: 600;
@@ -1109,6 +1174,16 @@ p {
 .account-actions {
   display: grid;
   align-content: start;
+}
+.face-image-form {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--color-border);
+}
+.face-image-form > button {
+  justify-self: end;
 }
 .action-row {
   display: flex;

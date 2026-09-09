@@ -82,15 +82,21 @@ npm exec pnpm@9.15.4 -- dev
 
 ## 環境変数
 
+開発時はリポジトリルートの `.env` をAPI起動時に読み込む。シェルやsystemdで同名の環境変数が設定済みの場合は、その値を優先する。本番では `.env` を配置せず、systemdの `EnvironmentFile` などから設定してもよい。
+
 | Name | Description |
 | --- | --- |
 | `AUTH_APP_BEARER_TOKEN` | Python認証アプリ用Bearerトークン。未設定時はAPIを起動しない |
+| `FACE_AUTH_APP_URL` | 顔画像を登録するPython顔認証アプリのHTTP endpoint。未設定時はAPIを起動しない |
+| `FACE_AUTH_APP_BEARER_TOKEN` | 顔画像登録時にPython顔認証アプリへ送る専用Bearerトークン。未設定時はAPIを起動しない |
 | `DATABASE_PATH` | SQLiteファイルのパス。既定値は `./data/smart-gate.sqlite3` |
 | `DATABASE_MIGRATIONS_PATH` | migrationディレクトリ。既定値は `./drizzle` |
 | `API_PORT` | APIの待受ポート。既定値は `3000` |
 | `SESSION_COOKIE_SECURE` | HTTPS運用時は `true`。現在の既定値は `false` |
 
 `SESSION_COOKIE_SECURE=false` では起動時に警告する。HTTPSの本番方針はデプロイ設計時に確定する。
+
+`AUTH_APP_BEARER_TOKEN` はPythonアプリから本APIへの入退室イベント送信用、`FACE_AUTH_APP_BEARER_TOKEN` は本APIからPythonアプリへの顔画像送信用である。権限と漏えい時の影響を分離するため、異なる値を設定する。
 
 ## Web認証API
 

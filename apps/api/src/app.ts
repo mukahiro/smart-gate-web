@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { FaceAuthClient } from "./clients/face-auth-client";
 import { AppError } from "./errors/app-error";
 import type { AdminRepository } from "./repositories/admin-repository";
 import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
@@ -30,6 +31,7 @@ type AppOptions = {
   adminRepository?: AdminRepository;
   attendanceHistoryRepository?: AttendanceHistoryRepository;
   secureCookie?: boolean;
+  faceAuthClient?: FaceAuthClient;
 };
 
 export const createApp = ({
@@ -40,6 +42,7 @@ export const createApp = ({
   adminRepository,
   attendanceHistoryRepository,
   secureCookie = process.env.SESSION_COOKIE_SECURE === "true",
+  faceAuthClient,
 }: AppOptions) => {
   const app = new Hono().basePath("/api/v1");
 
@@ -77,7 +80,12 @@ export const createApp = ({
   if (authRepository && adminRepository) {
     app.route(
       "/admin",
-      createAdminRoute({ authRepository, adminRepository, secureCookie }),
+      createAdminRoute({
+        authRepository,
+        adminRepository,
+        secureCookie,
+        faceAuthClient,
+      }),
     );
   }
 

@@ -15,6 +15,10 @@ export const adminErrorMessage = (cause: unknown) => {
       return "対象の利用者が見つかりません。";
     case "VALIDATION_ERROR":
       return "入力内容を確認してください。";
+    case "FACE_AUTH_APP_UNAVAILABLE":
+      return "顔認証アプリに接続できませんでした。時間をおいて再試行してください。";
+    case "FACE_AUTH_APP_REJECTED":
+      return "顔認証アプリが画像を受け付けませんでした。画像を確認してください。";
     default:
       return cause.status === 0
         ? "サーバーに接続できませんでした。"

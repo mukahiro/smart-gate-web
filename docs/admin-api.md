@@ -13,6 +13,7 @@
 - ロック解除
 - 全セッション失効
 - 一時パスワードによるパスワード再設定
+- Python顔認証アプリへの顔認証用画像の登録・更新
 - 管理操作監査ログの確認
 
 管理者であっても、他の利用者の入退室履歴は閲覧できない。管理者による全利用者の履歴閲覧、利用者の物理削除、管理者APIからの役割変更は対象外とする。
@@ -46,6 +47,7 @@ Base pathは `/api/v1/admin` とする。以下はすべて実装済みである
 | `POST` | `/admin/users` | 一般利用者の作成 |
 | `GET` | `/admin/users/:userId` | 利用者詳細 |
 | `PATCH` | `/admin/users/:userId` | 基本情報の更新 |
+| `PUT` | `/admin/users/:userId/face-images` | 顔認証用画像の全置換 |
 | `POST` | `/admin/users/:userId/enable` | 利用者の有効化 |
 | `POST` | `/admin/users/:userId/disable` | 利用者の無効化と全セッション失効 |
 | `POST` | `/admin/users/:userId/unlock` | ロックと連続失敗回数の解除 |
@@ -60,6 +62,29 @@ Base pathは `/api/v1/admin` とする。以下はすべて実装済みである
 利用者作成時は、パスワード再設定と同じ規則で一時パスワードを生成し、作成した利用者とともにレスポンスで一度だけ返す。レスポンスを受け取れなかった場合は利用者を再作成せず、パスワード再設定APIで新しい一時パスワードを発行する。
 
 `enable`、`disable`、`unlock`、`revoke-sessions`は冪等にする。すでに目的の状態でも成功とし、実際に状態が変わった場合だけ監査ログを保存する。パスワード再設定は呼び出すたびに新しい一時パスワードを発行する。
+
+## 顔認証用画像
+
+管理者画面は `PUT /api/v1/admin/users/:userId/face-images` に `multipart/form-data` で `images` fieldを1〜10個送る。各fileは空でない `image/*` とし、1枚あたり10MB以下とする。管理APIはURLやフォームから学籍番号を受け取らず、対象利用者のDBレコードから学籍番号を解決する。
+
+管理APIは受信した画像をDBやファイルシステムへ保存せず、同じrequest中にPython顔認証アプリへ転送する。Pythonアプリへのrequestは次の契約とする。
+
+```http
+PUT <FACE_AUTH_APP_URL>
+Authorization: Bearer <FACE_AUTH_APP_BEARER_TOKEN>
+Content-Type: multipart/form-data; boundary=...
+```
+
+| Field | Type | Count | Description |
+| --- | --- | --- | --- |
+| `studentNumber` | string | 1 | ハイフンなしの数字10桁 |
+| `images` | file | 1〜10 | 登録内容を置き換える顔写真 |
+
+Pythonアプリは受け取った画像セットで該当学籍番号の顔画像を全置換し、成功時に任意の `2xx` を返す。管理APIからの接続失敗または30秒のtimeoutは `FACE_AUTH_APP_UNAVAILABLE`、Pythonアプリの非 `2xx` responseは `FACE_AUTH_APP_REJECTED` として、どちらも `502 Bad Gateway` を返す。Pythonアプリのresponse bodyは管理画面へ転送しない。
+
+利用者作成と顔画像登録は異なるrequestである。先に利用者を確実に作成し、その後に顔画像を登録する。顔画像登録だけが失敗した場合も利用者作成と一時パスワード発行は成功済みとして表示し、利用者詳細から顔画像登録だけを再試行する。これにより、管理者が利用者作成を再送して重複エラーとなることを防ぐ。
+
+顔画像登録の成功は `user_face_images_updated` として監査ログへ記録する。画像本体、ファイル名、学籍番号、PythonアプリのBearerトークンは監査ログやアプリケーションログへ記録しない。
 
 ## 一時パスワード
 
@@ -138,6 +163,8 @@ cursorは `occurredAt` と `id` を持つUTF-8 JSONをBase64URLへ変換する�
 - `LAST_ADMIN_REQUIRED`
 - `CANNOT_DISABLE_SELF`
 - `INVALID_CURRENT_PASSWORD`
+- `FACE_AUTH_APP_UNAVAILABLE`
+- `FACE_AUTH_APP_REJECTED`
 
 利用者の存在を一般利用者へ公開しない。管理者API内では管理業務に必要な範囲で、対象利用者が存在しないことを明示してよい。
 

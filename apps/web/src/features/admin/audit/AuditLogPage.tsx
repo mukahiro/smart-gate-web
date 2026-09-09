@@ -17,6 +17,7 @@ const actionLabels: Record<AdminAuditAction, string> = {
   user_unlocked: "ロック解除",
   user_sessions_revoked: "全セッション失効",
   user_password_reset: "パスワード再発行",
+  user_face_images_updated: "顔画像更新",
 };
 
 const fieldLabels: Record<string, string> = {
@@ -28,6 +29,7 @@ const fieldLabels: Record<string, string> = {
   lockedUntil: "ロック期限",
   password: "パスワード",
   sessions: "セッション",
+  faceImages: "顔認証用画像",
 };
 
 const UserReference = ({

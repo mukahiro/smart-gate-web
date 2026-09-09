@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { createUser } from "../scripts/manage-user";
 import { createApp } from "../src/app";
+import type { FaceImage } from "../src/clients/face-auth-client";
 import { adminAuditLogs } from "../src/db/admin-audit-log-schema";
 import { createSqliteDatabase } from "../src/db/client";
 import { DrizzleAdminRepository } from "../src/repositories/drizzle-admin-repository";
@@ -53,6 +54,10 @@ const setup = async () => {
     },
     { userId: "member-001" },
   );
+  const faceRegistrations: Array<{
+    studentNumber: string;
+    images: FaceImage[];
+  }> = [];
   const app = createApp({
     authToken: "test-token",
     attendanceEventRepository: new DrizzleAttendanceEventRepository(db),
@@ -60,6 +65,11 @@ const setup = async () => {
     adminRepository: new DrizzleAdminRepository(db),
     attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
     secureCookie: false,
+    faceAuthClient: {
+      async replaceFaceImages(studentNumber, images) {
+        faceRegistrations.push({ studentNumber, images });
+      },
+    },
   });
   const login = async (email: string, loginPassword = password) =>
     app.request("/api/v1/auth/login", {
@@ -81,7 +91,15 @@ const setup = async () => {
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
 
-  return { app, db, login, adminCookie, memberCookie, mutate };
+  return {
+    app,
+    db,
+    login,
+    adminCookie,
+    memberCookie,
+    mutate,
+    faceRegistrations,
+  };
 };
 
 describe("admin API", () => {
@@ -180,6 +198,79 @@ describe("admin API", () => {
       body: JSON.stringify({ role: "admin" }),
     });
     expect(update.status).toBe(400);
+  });
+
+  it("replaces face images using the stored student number and records an audit log", async () => {
+    const { app, db, adminCookie, faceRegistrations } = await setup();
+    const body = new FormData();
+    body.append(
+      "images",
+      new Blob(["image-1"], { type: "image/jpeg" }),
+      "one.jpg",
+    );
+    body.append(
+      "images",
+      new Blob(["image-2"], { type: "image/png" }),
+      "two.png",
+    );
+
+    const response = await app.request(
+      "/api/v1/admin/users/member-001/face-images",
+      {
+        method: "PUT",
+        headers: { cookie: adminCookie, host, origin },
+        body,
+      },
+    );
+
+    expect(response.status).toBe(204);
+    expect(faceRegistrations).toHaveLength(1);
+    expect(faceRegistrations[0]).toMatchObject({
+      studentNumber: "2222222222",
+      images: [{ name: "one.jpg" }, { name: "two.png" }],
+    });
+    expect(
+      db
+        .select()
+        .from(adminAuditLogs)
+        .all()
+        .find((log) => log.action === "user_face_images_updated"),
+    ).toMatchObject({
+      actorUserId: "admin-001",
+      targetUserId: "member-001",
+      changedFields: '["faceImages"]',
+    });
+  });
+
+  it("validates face image uploads before calling the face authentication app", async () => {
+    const { app, adminCookie, faceRegistrations } = await setup();
+    const tooMany = new FormData();
+    for (let index = 0; index < 11; index += 1) {
+      tooMany.append(
+        "images",
+        new Blob([String(index)], { type: "image/jpeg" }),
+        `${index}.jpg`,
+      );
+    }
+    const invalid = new FormData();
+    invalid.append(
+      "images",
+      new Blob(["text"], { type: "text/plain" }),
+      "face.txt",
+    );
+
+    for (const body of [new FormData(), tooMany, invalid]) {
+      const response = await app.request(
+        "/api/v1/admin/users/member-001/face-images",
+        {
+          method: "PUT",
+          headers: { cookie: adminCookie, host, origin },
+          body,
+        },
+      );
+      expect(response.status).toBe(400);
+    }
+    expect(faceRegistrations).toHaveLength(0);
   });
 
   it("makes state operations idempotent and protects the current admin", async () => {

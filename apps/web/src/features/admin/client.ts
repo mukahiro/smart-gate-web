@@ -36,6 +36,15 @@ export const updateAdminUser = (userId: string, input: UpdateAdminUserInput) =>
     jsonRequest("PATCH", input),
   ).then(({ user }) => user);
 
+export const replaceAdminUserFaceImages = (userId: string, images: File[]) => {
+  const body = new FormData();
+  for (const image of images) body.append("images", image, image.name);
+  return apiRequest<void>(
+    `/api/v1/admin/users/${encodeURIComponent(userId)}/face-images`,
+    { method: "PUT", body },
+  );
+};
+
 export const setAdminUserActive = (userId: string, isActive: boolean) =>
   apiRequest<{ user: AdminUser }>(
     `/api/v1/admin/users/${encodeURIComponent(userId)}/${isActive ? "enable" : "disable"}`,

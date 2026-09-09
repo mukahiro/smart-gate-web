@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { FaceAuthClient } from "../clients/face-auth-client";
 import { ValidationError } from "../errors/request-errors";
 import { requireAdmin } from "../middleware/admin-auth";
 import { requireSameOrigin } from "../middleware/same-origin";
@@ -17,23 +18,27 @@ import { CreateUserUseCase } from "../services/admin/create-user";
 import { GetUserUseCase } from "../services/admin/get-user";
 import { ListAuditLogsUseCase } from "../services/admin/list-audit-logs";
 import { ListUsersUseCase } from "../services/admin/list-users";
+import { ReplaceUserFaceImagesUseCase } from "../services/admin/replace-user-face-images";
 import { ResetUserPasswordUseCase } from "../services/admin/reset-user-password";
 import { RevokeUserSessionsUseCase } from "../services/admin/revoke-user-sessions";
 import { SetUserActiveUseCase } from "../services/admin/set-user-active";
 import { UnlockUserUseCase } from "../services/admin/unlock-user";
 import { UpdateUserUseCase } from "../services/admin/update-user";
+import { validateFaceImages } from "../services/admin/validate-face-images";
 import { AuthenticateSessionUseCase } from "../services/auth/authenticate-session";
 
 type AdminRouteOptions = {
   adminRepository: AdminRepository;
   authRepository: AuthRepository;
   secureCookie: boolean;
+  faceAuthClient?: FaceAuthClient;
 };
 
 export const createAdminRoute = ({
   adminRepository,
   authRepository,
   secureCookie,
+  faceAuthClient,
 }: AdminRouteOptions) => {
   const route = new Hono<AuthEnv>();
   route.use(
@@ -54,6 +59,9 @@ export const createAdminRoute = ({
   const revokeSessions = new RevokeUserSessionsUseCase(adminRepository);
   const resetPassword = new ResetUserPasswordUseCase(adminRepository);
   const listAuditLogs = new ListAuditLogsUseCase(adminRepository);
+  const replaceFaceImages = faceAuthClient
+    ? new ReplaceUserFaceImagesUseCase(adminRepository, faceAuthClient)
+    : null;
 
   route.get("/users", (c) => c.json({ users: listUsers.execute() }, 200));
 
@@ -90,6 +98,31 @@ export const createAdminRoute = ({
       200,
     );
   });
+
+  if (replaceFaceImages) {
+    route.put("/users/:userId/face-images", requireSameOrigin, async (c) => {
+      let body: Awaited<ReturnType<typeof c.req.parseBody>>;
+      try {
+        body = await c.req.parseBody({ all: true });
+      } catch {
+        throw new ValidationError();
+      }
+      const rawImages = body.images;
+      const images = validateFaceImages(
+        rawImages === undefined
+          ? []
+          : Array.isArray(rawImages)
+            ? rawImages
+            : [rawImages],
+      );
+      await replaceFaceImages.execute(
+        c.get("authenticatedUser").id,
+        c.req.param("userId"),
+        images,
+      );
+      return c.body(null, 204);
+    });
+  }
 
   route.post("/users/:userId/enable", requireSameOrigin, (c) =>
     c.json(

@@ -47,6 +47,12 @@ export type UpdateAdminUserInput = AuditInput & {
   };
 };
 
+export type RecordAdminAuditLogInput = AuditInput & {
+  action: AdminAuditAction;
+  targetUserId: string;
+  changedFields: string[];
+};
+
 export type AdminMutationResult =
   | { kind: "success"; user: AdminUser; changed: boolean }
   | { kind: "not_found" }
@@ -72,6 +78,7 @@ export interface AdminRepository {
   resetUserPassword(
     input: AuditInput & { targetUserId: string; passwordHash: string },
   ): AdminMutationResult;
+  recordAuditLog(input: RecordAdminAuditLogInput): void;
   listAuditLogs(input: {
     limit: number;
     cursor?: { occurredAt: string; id: string };

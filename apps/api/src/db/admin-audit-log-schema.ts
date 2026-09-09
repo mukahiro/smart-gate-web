@@ -9,6 +9,7 @@ export const adminAuditActions = [
   "user_unlocked",
   "user_sessions_revoked",
   "user_password_reset",
+  "user_face_images_updated",
 ] as const;
 
 export type AdminAuditAction = (typeof adminAuditActions)[number];

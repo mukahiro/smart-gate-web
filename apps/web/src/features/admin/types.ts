@@ -19,7 +19,8 @@ export type AdminAuditAction =
   | "user_disabled"
   | "user_unlocked"
   | "user_sessions_revoked"
-  | "user_password_reset";
+  | "user_password_reset"
+  | "user_face_images_updated";
 
 export type AdminAuditLog = {
   id: string;

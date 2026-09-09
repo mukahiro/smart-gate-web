@@ -53,3 +53,21 @@ export class CannotDisableSelfError extends AppError {
     super("自分自身を無効化できません");
   }
 }
+
+export class FaceAuthAppUnavailableError extends AppError {
+  readonly code = "FACE_AUTH_APP_UNAVAILABLE";
+  readonly status = 502;
+
+  constructor() {
+    super("顔認証アプリに接続できませんでした");
+  }
+}
+
+export class FaceAuthAppRejectedError extends AppError {
+  readonly code = "FACE_AUTH_APP_REJECTED";
+  readonly status = 502;
+
+  constructor() {
+    super("顔認証アプリが顔写真の登録を受け付けませんでした");
+  }
+}

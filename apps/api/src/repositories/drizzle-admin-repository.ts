@@ -10,6 +10,7 @@ import type {
   AdminRepository,
   AdminUser,
   CreateAdminUserInput,
+  RecordAdminAuditLogInput,
   UpdateAdminUserInput,
 } from "./admin-repository";
 
@@ -315,6 +316,20 @@ export class DrizzleAdminRepository implements AdminRepository {
     passwordHash: string;
   }): AdminMutationResult {
     return this.updateCredentialState(input, "reset", input.passwordHash);
+  }
+
+  recordAuditLog(input: RecordAdminAuditLogInput): void {
+    this.db
+      .insert(adminAuditLogs)
+      .values({
+        id: input.auditId,
+        actorUserId: input.actorUserId,
+        action: input.action,
+        targetUserId: input.targetUserId,
+        occurredAt: input.occurredAt,
+        changedFields: JSON.stringify(input.changedFields),
+      })
+      .run();
   }
 
   listAuditLogs(input: {

@@ -11,9 +11,11 @@ export type AppErrorCode =
   | "LAST_ADMIN_REQUIRED"
   | "CANNOT_DISABLE_SELF"
   | "INVALID_CURRENT_PASSWORD"
-  | "PASSWORD_MUST_DIFFER";
+  | "PASSWORD_MUST_DIFFER"
+  | "FACE_AUTH_APP_UNAVAILABLE"
+  | "FACE_AUTH_APP_REJECTED";
 
-export type AppErrorStatus = 400 | 401 | 403 | 404 | 409;
+export type AppErrorStatus = 400 | 401 | 403 | 404 | 409 | 502;
 
 export abstract class AppError extends Error {
   abstract readonly code: AppErrorCode;

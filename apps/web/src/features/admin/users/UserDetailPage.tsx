@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import {
   getAdminUser,
+  replaceAdminUserFaceImages,
   resetAdminUserPassword,
   revokeAdminUserSessions,
   setAdminUserActive,
@@ -12,6 +13,7 @@ import { adminErrorMessage, handleAdminAuthorizationError } from "../errors";
 import { ConfirmDialog } from "../shared/ConfirmDialog";
 import { TemporaryPasswordDialog } from "../shared/TemporaryPasswordDialog";
 import type { AdminUser } from "../types";
+import { FaceImageField } from "./FaceImageField";
 import { isUserLocked } from "./filter-users";
 import { formatAdminDateTime, formatStudentNumber } from "./user-format";
 
@@ -38,6 +40,7 @@ export function UserDetailPage({
   const [name, setName] = useState("");
   const [lcdDisplayName, setLcdDisplayName] = useState("");
   const [email, setEmail] = useState("");
+  const [faceImages, setFaceImages] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [busy, setBusy] = useState(false);
@@ -150,6 +153,16 @@ export function UserDetailPage({
       const result = await resetAdminUserPassword(user.id);
       setConfirmAction(null);
       setTemporaryPassword(result.temporaryPassword);
+    });
+  };
+
+  const saveFaceImages = (event: FormEvent) => {
+    event.preventDefault();
+    if (!user || faceImages.length === 0) return;
+    void run(async () => {
+      await replaceAdminUserFaceImages(user.id, faceImages);
+      setFaceImages([]);
+      setSuccess("顔認証用画像を更新しました。");
     });
   };
 
@@ -321,6 +334,25 @@ export function UserDetailPage({
               </form>
 
               <div className="account-actions">
+                <form className="face-image-form" onSubmit={saveFaceImages}>
+                  <h2>顔認証用画像</h2>
+                  <p>
+                    選択した画像でPython顔認証アプリの登録内容を置き換えます。
+                  </p>
+                  <FaceImageField
+                    required
+                    images={faceImages}
+                    onChange={setFaceImages}
+                    disabled={busy}
+                  />
+                  <button
+                    className="secondary-button"
+                    type="submit"
+                    disabled={busy || faceImages.length === 0}
+                  >
+                    顔画像を更新
+                  </button>
+                </form>
                 <h2>アカウント操作</h2>
                 <div className="action-row">
                   <div>

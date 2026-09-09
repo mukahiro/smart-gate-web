@@ -1,9 +1,10 @@
 import { X } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { ApiError } from "../../../api/client";
-import { createAdminUser } from "../client";
+import { createAdminUser, replaceAdminUserFaceImages } from "../client";
 import { adminErrorMessage, handleAdminAuthorizationError } from "../errors";
 import { TemporaryPasswordDialog } from "../shared/TemporaryPasswordDialog";
+import { FaceImageField } from "./FaceImageField";
 
 type CreateUserPageProps = {
   onBack: () => void;
@@ -16,6 +17,7 @@ type CreatedUser = {
   temporaryPassword: string;
   linkedEventCount: number;
   email: string;
+  faceImageNote: string;
 };
 
 export function CreateUserPage({
@@ -28,6 +30,7 @@ export function CreateUserPage({
   const [name, setName] = useState("");
   const [lcdDisplayName, setLcdDisplayName] = useState("");
   const [email, setEmail] = useState("");
+  const [faceImages, setFaceImages] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [fieldError, setFieldError] = useState<
     "studentNumber" | "email" | null
@@ -39,6 +42,10 @@ export function CreateUserPage({
     event.preventDefault();
     setError("");
     setFieldError(null);
+    if (faceImages.length === 0) {
+      setError("顔認証用画像を1枚以上選択してください。");
+      return;
+    }
     setSubmitting(true);
     try {
       const result = await createAdminUser({
@@ -47,10 +54,18 @@ export function CreateUserPage({
         lcdDisplayName,
         email,
       });
+      let faceImageNote = `${faceImages.length}枚の顔認証用画像を登録しました。`;
+      try {
+        await replaceAdminUserFaceImages(result.user.id, faceImages);
+      } catch (cause) {
+        // 利用者作成後の再作成を防ぐため、一時パスワードは表示したまま個別再試行を案内する。
+        faceImageNote = `利用者は作成されましたが、顔画像は登録できませんでした。利用者詳細から再登録してください。${adminErrorMessage(cause)}`;
+      }
       setCreated({
         temporaryPassword: result.temporaryPassword,
         linkedEventCount: result.linkedEventCount,
         email,
+        faceImageNote,
       });
     } catch (cause) {
       if (
@@ -153,6 +168,12 @@ export function CreateUserPage({
                   </span>
                 )}
               </label>
+              <FaceImageField
+                required
+                images={faceImages}
+                onChange={setFaceImages}
+                disabled={submitting}
+              />
               {error && !fieldError && (
                 <p className="form-error" role="alert">
                   {error}
@@ -182,11 +203,11 @@ export function CreateUserPage({
         <TemporaryPasswordDialog
           password={created.temporaryPassword}
           email={created.email}
-          note={
+          note={`${created.faceImageNote}${
             created.linkedEventCount > 0
-              ? `未照合の入退室イベントを${created.linkedEventCount}件紐付けました。`
-              : undefined
-          }
+              ? ` 未照合の入退室イベントを${created.linkedEventCount}件紐付けました。`
+              : ""
+          }`}
           onClose={() => {
             onCreated();
             onBack();
