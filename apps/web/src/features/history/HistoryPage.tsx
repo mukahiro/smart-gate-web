@@ -274,12 +274,14 @@ export function HistoryPage({
         screen.kind === "admin-user-detail" ? (
           <UserListPage
             key={userListRefreshKey}
+            currentUserId={user.id}
             onCreate={() => setCreateUserDialogOpen(true)}
             onSelect={(userId) =>
               navigate({ kind: "admin-user-detail", userId })
             }
             onSessionExpired={onSessionExpired}
             onPermissionDenied={showHistory}
+            onSelfSessionsRevoked={onSelfSessionsRevoked}
           />
         ) : screen.kind === "admin-audit" ? (
           <AuditLogPage
@@ -549,14 +551,12 @@ export function HistoryPage({
       {screen.kind === "admin-user-detail" && (
         <UserDetailPage
           userId={screen.userId}
-          currentUserId={user.id}
           onBack={() => {
             setUserListRefreshKey((key) => key + 1);
             navigate({ kind: "admin-users" }, true);
           }}
           onSessionExpired={onSessionExpired}
           onPermissionDenied={showHistory}
-          onSelfSessionsRevoked={onSelfSessionsRevoked}
         />
       )}
     </div>

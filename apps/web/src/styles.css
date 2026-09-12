@@ -1004,6 +1004,14 @@ p {
 .user-table td:first-child span {
   display: block;
 }
+.user-actions-cell {
+  white-space: nowrap;
+}
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .user-table td:first-child span {
   margin-top: 4px;
   color: var(--color-text-muted);
@@ -1162,16 +1170,15 @@ p {
 }
 .admin-detail-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
-  gap: 36px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
 }
 .admin-detail-grid h2 {
   margin: 0 0 4px;
   font-size: 1.05rem;
 }
 .detail-form {
-  padding-right: 36px;
-  border-right: 1px solid var(--color-border);
+  min-width: 0;
 }
 .metadata-row {
   display: flex;
@@ -1183,6 +1190,8 @@ p {
 .account-actions {
   display: grid;
   align-content: start;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-border);
 }
 .face-image-form {
   display: grid;
@@ -1193,6 +1202,29 @@ p {
 }
 .face-image-form > button {
   justify-self: end;
+}
+.face-image-dialog,
+.account-actions-dialog {
+  width: min(100%, 620px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+.face-image-dialog .admin-page-heading h1,
+.account-actions-dialog .admin-page-heading h1 {
+  margin-bottom: 8px;
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+}
+.face-image-dialog .face-image-form {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.account-actions-dialog .account-actions {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.account-actions-dialog .action-row:last-child {
+  border-bottom: 0;
 }
 .face-registration-status {
   width: fit-content;
@@ -1316,7 +1348,7 @@ p {
   border-radius: 16px;
 }
 .user-detail-dialog {
-  width: min(100%, 980px);
+  width: min(100%, 720px);
   max-height: calc(100dvh - 40px);
   overflow-y: auto;
   border-radius: 16px;
@@ -1524,15 +1556,6 @@ p {
   .history-card:has(+ .daily-detail-overlay),
   .detail-panel {
     grid-column: 1;
-  }
-  .admin-detail-grid {
-    grid-template-columns: 1fr;
-  }
-  .detail-form {
-    padding-right: 0;
-    padding-bottom: 30px;
-    border-right: 0;
-    border-bottom: 1px solid #e2e2e2;
   }
   .audit-list {
     overflow-x: auto;
