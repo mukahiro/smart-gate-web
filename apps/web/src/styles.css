@@ -510,10 +510,19 @@ p {
 .calendar-meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px 24px;
   margin: 0 0 16px;
+}
+.calendar-legend-group {
+  display: grid;
+  gap: 8px;
+}
+.calendar-legend-group h2 {
+  margin: 0;
+  padding: 0 8px;
+  font-size: 1.5rem;
 }
 .calendar-legend {
   display: flex;
@@ -529,36 +538,64 @@ p {
   gap: 6px;
 }
 .monthly-statistics {
-  display: flex;
+  display: grid;
+  min-width: min(100%, 450px);
+  grid-template-columns: 1.35fr 1fr 1fr;
   margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-muted);
   font-variant-numeric: tabular-nums;
 }
 .monthly-statistics div {
   display: grid;
-  gap: 2px;
-  padding: 0 12px;
+  align-content: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 10px 14px;
   border-right: 1px solid var(--color-border);
 }
+.monthly-statistics .primary-statistic {
+  background: var(--color-theme-soft);
+}
 .monthly-statistics div:last-child {
-  padding-right: 0;
   border-right: 0;
 }
 .monthly-statistics dt {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   color: var(--color-text-muted);
-  font-size: 0.61rem;
+  font-size: 0.65rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.monthly-statistics dt svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  color: var(--color-theme);
 }
 .monthly-statistics dd {
   margin: 0;
-  text-align: center;
-  font-size: 0.76rem;
-  font-weight: 750;
-  color: var(--color-theme);
+  color: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.monthly-statistics .primary-statistic dd {
+  color: var(--color-theme-strong);
+  font-size: 1.08rem;
 }
 .monthly-statistics dd small {
-  margin-left: 4px;
+  margin: 0 3px;
   color: var(--color-text-muted);
-  font-size: 0.72em;
+  font-size: 0.62em;
   font-weight: 600;
+  letter-spacing: 0;
 }
 .event-dot {
   display: inline-block;
@@ -1764,8 +1801,14 @@ p {
   }
 }
 @media (max-width: 600px) {
-  .calendar-meta {
-    justify-content: center;
+  .monthly-statistics {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+  }
+  .monthly-statistics .primary-statistic {
+    grid-column: 1 / -1;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
   }
 }
 @media (prefers-reduced-motion: reduce) {

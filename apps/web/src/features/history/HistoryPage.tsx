@@ -1,8 +1,11 @@
 import {
+  ArrowRightLeft,
+  CalendarCheck2,
   CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Clock3,
   Info,
   KeyRound,
   LogOut,
@@ -341,24 +344,30 @@ export function HistoryPage({
                 </nav>
               </header>
               <div className="calendar-meta">
-                <div className="calendar-legend">
-                  <span>
-                    <i className="event-dot" />
-                    記録あり
-                  </span>
-                  <span>
-                    <i className="event-dot" data-warning />
-                    記録不足あり
-                  </span>
-                  <span>
-                    <i className="today-symbol" />
-                    本日
-                  </span>
+                <div className="calendar-legend-group">
+                  <h2>入退出履歴</h2>
+                  <div className="calendar-legend">
+                    <span>
+                      <i className="event-dot" />
+                      記録あり
+                    </span>
+                    <span>
+                      <i className="event-dot" data-warning />
+                      記録不足あり
+                    </span>
+                    <span>
+                      <i className="today-symbol" />
+                      本日
+                    </span>
+                  </div>
                 </div>
                 {monthlyStatistics && (
-                  <dl className="monthly-statistics">
-                    <div>
-                      <dt>参考合計滞在時間</dt>
+                  <dl className="monthly-statistics" aria-label="月間サマリー">
+                    <div className="primary-statistic">
+                      <dt>
+                        <Clock3 aria-hidden="true" />
+                        参考滞在時間
+                      </dt>
                       <dd>
                         <DurationStatistic
                           minutes={monthlyStatistics.totalStayDurationMinutes}
@@ -366,14 +375,20 @@ export function HistoryPage({
                       </dd>
                     </div>
                     <div>
-                      <dt>記録日数</dt>
+                      <dt>
+                        <CalendarCheck2 aria-hidden="true" />
+                        記録日数
+                      </dt>
                       <dd>
                         {monthlyStatistics.recordedDays}
                         <small>日</small>
                       </dd>
                     </div>
                     <div>
-                      <dt>入退室件数</dt>
+                      <dt>
+                        <ArrowRightLeft aria-hidden="true" />
+                        入退室
+                      </dt>
                       <dd>
                         {monthlyStatistics.eventCount}
                         <small>件</small>
