@@ -6,13 +6,13 @@ Raspberry Pi上で動作する、ローカルネットワーク向け研究室�
 
 ## ドキュメント一覧
 
+- [`TECHNICAL_GUIDE.md`](./TECHNICAL_GUIDE.md)：発表準備のためのWeb・API技術解説
 - `tech-stack.md`：技術スタック
 - `requirements.md`：要件定義
 - `endpoints.md`：APIエンドポイント仕様
 - `web-authentication.md`：Web利用者認証・セッション・学籍番号の設計
 - `admin-api.md`：管理者API・権限・監査ログの設計
 - `admin-web.md`：管理者向けWeb画面・操作フローの設計
-- `presentation-preparation.md`：Web・APIのゼミ発表準備資料
 
 ## 想定構成
 
@@ -47,6 +47,7 @@ Python認証アプリ
 ├─ docs/                   # 暫定の要件・技術スタック資料
 ├─ AGENTS.md               # AIエージェント用の指示書
 ├─ README.md               # このREADMEファイル
+├─ TECHNICAL_GUIDE.md      # Web・APIの技術説明
 └─ TASKS.md                # 今後の実装タスク一覧
 ```
 
