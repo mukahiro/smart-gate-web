@@ -10,6 +10,7 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "seed:demo": "tsx scripts/seed-demo-data.ts",
     "user:create": "tsx scripts/manage-user.ts create",
     "user:create-admin": "tsx scripts/manage-user.ts create-admin",
     "user:reset-password": "tsx scripts/manage-user.ts reset-password",
