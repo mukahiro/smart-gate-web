@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { AttendancePolicy } from "../config/attendance-policy";
 import { ValidationError } from "../errors/request-errors";
 import { requireSameOrigin } from "../middleware/same-origin";
 import {
@@ -6,6 +7,7 @@ import {
   createSessionAuthMiddleware,
 } from "../middleware/session-auth";
 import { requireTeacher } from "../middleware/teacher-auth";
+import type { AttendanceResultRepository } from "../repositories/attendance-result-repository";
 import type { AttendanceSessionRepository } from "../repositories/attendance-session-repository";
 import type { AuthRepository } from "../repositories/auth-repository";
 import {
@@ -16,18 +18,23 @@ import {
 import { CancelAttendanceSessionUseCase } from "../services/attendance-sessions/cancel-attendance-session";
 import { CreateAttendanceSessionUseCase } from "../services/attendance-sessions/create-attendance-session";
 import { GetAttendanceSessionUseCase } from "../services/attendance-sessions/get-attendance-session";
+import { GetAttendanceSessionResultsUseCase } from "../services/attendance-sessions/get-attendance-session-results";
 import { ListAttendanceSessionsUseCase } from "../services/attendance-sessions/list-attendance-sessions";
 import { UpdateAttendanceSessionUseCase } from "../services/attendance-sessions/update-attendance-session";
 import { AuthenticateSessionUseCase } from "../services/auth/authenticate-session";
 
 type AttendanceSessionRouteOptions = {
   attendanceSessionRepository: AttendanceSessionRepository;
+  attendanceResultRepository?: AttendanceResultRepository;
+  attendancePolicy?: AttendancePolicy;
   authRepository: AuthRepository;
   secureCookie: boolean;
 };
 
 export const createAttendanceSessionsRoute = ({
   attendanceSessionRepository,
+  attendanceResultRepository,
+  attendancePolicy,
   authRepository,
   secureCookie,
 }: AttendanceSessionRouteOptions) => {
@@ -56,6 +63,14 @@ export const createAttendanceSessionsRoute = ({
   const cancelSession = new CancelAttendanceSessionUseCase(
     attendanceSessionRepository,
   );
+  const getResults =
+    attendanceResultRepository && attendancePolicy
+      ? new GetAttendanceSessionResultsUseCase(
+          attendanceSessionRepository,
+          attendanceResultRepository,
+          attendancePolicy,
+        )
+      : null;
 
   route.get("/", (c) => c.json({ sessions: listSessions.execute() }, 200));
   route.post("/", requireSameOrigin, async (c) => {
@@ -71,6 +86,11 @@ export const createAttendanceSessionsRoute = ({
       201,
     );
   });
+  if (getResults) {
+    route.get("/:id/results", (c) =>
+      c.json(getResults.execute(c.req.param("id")), 200),
+    );
+  }
   route.get("/:id", (c) =>
     c.json({ session: getSession.execute(c.req.param("id")) }, 200),
   );

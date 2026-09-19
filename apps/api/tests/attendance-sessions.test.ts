@@ -11,6 +11,7 @@ import { auditLogs } from "../src/db/audit-log-schema";
 import { createSqliteDatabase } from "../src/db/client";
 import { users } from "../src/db/user-schema";
 import { DrizzleAttendanceEventRepository } from "../src/repositories/drizzle-attendance-event-repository";
+import { DrizzleAttendanceResultRepository } from "../src/repositories/drizzle-attendance-result-repository";
 import { DrizzleAttendanceSessionRepository } from "../src/repositories/drizzle-attendance-session-repository";
 import { DrizzleAuthRepository } from "../src/repositories/drizzle-auth-repository";
 
@@ -62,6 +63,11 @@ const setup = async () => {
     attendanceEventRepository: new DrizzleAttendanceEventRepository(db),
     authRepository: new DrizzleAuthRepository(db),
     attendanceSessionRepository: new DrizzleAttendanceSessionRepository(db),
+    attendanceResultRepository: new DrizzleAttendanceResultRepository(db),
+    attendancePolicy: {
+      receptionOpenMinutesBefore: 10,
+      lateAfterMinutes: 20,
+    },
     secureCookie: false,
   });
   const login = async (email: string) =>
@@ -110,6 +116,15 @@ describe("attendance sessions API", () => {
     expect(listResponse.status).toBe(200);
     await expect(listResponse.json()).resolves.toMatchObject({
       sessions: [{ id: created.session.id, title: "データベース演習" }],
+    });
+    const resultsResponse = await app.request(
+      `/api/v1/attendance-sessions/${created.session.id}/results`,
+      { headers: { cookie: teacherCookie } },
+    );
+    expect(resultsResponse.status).toBe(200);
+    await expect(resultsResponse.json()).resolves.toMatchObject({
+      summary: { targetStudentCount: 1 },
+      students: [{ studentNumber: "2222222222" }],
     });
 
     const updatedResponse = await app.request(
