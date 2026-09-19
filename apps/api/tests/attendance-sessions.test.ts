@@ -185,6 +185,29 @@ describe("attendance sessions API", () => {
       "attendance_session_updated",
       "attendance_session_cancelled",
     ]);
+    const auditResponse = await app.request(
+      `/api/v1/attendance-sessions/${created.session.id}/audit-logs`,
+      { headers: { cookie: teacherCookie } },
+    );
+    expect(auditResponse.status).toBe(200);
+    await expect(auditResponse.json()).resolves.toMatchObject({
+      logs: [
+        {
+          action: "attendance_session_created",
+          changedFields: ["title", "startsAt", "endsAt"],
+        },
+        {
+          action: "attendance_session_updated",
+          changes: {
+            title: {
+              before: "データベース演習",
+              after: "データベース演習（第1回）",
+            },
+          },
+        },
+        { action: "attendance_session_cancelled" },
+      ],
+    });
     expect(
       db
         .select()
@@ -196,13 +219,14 @@ describe("attendance sessions API", () => {
 
   it("rejects a student administrator and protects mutations by origin", async () => {
     const { app, adminCookie, teacherCookie } = await setup();
-    expect(
-      (
-        await app.request("/api/v1/attendance-sessions", {
-          headers: { cookie: adminCookie },
-        })
-      ).status,
-    ).toBe(403);
+    for (const path of [
+      "/api/v1/attendance-sessions",
+      "/api/v1/attendance-sessions/unknown/audit-logs",
+    ]) {
+      expect(
+        (await app.request(path, { headers: { cookie: adminCookie } })).status,
+      ).toBe(403);
+    }
 
     const response = await app.request("/api/v1/attendance-sessions", {
       method: "POST",

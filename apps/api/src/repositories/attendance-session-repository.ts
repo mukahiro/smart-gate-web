@@ -9,6 +9,18 @@ export type AttendanceSession = {
   updatedAt: string;
 };
 
+export type AttendanceSessionAuditLog = {
+  id: string;
+  actorUserId: string;
+  action:
+    | "attendance_session_created"
+    | "attendance_session_updated"
+    | "attendance_session_cancelled";
+  occurredAt: string;
+  changedFields: string[];
+  changes: Record<string, { before: unknown; after: unknown }> | null;
+};
+
 type AuditInput = {
   auditId: string;
   actorUserId: string;
@@ -23,6 +35,7 @@ export type AttendanceSessionMutationResult =
 export interface AttendanceSessionRepository {
   list(): AttendanceSession[];
   findById(id: string): AttendanceSession | null;
+  listAuditLogs(sessionId: string): AttendanceSessionAuditLog[];
   create(
     input: AuditInput & {
       sessionId: string;

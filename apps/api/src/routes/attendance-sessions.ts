@@ -19,6 +19,7 @@ import { CancelAttendanceSessionUseCase } from "../services/attendance-sessions/
 import { CreateAttendanceSessionUseCase } from "../services/attendance-sessions/create-attendance-session";
 import { GetAttendanceSessionUseCase } from "../services/attendance-sessions/get-attendance-session";
 import { GetAttendanceSessionResultsUseCase } from "../services/attendance-sessions/get-attendance-session-results";
+import { ListAttendanceSessionAuditLogsUseCase } from "../services/attendance-sessions/list-attendance-session-audit-logs";
 import { ListAttendanceSessionsUseCase } from "../services/attendance-sessions/list-attendance-sessions";
 import { UpdateAttendanceSessionUseCase } from "../services/attendance-sessions/update-attendance-session";
 import { AuthenticateSessionUseCase } from "../services/auth/authenticate-session";
@@ -71,6 +72,9 @@ export const createAttendanceSessionsRoute = ({
           attendancePolicy,
         )
       : null;
+  const listAuditLogs = new ListAttendanceSessionAuditLogsUseCase(
+    attendanceSessionRepository,
+  );
 
   route.get("/", (c) => c.json({ sessions: listSessions.execute() }, 200));
   route.post("/", requireSameOrigin, async (c) => {
@@ -91,6 +95,9 @@ export const createAttendanceSessionsRoute = ({
       c.json(getResults.execute(c.req.param("id")), 200),
     );
   }
+  route.get("/:id/audit-logs", (c) =>
+    c.json({ logs: listAuditLogs.execute(c.req.param("id")) }, 200),
+  );
   route.get("/:id", (c) =>
     c.json({ session: getSession.execute(c.req.param("id")) }, 200),
   );

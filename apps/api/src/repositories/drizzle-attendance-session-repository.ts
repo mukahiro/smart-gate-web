@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { attendanceSessions } from "../db/attendance-session-schema";
 import { auditLogs } from "../db/audit-log-schema";
 import type { SqliteDatabase } from "../db/client";
@@ -28,6 +28,36 @@ export class DrizzleAttendanceSessionRepository
         .where(eq(attendanceSessions.id, id))
         .get() ?? null
     );
+  }
+
+  listAuditLogs(sessionId: string) {
+    return this.db
+      .select()
+      .from(auditLogs)
+      .where(
+        and(
+          eq(auditLogs.resourceType, "attendance_session"),
+          eq(auditLogs.resourceId, sessionId),
+        ),
+      )
+      .orderBy(asc(auditLogs.occurredAt), asc(auditLogs.id))
+      .all()
+      .map((row) => ({
+        id: row.id,
+        actorUserId: row.actorUserId,
+        action: row.action as
+          | "attendance_session_created"
+          | "attendance_session_updated"
+          | "attendance_session_cancelled",
+        occurredAt: row.occurredAt,
+        changedFields: JSON.parse(row.changedFields) as string[],
+        changes: row.changes
+          ? (JSON.parse(row.changes) as Record<
+              string,
+              { before: unknown; after: unknown }
+            >)
+          : null,
+      }));
   }
 
   create(input: Parameters<AttendanceSessionRepository["create"]>[0]) {
