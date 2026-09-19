@@ -39,7 +39,7 @@
 
 ## 利用者モデル
 
-現在の単一の `role` は、利用者の種別とシステム管理権限を同時に表している。出席対象となる生徒を正しく識別し、先生と管理者を分離するため、次のように概念を分ける案とする。
+従来の単一の `role` を廃止し、利用者の種別とシステム管理権限を次のように分離する。
 
 ```text
 user_type: student | teacher
@@ -48,7 +48,7 @@ is_admin: boolean
 
 この構造では、`user_type = teacher` かつ `is_admin = true` の利用者を許可する。
 
-具体的なカラム構成と既存 `member | admin` からの移行方法は、実装前に確定する。
+既存利用者はすべて `student` へ移行し、従来の `admin` だけを `is_admin = true` とするmigrationを実装済みである。
 
 ### 学籍番号
 
@@ -284,7 +284,7 @@ audit_logs
 
 ### 2. 利用者種別と管理者権限を分離する
 
-既存の `role: member | admin` を、次の2つの属性へ移行する案とする。
+既存の `role: member | admin` を、次の2つの属性へ移行する。
 
 ```text
 user_type: student | teacher

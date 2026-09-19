@@ -1,10 +1,11 @@
 export type AdminUser = {
   id: string;
-  studentNumber: string;
+  studentNumber: string | null;
   name: string;
   lcdDisplayName: string;
   email: string;
-  role: "member" | "admin";
+  userType: "student" | "teacher";
+  isAdmin: boolean;
   isActive: boolean;
   faceImageCount: number;
   failedLoginCount: number;

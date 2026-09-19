@@ -48,12 +48,13 @@
 | Column | Description |
 | --- | --- |
 | `id` | 内部利用者ID、主キー |
-| `student_number` | 正規形の学籍番号、UNIQUE |
+| `student_number` | 正規形の学籍番号、UNIQUE。先生はNULL可 |
 | `name` | 通常表示名 |
 | `lcd_display_name` | LCD表示名 |
 | `email` | 表示用メールアドレス |
 | `email_normalized` | 前後空白除去・小文字化した検索用メールアドレス、UNIQUE |
-| `role` | `member` または `admin`。既定値は `member` |
+| `user_type` | `student` または `teacher`。既定値は `student` |
+| `is_admin` | システム管理者権限。既定値はfalse |
 | `is_active` | 利用者の有効状態 |
 | `created_at` | 作成日時 |
 | `updated_at` | 更新日時 |

@@ -144,8 +144,11 @@ export function AccountActionsDialog({
             <div>
               <h1 id="account-actions-dialog-title">{user.name}</h1>
               <div className="title-badges">
-                <span className="role-badge" data-role={user.role}>
-                  {user.role === "admin" ? "管理者" : "一般利用者"}
+                <span
+                  className="role-badge"
+                  data-role={user.isAdmin ? "admin" : "member"}
+                >
+                  {user.isAdmin ? "管理者" : "一般利用者"}
                 </span>
                 <span
                   className="status-badge"

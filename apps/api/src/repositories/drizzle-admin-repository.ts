@@ -20,7 +20,8 @@ const selectedUser = {
   name: users.name,
   lcdDisplayName: users.lcdDisplayName,
   email: users.email,
-  role: users.role,
+  userType: users.userType,
+  isAdmin: users.isAdmin,
   isActive: users.isActive,
   faceImageCount: users.faceImageCount,
   failedLoginCount: userCredentials.failedLoginCount,
@@ -81,7 +82,8 @@ export class DrizzleAdminRepository implements AdminRepository {
           lcdDisplayName: input.lcdDisplayName,
           email: input.email,
           emailNormalized: input.emailNormalized,
-          role: "member",
+          userType: "student",
+          isAdmin: false,
           createdAt: input.occurredAt,
           updatedAt: input.occurredAt,
         })
@@ -214,14 +216,14 @@ export class DrizzleAdminRepository implements AdminRepository {
       if (target.isActive === input.isActive) {
         return { kind: "success" as const, changed: false };
       }
-      if (!input.isActive && target.role === "admin") {
+      if (!input.isActive && target.isAdmin) {
         if (input.actorUserId === input.targetUserId) {
           return { kind: "cannot_disable_self" as const };
         }
         const activeAdminCount = tx
           .select({ value: count() })
           .from(users)
-          .where(and(eq(users.role, "admin"), eq(users.isActive, true)))
+          .where(and(eq(users.isAdmin, true), eq(users.isActive, true)))
           .get()?.value;
         if ((activeAdminCount ?? 0) <= 1) {
           return { kind: "last_admin" as const };

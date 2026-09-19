@@ -20,22 +20,24 @@
 
 ## 役割と認可
 
-利用者は次の役割を持つ。
+利用者種別とシステム管理者権限は分離する。
 
-| Role | Description |
-| --- | --- |
-| `member` | 本人の入退室履歴と本人向け機能を利用できる |
-| `admin` | 本人向け機能に加えて管理者APIを利用できる |
+| Field | Value | Description |
+| --- | --- | --- |
+| `userType` | `student` | 生徒 |
+| `userType` | `teacher` | 先生 |
+| `isAdmin` | `true` | 管理者APIを利用できる |
 
-- 既存利用者はmigrationで `member` とする
+- 既存利用者はmigrationで `student` とする
+- 既存の `admin` は `isAdmin: true`、`member` は `isAdmin: false` とする
 - 管理者アカウントの作成・昇格・降格はCLIでのみ行う
-- 管理者APIで作成する利用者は必ず `member` とする
-- 管理者APIから役割を変更できない
-- セッション認証時にDB上の現在の役割を確認する
+- 現段階で管理者APIから作成する利用者は `student`、`isAdmin: false` とする
+- 管理者APIから管理者権限を変更できない
+- セッション認証時にDB上の現在の利用者種別と管理者権限を確認する
 - 管理者APIはCookieセッション、管理者認可、Origin検証で保護する
 - 自分自身と最後の有効な管理者は無効化できないようにする
 
-権限不足は `ADMIN_PERMISSION_REQUIRED` として扱う。ログイン済みであっても `admin` でなければ管理者APIを利用できない。
+権限不足は `ADMIN_PERMISSION_REQUIRED` として扱う。ログイン済みであっても `isAdmin` がfalseなら管理者APIを利用できない。
 
 ## API案
 
@@ -170,7 +172,7 @@ cursorは `occurredAt` と `id` を持つUTF-8 JSONをBase64URLへ変換する�
 
 利用者の存在を一般利用者へ公開しない。管理者API内では管理業務に必要な範囲で、対象利用者が存在しないことを明示してよい。
 
-メールアドレスまたは学籍番号が重複した場合は `409 Conflict` を返し、上記の個別エラーコードで区別する。利用者更新では許可したfieldだけを受け取り、`studentNumber`、`role`、`password`などが含まれていた場合は無視せずvalidation errorにする。
+メールアドレスまたは学籍番号が重複した場合は `409 Conflict` を返し、上記の個別エラーコードで区別する。利用者更新では許可したfieldだけを受け取り、`studentNumber`、`userType`、`isAdmin`、`password`などが含まれていた場合は無視せずvalidation errorにする。
 
 ## 状態変更時の管理者保護
 

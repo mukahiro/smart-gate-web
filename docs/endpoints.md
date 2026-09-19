@@ -269,7 +269,8 @@ Status: `200 OK`
     "name": "向原 大翔",
     "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ",
     "email": "user@example.com",
-    "role": "member"
+    "userType": "student",
+    "isAdmin": false
   }
 }
 ```
@@ -349,7 +350,8 @@ Status: `200 OK`
     "name": "向原 大翔",
     "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ",
     "email": "user@example.com",
-    "role": "member"
+    "userType": "student",
+    "isAdmin": false
   }
 }
 ```

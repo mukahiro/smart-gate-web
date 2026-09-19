@@ -1,13 +1,14 @@
 import type { AdminAuditAction } from "../db/admin-audit-log-schema";
-import type { UserRole } from "../db/user-schema";
+import type { UserType } from "../db/user-schema";
 
 export type AdminUser = {
   id: string;
-  studentNumber: string;
+  studentNumber: string | null;
   name: string;
   lcdDisplayName: string;
   email: string;
-  role: UserRole;
+  userType: UserType;
+  isAdmin: boolean;
   isActive: boolean;
   faceImageCount: number;
   failedLoginCount: number;

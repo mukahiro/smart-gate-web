@@ -16,7 +16,7 @@ type UserListPageProps = {
   onSelfSessionsRevoked: () => void;
 };
 
-const initialFilters: UserFilters = { query: "", status: "all", role: "all" };
+const initialFilters: UserFilters = { query: "", status: "all", admin: "all" };
 
 export function UserListPage({
   currentUserId,
@@ -116,18 +116,18 @@ export function UserListPage({
             </select>
           </label>
           <label>
-            <span>役割</span>
+            <span>管理権限</span>
             <select
-              value={filters.role}
+              value={filters.admin}
               onChange={(event) =>
                 setFilters((current) => ({
                   ...current,
-                  role: event.target.value as UserFilters["role"],
+                  admin: event.target.value as UserFilters["admin"],
                 }))
               }
             >
               <option value="all">すべて</option>
-              <option value="member">一般利用者</option>
+              <option value="non_admin">一般利用者</option>
               <option value="admin">管理者</option>
             </select>
           </label>
@@ -176,8 +176,11 @@ export function UserListPage({
                           {formatStudentNumber(user.studentNumber)}
                         </td>
                         <td>
-                          <span className="role-badge" data-role={user.role}>
-                            {user.role === "admin" ? "管理者" : "一般"}
+                          <span
+                            className="role-badge"
+                            data-role={user.isAdmin ? "admin" : "member"}
+                          >
+                            {user.isAdmin ? "管理者" : "一般"}
                           </span>
                         </td>
                         <td>

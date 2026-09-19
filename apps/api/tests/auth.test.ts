@@ -80,7 +80,8 @@ describe("web authentication API", () => {
         name: "向原 大翔",
         lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
         email: "user@example.com",
-        role: "member",
+        userType: "student",
+        isAdmin: false,
       },
     });
     const setCookie = response.headers.get("set-cookie") ?? "";

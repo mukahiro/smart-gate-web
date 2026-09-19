@@ -84,7 +84,7 @@ export function HistoryPage({
   const [history, setHistory] = useState<MonthlyHistory | null>(null);
   const [error, setError] = useState("");
   const [screen, setScreen] = useState<AppScreen>(() =>
-    screenFromPath(window.location.pathname, user.role === "admin"),
+    screenFromPath(window.location.pathname, user.isAdmin),
   );
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -109,18 +109,18 @@ export function HistoryPage({
 
   useEffect(() => {
     if (
-      user.role !== "admin" &&
+      !user.isAdmin &&
       window.location.pathname.startsWith("/admin")
     ) {
       navigate({ kind: "history" }, true);
     }
     const handlePopState = () =>
       setScreen(
-        screenFromPath(window.location.pathname, user.role === "admin"),
+        screenFromPath(window.location.pathname, user.isAdmin),
       );
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [navigate, user.role]);
+  }, [navigate, user.isAdmin]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: 同じ表示月の再取得にも反応させる。
   useEffect(() => {
@@ -188,7 +188,7 @@ export function HistoryPage({
             alt="Smart Gate"
           />
         </a>
-        {user.role === "admin" && (
+        {user.isAdmin && (
           <nav className="admin-nav" aria-label="管理者メニュー">
             <button
               type="button"
@@ -228,7 +228,7 @@ export function HistoryPage({
             </span>
             <span>
               <strong>{user.name}</strong>
-              <small>{user.studentNumber}</small>
+              <small>{user.studentNumber ?? "学籍番号なし"}</small>
             </span>
             <ChevronDown className="menu-chevron" aria-hidden="true" />
           </button>

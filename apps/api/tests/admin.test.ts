@@ -42,7 +42,7 @@ const setup = async () => {
       email: "admin@example.com",
       password,
     },
-    { userId: "admin-001", role: "admin" },
+    { userId: "admin-001", isAdmin: true },
   );
   await createUser(
     db,
@@ -112,7 +112,7 @@ describe("admin API", () => {
     const { app, adminLoginResponse, adminCookie, memberCookie } =
       await setup();
     await expect(adminLoginResponse.json()).resolves.toMatchObject({
-      user: { id: "admin-001", role: "admin" },
+      user: { id: "admin-001", userType: "student", isAdmin: true },
     });
 
     for (const path of ["/api/v1/admin/users", "/api/v1/admin/audit-logs"]) {
@@ -128,8 +128,16 @@ describe("admin API", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({
       users: [
-        { studentNumber: "1111111111", role: "admin" },
-        { studentNumber: "2222222222", role: "member" },
+        {
+          studentNumber: "1111111111",
+          userType: "student",
+          isAdmin: true,
+        },
+        {
+          studentNumber: "2222222222",
+          userType: "student",
+          isAdmin: false,
+        },
       ],
     });
 
@@ -173,11 +181,16 @@ describe("admin API", () => {
     expect(response.status).toBe(201);
     expect(response.headers.get("cache-control")).toBe("no-store");
     const body = (await response.json()) as {
-      user: { id: string; role: string; faceImageCount: number };
+      user: {
+        id: string;
+        userType: string;
+        isAdmin: boolean;
+        faceImageCount: number;
+      };
       temporaryPassword: string;
       linkedEventCount: number;
     };
-    expect(body.user.role).toBe("member");
+    expect(body.user).toMatchObject({ userType: "student", isAdmin: false });
     expect(body.user.faceImageCount).toBe(0);
     expect(body.linkedEventCount).toBe(1);
     expect(body.temporaryPassword).toMatch(/^[A-Z2-9]{12}$/);
@@ -226,7 +239,7 @@ describe("admin API", () => {
         host,
         origin,
       },
-      body: JSON.stringify({ role: "admin" }),
+      body: JSON.stringify({ isAdmin: true }),
     });
     expect(update.status).toBe(400);
   });

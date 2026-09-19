@@ -122,8 +122,11 @@ export function UserDetailPage({
             <div>
               <h1 id="user-detail-title">{user.name}</h1>
               <div className="title-badges">
-                <span className="role-badge" data-role={user.role}>
-                  {user.role === "admin" ? "管理者" : "一般利用者"}
+                <span
+                  className="role-badge"
+                  data-role={user.isAdmin ? "admin" : "member"}
+                >
+                  {user.isAdmin ? "管理者" : "一般利用者"}
                 </span>
                 <span
                   className="status-badge"
@@ -172,7 +175,7 @@ export function UserDetailPage({
                 役割
                 <input
                   readOnly
-                  value={user.role === "admin" ? "管理者" : "一般利用者"}
+                  value={user.isAdmin ? "管理者" : "一般利用者"}
                 />
                 <small>役割の変更は保守者向けCLIで行います</small>
               </label>
