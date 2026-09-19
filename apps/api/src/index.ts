@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { createApp, readAuthAppBearerToken } from "./app";
 import { HttpFaceAuthClient } from "./clients/face-auth-client";
+import { readAttendancePolicy } from "./config/attendance-policy";
 import { loadLocalEnvFile } from "./config/load-local-env";
 import { createSqliteDatabase } from "./db/client";
 import { DrizzleAdminRepository } from "./repositories/drizzle-admin-repository";
@@ -13,6 +14,8 @@ loadLocalEnvFile();
 const port = Number(process.env.API_PORT ?? 3000);
 const databasePath = process.env.DATABASE_PATH ?? "./data/smart-gate.sqlite3";
 const authToken = readAuthAppBearerToken();
+// 起動時に一度だけ検証し、後続の出席判定機能へ同じ設定値を渡す。
+readAttendancePolicy();
 const db = createSqliteDatabase(databasePath);
 const secureCookie = process.env.SESSION_COOKIE_SECURE === "true";
 const faceAuthAppUrl = process.env.FACE_AUTH_APP_URL;
