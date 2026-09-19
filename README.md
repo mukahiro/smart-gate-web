@@ -13,6 +13,7 @@ Raspberry Pi上で動作する、ローカルネットワーク向け研究室�
 - `web-authentication.md`：Web利用者認証・セッション・学籍番号の設計
 - `admin-api.md`：管理者API・権限・監査ログの設計
 - `admin-web.md`：管理者向けWeb画面・操作フローの設計
+- `teacher-attendance.md`：先生向け出席対象・出席判定・権限・監査ログの追加仕様
 
 ## 想定構成
 
