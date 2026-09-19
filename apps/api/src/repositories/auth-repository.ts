@@ -4,7 +4,7 @@ export type AuthenticatedUser = {
   id: string;
   studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
   userType: UserType;
   isAdmin: boolean;

@@ -24,6 +24,7 @@ const users = [
   user("2", { name: "管理者", isAdmin: true }),
   user("3", { isActive: false }),
   user("4", { lockedUntil: "2026-09-02T01:00:00.000Z" }),
+  user("5", { userType: "teacher", studentNumber: null }),
 ];
 
 describe("admin user filtering", () => {
@@ -33,21 +34,36 @@ describe("admin user filtering", () => {
     expect(
       filterUsers(
         users,
-        { query: "山田", status: "all", admin: "all" },
+        {
+          query: "山田",
+          status: "all",
+          userType: "all",
+          admin: "all",
+        },
         now,
       ).map(({ id }) => id),
     ).toEqual(["1"]);
     expect(
       filterUsers(
         users,
-        { query: "TARO@", status: "all", admin: "all" },
+        {
+          query: "TARO@",
+          status: "all",
+          userType: "all",
+          admin: "all",
+        },
         now,
       ).map(({ id }) => id),
     ).toEqual(["1"]);
     expect(
       filterUsers(
         users,
-        { query: "0000000002", status: "all", admin: "all" },
+        {
+          query: "0000000002",
+          status: "all",
+          userType: "all",
+          admin: "all",
+        },
         now,
       ).map(({ id }) => id),
     ).toEqual(["2"]);
@@ -57,21 +73,40 @@ describe("admin user filtering", () => {
     expect(
       filterUsers(
         users,
-        { query: "", status: "inactive", admin: "all" },
+        {
+          query: "",
+          status: "inactive",
+          userType: "all",
+          admin: "all",
+        },
         now,
       ).map(({ id }) => id),
     ).toEqual(["3"]);
     expect(
       filterUsers(
         users,
-        { query: "", status: "locked", admin: "all" },
+        {
+          query: "",
+          status: "locked",
+          userType: "all",
+          admin: "all",
+        },
         now,
       ).map(({ id }) => id),
     ).toEqual(["4"]);
     expect(
-      filterUsers(users, { query: "", status: "all", admin: "admin" }, now).map(
-        ({ id }) => id,
-      ),
+      filterUsers(
+        users,
+        { query: "", status: "all", userType: "all", admin: "admin" },
+        now,
+      ).map(({ id }) => id),
     ).toEqual(["2"]);
+    expect(
+      filterUsers(
+        users,
+        { query: "", status: "all", userType: "teacher", admin: "all" },
+        now,
+      ).map(({ id }) => id),
+    ).toEqual(["5"]);
   });
 });

@@ -5,9 +5,10 @@ import { resolveAdminMutation } from "./resolve-admin-mutation";
 import { generateTemporaryPassword } from "./temporary-password";
 
 type CreateUserInput = {
-  studentNumber: string;
+  userType: "student" | "teacher";
+  studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
 };
 
@@ -38,6 +39,7 @@ export class CreateUserUseCase {
       actorUserId,
       occurredAt,
       userId: createId(),
+      userType: input.userType,
       studentNumber: input.studentNumber,
       name: input.name,
       lcdDisplayName: input.lcdDisplayName,

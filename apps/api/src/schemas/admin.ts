@@ -4,14 +4,33 @@ const nameSchema = z.string().trim().min(1).max(100);
 const lcdDisplayNameSchema = z.string().trim().min(1).max(20);
 const emailSchema = z.string().trim().email().max(254);
 
-export const createAdminUserSchema = z
+const createStudentSchema = z
   .object({
+    userType: z.literal("student"),
     studentNumber: z.string().regex(/^[0-9]{10}$/),
     name: nameSchema,
     lcdDisplayName: lcdDisplayNameSchema,
     email: emailSchema,
   })
   .strict();
+
+const createTeacherSchema = z
+  .object({
+    userType: z.literal("teacher"),
+    studentNumber: z
+      .string()
+      .regex(/^[0-9]{10}$/)
+      .nullable(),
+    name: nameSchema,
+    lcdDisplayName: lcdDisplayNameSchema.nullable(),
+    email: emailSchema,
+  })
+  .strict();
+
+export const createAdminUserSchema = z.discriminatedUnion("userType", [
+  createStudentSchema,
+  createTeacherSchema,
+]);
 
 export const updateAdminUserSchema = z
   .object({

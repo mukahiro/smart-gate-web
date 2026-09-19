@@ -2,7 +2,7 @@ export type User = {
   id: string;
   studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
   userType: "student" | "teacher";
   isAdmin: boolean;

@@ -10,7 +10,7 @@ export const users = sqliteTable(
     id: text("id").primaryKey(),
     studentNumber: text("student_number").unique(),
     name: text("name").notNull(),
-    lcdDisplayName: text("lcd_display_name").notNull(),
+    lcdDisplayName: text("lcd_display_name"),
     email: text("email").notNull(),
     emailNormalized: text("email_normalized").notNull().unique(),
     userType: text("user_type", { enum: userTypes })
@@ -29,7 +29,7 @@ export const users = sqliteTable(
     ),
     lcdDisplayNameLengthCheck: check(
       "users_lcd_display_name_length_check",
-      sql`length(${table.lcdDisplayName}) BETWEEN 1 AND 20`,
+      sql`(${table.userType} = 'teacher' AND ${table.lcdDisplayName} IS NULL) OR (${table.lcdDisplayName} IS NOT NULL AND length(${table.lcdDisplayName}) BETWEEN 1 AND 20)`,
     ),
     userTypeCheck: check(
       "users_user_type_check",

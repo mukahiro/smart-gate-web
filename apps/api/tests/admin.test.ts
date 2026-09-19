@@ -171,6 +171,7 @@ describe("admin API", () => {
         origin,
       },
       body: JSON.stringify({
+        userType: "student",
         studentNumber: "3333333333",
         name: "新規利用者",
         lcdDisplayName: "NEW USER",
@@ -209,6 +210,79 @@ describe("admin API", () => {
     });
   });
 
+  it("creates teachers without student numbers or LCD names", async () => {
+    const { app, db, login, adminCookie, faceRegistrations } = await setup();
+    const response = await app.request("/api/v1/admin/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: adminCookie,
+        host,
+        origin,
+      },
+      body: JSON.stringify({
+        userType: "teacher",
+        studentNumber: null,
+        name: "先生利用者",
+        lcdDisplayName: null,
+        email: "teacher@example.com",
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as {
+      user: {
+        id: string;
+        studentNumber: null;
+        lcdDisplayName: null;
+        userType: string;
+        isAdmin: boolean;
+      };
+      temporaryPassword: string;
+      linkedEventCount: number;
+    };
+    expect(body.user).toMatchObject({
+      studentNumber: null,
+      lcdDisplayName: null,
+      userType: "teacher",
+      isAdmin: false,
+    });
+    expect(body.linkedEventCount).toBe(0);
+    const teacherLogin = await login(
+      "teacher@example.com",
+      body.temporaryPassword,
+    );
+    expect(teacherLogin.status).toBe(200);
+    await expect(teacherLogin.json()).resolves.toMatchObject({
+      user: {
+        studentNumber: null,
+        lcdDisplayName: null,
+        userType: "teacher",
+        isAdmin: false,
+      },
+    });
+
+    const faceImages = new FormData();
+    faceImages.append(
+      "images",
+      new Blob(["image"], { type: "image/jpeg" }),
+      "teacher.jpg",
+    );
+    const faceResponse = await app.request(
+      `/api/v1/admin/users/${body.user.id}/face-images`,
+      {
+        method: "PUT",
+        headers: { cookie: adminCookie, host, origin },
+        body: faceImages,
+      },
+    );
+    expect(faceResponse.status).toBe(409);
+    expect(faceRegistrations).toHaveLength(0);
+    expect(db.select().from(adminAuditLogs).get()).toMatchObject({
+      action: "user_created",
+    });
+  });
+
   it("returns conflicts for duplicate identifiers and rejects protected fields", async () => {
     const { app, adminCookie } = await setup();
     const create = (studentNumber: string, email: string) =>
@@ -221,6 +295,7 @@ describe("admin API", () => {
           origin,
         },
         body: JSON.stringify({
+          userType: "student",
           studentNumber,
           name: "重複",
           lcdDisplayName: "DUP",
@@ -230,6 +305,24 @@ describe("admin API", () => {
 
     expect((await create("3333333333", "member@example.com")).status).toBe(409);
     expect((await create("2222222222", "unique@example.com")).status).toBe(409);
+
+    const invalidStudent = await app.request("/api/v1/admin/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: adminCookie,
+        host,
+        origin,
+      },
+      body: JSON.stringify({
+        userType: "student",
+        studentNumber: null,
+        name: "学籍番号なし生徒",
+        lcdDisplayName: null,
+        email: "invalid-student@example.com",
+      }),
+    });
+    expect(invalidStudent.status).toBe(400);
 
     const update = await app.request("/api/v1/admin/users/member-001", {
       method: "PATCH",

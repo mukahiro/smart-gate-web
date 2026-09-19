@@ -16,7 +16,12 @@ type UserListPageProps = {
   onSelfSessionsRevoked: () => void;
 };
 
-const initialFilters: UserFilters = { query: "", status: "all", admin: "all" };
+const initialFilters: UserFilters = {
+  query: "",
+  status: "all",
+  userType: "all",
+  admin: "all",
+};
 
 export function UserListPage({
   currentUserId,
@@ -99,6 +104,22 @@ export function UserListPage({
             />
           </label>
           <label>
+            <span>利用者種別</span>
+            <select
+              value={filters.userType}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  userType: event.target.value as UserFilters["userType"],
+                }))
+              }
+            >
+              <option value="all">すべて</option>
+              <option value="student">生徒</option>
+              <option value="teacher">先生</option>
+            </select>
+          </label>
+          <label>
             <span>状態</span>
             <select
               value={filters.status}
@@ -159,7 +180,7 @@ export function UserListPage({
                     <tr>
                       <th>利用者</th>
                       <th>学籍番号</th>
-                      <th>役割</th>
+                      <th>種別・権限</th>
                       <th>顔画像</th>
                       <th>状態</th>
                       <th>詳細</th>
@@ -176,26 +197,39 @@ export function UserListPage({
                           {formatStudentNumber(user.studentNumber)}
                         </td>
                         <td>
-                          <span
-                            className="role-badge"
-                            data-role={user.isAdmin ? "admin" : "member"}
-                          >
-                            {user.isAdmin ? "管理者" : "一般"}
-                          </span>
+                          <div className="status-stack">
+                            <span className="role-badge">
+                              {user.userType === "teacher" ? "先生" : "生徒"}
+                            </span>
+                            {user.isAdmin && (
+                              <span className="role-badge" data-role="admin">
+                                管理者
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td>
-                          <span
-                            className="status-badge"
-                            data-state={
-                              user.faceImageCount > 0
-                                ? "registered"
-                                : "inactive"
-                            }
-                          >
-                            {user.faceImageCount > 0
-                              ? `${user.faceImageCount}枚`
-                              : "未登録"}
-                          </span>
+                          {user.studentNumber === null ? (
+                            <span
+                              className="status-badge"
+                              data-state="inactive"
+                            >
+                              対象外
+                            </span>
+                          ) : (
+                            <span
+                              className="status-badge"
+                              data-state={
+                                user.faceImageCount > 0
+                                  ? "registered"
+                                  : "inactive"
+                              }
+                            >
+                              {user.faceImageCount > 0
+                                ? `${user.faceImageCount}枚`
+                                : "未登録"}
+                            </span>
+                          )}
                         </td>
                         <td>
                           <div className="status-stack">
@@ -225,14 +259,16 @@ export function UserListPage({
                             >
                               基本情報
                             </button>
-                            <button
-                              className="text-button"
-                              type="button"
-                              onClick={() => setFaceImageUser(user)}
-                              aria-label={`${user.name}の顔認証用画像を編集`}
-                            >
-                              顔登録
-                            </button>
+                            {user.studentNumber !== null && (
+                              <button
+                                className="text-button"
+                                type="button"
+                                onClick={() => setFaceImageUser(user)}
+                                aria-label={`${user.name}の顔認証用画像を編集`}
+                              >
+                                顔登録
+                              </button>
+                            )}
                             <button
                               className="text-button"
                               type="button"

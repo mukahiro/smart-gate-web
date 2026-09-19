@@ -64,11 +64,13 @@ export class DrizzleAdminRepository implements AdminRepository {
       ) {
         return { kind: "email_exists" as const };
       }
+      const studentNumber = input.studentNumber;
       if (
+        studentNumber !== null &&
         tx
           .select({ id: users.id })
           .from(users)
-          .where(eq(users.studentNumber, input.studentNumber))
+          .where(eq(users.studentNumber, studentNumber))
           .get()
       ) {
         return { kind: "student_number_exists" as const };
@@ -82,7 +84,7 @@ export class DrizzleAdminRepository implements AdminRepository {
           lcdDisplayName: input.lcdDisplayName,
           email: input.email,
           emailNormalized: input.emailNormalized,
-          userType: "student",
+          userType: input.userType,
           isAdmin: false,
           createdAt: input.occurredAt,
           updatedAt: input.occurredAt,
@@ -96,16 +98,22 @@ export class DrizzleAdminRepository implements AdminRepository {
           updatedAt: input.occurredAt,
         })
         .run();
-      const linkedEvents = tx
-        .update(attendanceEvents)
-        .set({ userId: input.userId })
-        .where(
-          and(
-            eq(attendanceEvents.studentNumberSnapshot, input.studentNumber),
-            isNull(attendanceEvents.userId),
-          ),
-        )
-        .run();
+      const linkedEventCount =
+        input.userType === "student" && input.studentNumber !== null
+          ? tx
+              .update(attendanceEvents)
+              .set({ userId: input.userId })
+              .where(
+                and(
+                  eq(
+                    attendanceEvents.studentNumberSnapshot,
+                    input.studentNumber,
+                  ),
+                  isNull(attendanceEvents.userId),
+                ),
+              )
+              .run().changes
+          : 0;
       tx.insert(adminAuditLogs)
         .values({
           id: input.auditId,
@@ -115,6 +123,7 @@ export class DrizzleAdminRepository implements AdminRepository {
           occurredAt: input.occurredAt,
           changedFields: JSON.stringify([
             "studentNumber",
+            "userType",
             "name",
             "lcdDisplayName",
             "email",
@@ -123,7 +132,7 @@ export class DrizzleAdminRepository implements AdminRepository {
         .run();
       return {
         kind: "success" as const,
-        linkedEventCount: linkedEvents.changes,
+        linkedEventCount,
       };
     });
 

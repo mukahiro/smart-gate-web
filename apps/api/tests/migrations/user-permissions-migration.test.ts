@@ -11,8 +11,8 @@ const readMigration = (name: string) =>
     "utf8",
   ).replaceAll("--> statement-breakpoint", "");
 
-describe("user permissions migration", () => {
-  it("separates user type and admin permission without losing relations", () => {
+describe("user account migrations", () => {
+  it("supports teacher accounts without losing existing relations", () => {
     const databasePath = join(
       mkdtempSync(join(tmpdir(), "smart-gate-user-permissions-migration-")),
       "test.sqlite3",
@@ -200,5 +200,33 @@ describe("user permissions migration", () => {
           "2026-01-01T00:00:00.000Z",
         ),
     ).toThrow();
+
+    sqlite.exec(readMigration("0005_slimy_may_parker.sql"));
+    sqlite
+      .prepare(
+        `INSERT INTO users (
+          id, student_number, name, lcd_display_name, email,
+          email_normalized, user_type, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        "web-only-teacher",
+        null,
+        "Web専用先生",
+        null,
+        "web-teacher@example.com",
+        "web-teacher@example.com",
+        "teacher",
+        "2026-01-01T00:00:00.000Z",
+        "2026-01-01T00:00:00.000Z",
+      );
+    expect(
+      sqlite
+        .prepare(
+          "SELECT student_number, lcd_display_name FROM users WHERE id = ?",
+        )
+        .get("web-only-teacher"),
+    ).toEqual({ student_number: null, lcd_display_name: null });
+    expect(sqlite.prepare("PRAGMA foreign_key_check").all()).toEqual([]);
   });
 });

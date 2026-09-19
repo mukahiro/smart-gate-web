@@ -3,6 +3,7 @@ import type { AdminUser } from "../types";
 export type UserFilters = {
   query: string;
   status: "all" | "active" | "inactive" | "locked";
+  userType: "all" | "student" | "teacher";
   admin: "all" | "non_admin" | "admin";
 };
 
@@ -25,11 +26,13 @@ export const filterUsers = (
       filters.admin === "all" ||
       (filters.admin === "admin" && user.isAdmin) ||
       (filters.admin === "non_admin" && !user.isAdmin);
+    const matchesUserType =
+      filters.userType === "all" || user.userType === filters.userType;
     const matchesStatus =
       filters.status === "all" ||
       (filters.status === "active" && user.isActive) ||
       (filters.status === "inactive" && !user.isActive) ||
       (filters.status === "locked" && isUserLocked(user, now));
-    return matchesQuery && matchesAdmin && matchesStatus;
+    return matchesQuery && matchesUserType && matchesAdmin && matchesStatus;
   });
 };

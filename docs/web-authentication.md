@@ -50,7 +50,7 @@
 | `id` | 内部利用者ID、主キー |
 | `student_number` | 正規形の学籍番号、UNIQUE。先生はNULL可 |
 | `name` | 通常表示名 |
-| `lcd_display_name` | LCD表示名 |
+| `lcd_display_name` | LCD表示名。先生はNULL可 |
 | `email` | 表示用メールアドレス |
 | `email_normalized` | 前後空白除去・小文字化した検索用メールアドレス、UNIQUE |
 | `user_type` | `student` または `teacher`。既定値は `student` |

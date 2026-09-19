@@ -34,7 +34,7 @@ export function UserDetailPage({
         if (!active) return;
         setUser(result);
         setName(result.name);
-        setLcdDisplayName(result.lcdDisplayName);
+        setLcdDisplayName(result.lcdDisplayName ?? "");
         setEmail(result.email);
       })
       .catch((cause: unknown) => {
@@ -80,12 +80,14 @@ export function UserDetailPage({
     void run(async () => {
       const updated = await updateAdminUser(user.id, {
         name,
-        lcdDisplayName,
         email,
+        ...(user.userType === "student" || lcdDisplayName.trim().length > 0
+          ? { lcdDisplayName }
+          : {}),
       });
       setUser(updated);
       setName(updated.name);
-      setLcdDisplayName(updated.lcdDisplayName);
+      setLcdDisplayName(updated.lcdDisplayName ?? "");
       setEmail(updated.email);
       setSuccess("基本情報を更新しました。");
     });
@@ -122,12 +124,14 @@ export function UserDetailPage({
             <div>
               <h1 id="user-detail-title">{user.name}</h1>
               <div className="title-badges">
-                <span
-                  className="role-badge"
-                  data-role={user.isAdmin ? "admin" : "member"}
-                >
-                  {user.isAdmin ? "管理者" : "一般利用者"}
+                <span className="role-badge">
+                  {user.userType === "teacher" ? "先生" : "生徒"}
                 </span>
+                {user.isAdmin && (
+                  <span className="role-badge" data-role="admin">
+                    管理者
+                  </span>
+                )}
                 <span
                   className="status-badge"
                   data-state={user.isActive ? "active" : "inactive"}
@@ -172,12 +176,17 @@ export function UserDetailPage({
                 <small>学籍番号は管理者画面から変更できません</small>
               </label>
               <label>
-                役割
+                利用者種別
                 <input
                   readOnly
-                  value={user.isAdmin ? "管理者" : "一般利用者"}
+                  value={user.userType === "teacher" ? "先生" : "生徒"}
                 />
-                <small>役割の変更は保守者向けCLIで行います</small>
+                <small>利用者種別は作成後に変更できません</small>
+              </label>
+              <label>
+                管理者権限
+                <input readOnly value={user.isAdmin ? "あり" : "なし"} />
+                <small>管理者権限の変更は保守者向けCLIで行います</small>
               </label>
               <label>
                 氏名
@@ -191,11 +200,14 @@ export function UserDetailPage({
               <label>
                 LCD表示名
                 <input
-                  required
+                  required={user.userType === "student"}
                   maxLength={20}
                   value={lcdDisplayName}
                   onChange={(event) => setLcdDisplayName(event.target.value)}
                 />
+                {user.userType === "teacher" && (
+                  <small>認証端末を利用しない場合は空欄にできます</small>
+                )}
               </label>
               <label>
                 メールアドレス

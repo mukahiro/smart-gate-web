@@ -5,7 +5,7 @@ export type AdminUser = {
   id: string;
   studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
   userType: UserType;
   isAdmin: boolean;
@@ -34,9 +34,10 @@ type AuditInput = {
 
 export type CreateAdminUserInput = AuditInput & {
   userId: string;
-  studentNumber: string;
+  userType: UserType;
+  studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
   emailNormalized: string;
   passwordHash: string;
