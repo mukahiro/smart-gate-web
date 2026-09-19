@@ -123,9 +123,7 @@ describe("user permissions migration", () => {
 
     expect(
       sqlite
-        .prepare(
-          "SELECT id, user_type, is_admin FROM users ORDER BY id ASC",
-        )
+        .prepare("SELECT id, user_type, is_admin FROM users ORDER BY id ASC")
         .all(),
     ).toEqual([
       { id: "legacy-admin", user_type: "student", is_admin: 1 },

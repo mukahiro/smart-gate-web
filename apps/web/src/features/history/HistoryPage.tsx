@@ -108,16 +108,11 @@ export function HistoryPage({
   );
 
   useEffect(() => {
-    if (
-      !user.isAdmin &&
-      window.location.pathname.startsWith("/admin")
-    ) {
+    if (!user.isAdmin && window.location.pathname.startsWith("/admin")) {
       navigate({ kind: "history" }, true);
     }
     const handlePopState = () =>
-      setScreen(
-        screenFromPath(window.location.pathname, user.isAdmin),
-      );
+      setScreen(screenFromPath(window.location.pathname, user.isAdmin));
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, [navigate, user.isAdmin]);

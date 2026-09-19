@@ -19,9 +19,7 @@ export const filterUsers = (
     const matchesQuery =
       query.length === 0 ||
       [user.name, user.studentNumber, user.email].some((value) =>
-        value
-          ?.toLocaleLowerCase("ja-JP")
-          .includes(query),
+        value?.toLocaleLowerCase("ja-JP").includes(query),
       );
     const matchesAdmin =
       filters.admin === "all" ||

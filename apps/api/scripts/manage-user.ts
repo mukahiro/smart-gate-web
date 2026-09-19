@@ -297,11 +297,7 @@ const run = async () => {
   } else if (command === "unlock") {
     unlockUser(db, studentNumber);
   } else if (command === "promote-admin" || command === "demote-admin") {
-    setUserAdmin(
-      db,
-      studentNumber,
-      command === "promote-admin",
-    );
+    setUserAdmin(db, studentNumber, command === "promote-admin");
   } else {
     throw new Error(
       "create, create-admin, reset-password, enable, disable, unlock, promote-admin, demote-adminを指定してください",

@@ -53,7 +53,7 @@ describe("admin user filtering", () => {
     ).toEqual(["2"]);
   });
 
-  it("filters status and role on the client", () => {
+  it("filters status and admin permission on the client", () => {
     expect(
       filterUsers(
         users,
@@ -69,11 +69,9 @@ describe("admin user filtering", () => {
       ).map(({ id }) => id),
     ).toEqual(["4"]);
     expect(
-      filterUsers(
-        users,
-        { query: "", status: "all", admin: "admin" },
-        now,
-      ).map(({ id }) => id),
+      filterUsers(users, { query: "", status: "all", admin: "admin" }, now).map(
+        ({ id }) => id,
+      ),
     ).toEqual(["2"]);
   });
 });

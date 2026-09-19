@@ -16,9 +16,7 @@ export const users = sqliteTable(
     userType: text("user_type", { enum: userTypes })
       .notNull()
       .default("student"),
-    isAdmin: integer("is_admin", { mode: "boolean" })
-      .notNull()
-      .default(false),
+    isAdmin: integer("is_admin", { mode: "boolean" }).notNull().default(false),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
     faceImageCount: integer("face_image_count").notNull().default(0),
     createdAt: text("created_at").notNull(),
