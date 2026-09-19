@@ -7,6 +7,7 @@ import { createUser } from "../scripts/manage-user";
 import { createApp } from "../src/app";
 import type { FaceImage } from "../src/clients/face-auth-client";
 import { adminAuditLogs } from "../src/db/admin-audit-log-schema";
+import { attendanceEvents } from "../src/db/attendance-event-schema";
 import { createSqliteDatabase } from "../src/db/client";
 import { DrizzleAdminRepository } from "../src/repositories/drizzle-admin-repository";
 import { DrizzleAttendanceEventRepository } from "../src/repositories/drizzle-attendance-event-repository";
@@ -58,9 +59,10 @@ const setup = async () => {
     studentNumber: string;
     images: FaceImage[];
   }> = [];
+  const attendanceEventRepository = new DrizzleAttendanceEventRepository(db);
   const app = createApp({
     authToken: "test-token",
-    attendanceEventRepository: new DrizzleAttendanceEventRepository(db),
+    attendanceEventRepository,
     authRepository: new DrizzleAuthRepository(db),
     adminRepository: new DrizzleAdminRepository(db),
     attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
@@ -77,7 +79,8 @@ const setup = async () => {
       headers: { "content-type": "application/json", host, origin },
       body: JSON.stringify({ email, password: loginPassword }),
     });
-  const adminCookie = getCookie(await login("admin@example.com"));
+  const adminLoginResponse = await login("admin@example.com");
+  const adminCookie = getCookie(adminLoginResponse);
   const memberCookie = getCookie(await login("member@example.com"));
   const mutate = (path: string, cookie = adminCookie, body?: unknown) =>
     app.request(path, {
@@ -95,20 +98,29 @@ const setup = async () => {
     app,
     db,
     login,
+    adminLoginResponse,
     adminCookie,
     memberCookie,
     mutate,
     faceRegistrations,
+    attendanceEventRepository,
   };
 };
 
 describe("admin API", () => {
   it("allows admins to list all users and rejects members", async () => {
-    const { app, adminCookie, memberCookie } = await setup();
-    const memberResponse = await app.request("/api/v1/admin/users", {
-      headers: { cookie: memberCookie },
+    const { app, adminLoginResponse, adminCookie, memberCookie } =
+      await setup();
+    await expect(adminLoginResponse.json()).resolves.toMatchObject({
+      user: { id: "admin-001", role: "admin" },
     });
-    expect(memberResponse.status).toBe(403);
+
+    for (const path of ["/api/v1/admin/users", "/api/v1/admin/audit-logs"]) {
+      const memberResponse = await app.request(path, {
+        headers: { cookie: memberCookie },
+      });
+      expect(memberResponse.status).toBe(403);
+    }
 
     const response = await app.request("/api/v1/admin/users", {
       headers: { cookie: adminCookie },
@@ -129,7 +141,19 @@ describe("admin API", () => {
   });
 
   it("creates members with a one-time temporary password and audit log", async () => {
-    const { app, db, login, adminCookie } = await setup();
+    const { app, db, login, adminCookie, attendanceEventRepository } =
+      await setup();
+    attendanceEventRepository.save(
+      {
+        eventId: "unmatched-event-001",
+        studentNumber: "3333333333",
+        deviceId: "device-001",
+        method: "card",
+        eventType: "check_in",
+        authenticatedAt: "2026-09-01T09:00:00+09:00",
+      },
+      new Date("2026-09-01T09:00:01+09:00").toISOString(),
+    );
     const response = await app.request("/api/v1/admin/users", {
       method: "POST",
       headers: {
@@ -149,11 +173,13 @@ describe("admin API", () => {
     expect(response.status).toBe(201);
     expect(response.headers.get("cache-control")).toBe("no-store");
     const body = (await response.json()) as {
-      user: { role: string; faceImageCount: number };
+      user: { id: string; role: string; faceImageCount: number };
       temporaryPassword: string;
+      linkedEventCount: number;
     };
     expect(body.user.role).toBe("member");
     expect(body.user.faceImageCount).toBe(0);
+    expect(body.linkedEventCount).toBe(1);
     expect(body.temporaryPassword).toMatch(/^[A-Z2-9]{12}$/);
     expect(body.temporaryPassword).not.toMatch(/[ILO01]/);
     expect(
@@ -163,6 +189,10 @@ describe("admin API", () => {
     expect(db.select().from(adminAuditLogs).get()).toMatchObject({
       actorUserId: "admin-001",
       action: "user_created",
+    });
+    expect(db.select().from(attendanceEvents).get()).toMatchObject({
+      eventId: "unmatched-event-001",
+      userId: body.user.id,
     });
   });
 
