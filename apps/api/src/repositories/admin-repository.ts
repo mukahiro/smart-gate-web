@@ -1,4 +1,4 @@
-import type { AdminAuditAction } from "../db/admin-audit-log-schema";
+import type { AuditAction } from "../db/audit-log-schema";
 import type { UserType } from "../db/user-schema";
 
 export type AdminUser = {
@@ -20,7 +20,7 @@ export type AdminUser = {
 export type AdminAuditLog = {
   id: string;
   actorUserId: string;
-  action: AdminAuditAction;
+  action: AuditAction;
   targetUserId: string;
   occurredAt: string;
   changedFields: string[];

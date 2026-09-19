@@ -1,6 +1,6 @@
 import { loadLocalEnvFile } from "../src/config/load-local-env";
-import { adminAuditLogs } from "../src/db/admin-audit-log-schema";
 import { attendanceEvents } from "../src/db/attendance-event-schema";
+import { auditLogs } from "../src/db/audit-log-schema";
 import { userCredentials } from "../src/db/auth-schema";
 import { createSqliteDatabase } from "../src/db/client";
 import { users } from "../src/db/user-schema";
@@ -261,7 +261,8 @@ db.transaction((tx) => {
       id: `demo-${month}-audit-created`,
       actorUserId: "demo-admin",
       action: "user_created" as const,
-      targetUserId: "demo-member",
+      resourceType: "user" as const,
+      resourceId: "demo-member",
       occurredAt: at("01", "08:30:00"),
       changedFields: JSON.stringify([
         "studentNumber",
@@ -274,7 +275,8 @@ db.transaction((tx) => {
       id: `demo-${month}-audit-updated`,
       actorUserId: "demo-admin",
       action: "user_updated" as const,
-      targetUserId: "demo-member",
+      resourceType: "user" as const,
+      resourceId: "demo-member",
       occurredAt: at("04", "14:20:00"),
       changedFields: JSON.stringify(["lcdDisplayName"]),
     },
@@ -282,14 +284,15 @@ db.transaction((tx) => {
       id: `demo-${month}-audit-disabled`,
       actorUserId: "demo-admin",
       action: "user_disabled" as const,
-      targetUserId: "demo-inactive",
+      resourceType: "user" as const,
+      resourceId: "demo-inactive",
       occurredAt: at("06", "16:00:00"),
       changedFields: JSON.stringify(["isActive"]),
     },
   ];
 
   for (const entry of auditEntries) {
-    tx.insert(adminAuditLogs).values(entry).onConflictDoNothing().run();
+    tx.insert(auditLogs).values(entry).onConflictDoNothing().run();
   }
 });
 

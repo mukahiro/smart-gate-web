@@ -141,11 +141,14 @@ POST /api/v1/auth/change-password
 | `id` | 監査ログID |
 | `actor_user_id` | 操作した管理者の内部利用者ID |
 | `action` | 操作種別 |
-| `target_user_id` | 対象利用者の内部利用者ID |
+| `resource_type` | 操作対象の種別。管理操作では `user` |
+| `resource_id` | 対象利用者の内部利用者ID |
 | `occurred_at` | 操作日時 |
 | `changed_fields` | 変更した項目名の一覧 |
 
 成功した変更操作を監査ログへ保存する。validation失敗、認証失敗、権限不足、想定外エラーは通常のアプリケーションログで扱う。
+
+DBでは出席対象の操作履歴と共通の `audit_logs` テーブルを使う。既存の管理者向けAPI契約では互換性のため `targetUserId` を返し、検索時に `resource_type = 'user'` の履歴だけへ限定する。
 
 監査ログにはパスワード、パスワードハッシュ、セッショントークン、一時パスワード、変更前後の機密値を保存しない。監査ログは削除期限を設けず無期限に保管する。
 

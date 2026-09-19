@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, isNull, lt, or } from "drizzle-orm";
-import { adminAuditLogs } from "../db/admin-audit-log-schema";
 import { attendanceEvents } from "../db/attendance-event-schema";
+import { auditLogs } from "../db/audit-log-schema";
 import { sessions, userCredentials } from "../db/auth-schema";
 import type { SqliteDatabase } from "../db/client";
 import { users } from "../db/user-schema";
@@ -114,12 +114,13 @@ export class DrizzleAdminRepository implements AdminRepository {
               )
               .run().changes
           : 0;
-      tx.insert(adminAuditLogs)
+      tx.insert(auditLogs)
         .values({
           id: input.auditId,
           actorUserId: input.actorUserId,
           action: "user_created",
-          targetUserId: input.userId,
+          resourceType: "user",
+          resourceId: input.userId,
           occurredAt: input.occurredAt,
           changedFields: JSON.stringify([
             "studentNumber",
@@ -184,12 +185,13 @@ export class DrizzleAdminRepository implements AdminRepository {
         .set({ ...input.values, updatedAt: input.occurredAt })
         .where(eq(users.id, input.targetUserId))
         .run();
-      tx.insert(adminAuditLogs)
+      tx.insert(auditLogs)
         .values({
           id: input.auditId,
           actorUserId: input.actorUserId,
           action: "user_updated",
-          targetUserId: input.targetUserId,
+          resourceType: "user",
+          resourceId: input.targetUserId,
           occurredAt: input.occurredAt,
           changedFields: JSON.stringify(changedFields),
         })
@@ -248,12 +250,13 @@ export class DrizzleAdminRepository implements AdminRepository {
           .where(eq(sessions.userId, input.targetUserId))
           .run();
       }
-      tx.insert(adminAuditLogs)
+      tx.insert(auditLogs)
         .values({
           id: input.auditId,
           actorUserId: input.actorUserId,
           action: input.isActive ? "user_enabled" : "user_disabled",
-          targetUserId: input.targetUserId,
+          resourceType: "user",
+          resourceId: input.targetUserId,
           occurredAt: input.occurredAt,
           changedFields: JSON.stringify(["isActive"]),
         })
@@ -297,12 +300,13 @@ export class DrizzleAdminRepository implements AdminRepository {
         .where(eq(sessions.userId, input.targetUserId))
         .run();
       if (deleted.changes > 0) {
-        tx.insert(adminAuditLogs)
+        tx.insert(auditLogs)
           .values({
             id: input.auditId,
             actorUserId: input.actorUserId,
             action: "user_sessions_revoked",
-            targetUserId: input.targetUserId,
+            resourceType: "user",
+            resourceId: input.targetUserId,
             occurredAt: input.occurredAt,
             changedFields: JSON.stringify(["sessions"]),
           })
@@ -348,12 +352,13 @@ export class DrizzleAdminRepository implements AdminRepository {
         })
         .where(eq(users.id, input.targetUserId))
         .run();
-      tx.insert(adminAuditLogs)
+      tx.insert(auditLogs)
         .values({
           id: input.auditId,
           actorUserId: input.actorUserId,
           action: "user_face_images_updated",
-          targetUserId: input.targetUserId,
+          resourceType: "user",
+          resourceId: input.targetUserId,
           occurredAt: input.occurredAt,
           changedFields: JSON.stringify(["faceImageCount"]),
         })
@@ -373,18 +378,22 @@ export class DrizzleAdminRepository implements AdminRepository {
   }) {
     const cursorCondition = input.cursor
       ? or(
-          lt(adminAuditLogs.occurredAt, input.cursor.occurredAt),
+          lt(auditLogs.occurredAt, input.cursor.occurredAt),
           and(
-            eq(adminAuditLogs.occurredAt, input.cursor.occurredAt),
-            lt(adminAuditLogs.id, input.cursor.id),
+            eq(auditLogs.occurredAt, input.cursor.occurredAt),
+            lt(auditLogs.id, input.cursor.id),
           ),
         )
       : undefined;
     const rows = this.db
       .select()
-      .from(adminAuditLogs)
-      .where(cursorCondition)
-      .orderBy(desc(adminAuditLogs.occurredAt), desc(adminAuditLogs.id))
+      .from(auditLogs)
+      .where(
+        cursorCondition
+          ? and(eq(auditLogs.resourceType, "user"), cursorCondition)
+          : eq(auditLogs.resourceType, "user"),
+      )
+      .orderBy(desc(auditLogs.occurredAt), desc(auditLogs.id))
       .limit(input.limit + 1)
       .all();
     const hasMore = rows.length > input.limit;
@@ -392,7 +401,11 @@ export class DrizzleAdminRepository implements AdminRepository {
     return {
       logs: rows.slice(0, input.limit).map(
         (row): AdminAuditLog => ({
-          ...row,
+          id: row.id,
+          actorUserId: row.actorUserId,
+          action: row.action,
+          targetUserId: row.resourceId,
+          occurredAt: row.occurredAt,
           changedFields: JSON.parse(row.changedFields) as string[],
         }),
       ),
@@ -443,13 +456,14 @@ export class DrizzleAdminRepository implements AdminRepository {
           .where(eq(sessions.userId, input.targetUserId))
           .run();
       }
-      tx.insert(adminAuditLogs)
+      tx.insert(auditLogs)
         .values({
           id: input.auditId,
           actorUserId: input.actorUserId,
           action:
             operation === "reset" ? "user_password_reset" : "user_unlocked",
-          targetUserId: input.targetUserId,
+          resourceType: "user",
+          resourceId: input.targetUserId,
           occurredAt: input.occurredAt,
           changedFields: JSON.stringify(
             operation === "reset"

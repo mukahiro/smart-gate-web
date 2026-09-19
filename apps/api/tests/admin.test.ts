@@ -6,8 +6,8 @@ import { describe, expect, it } from "vitest";
 import { createUser } from "../scripts/manage-user";
 import { createApp } from "../src/app";
 import type { FaceImage } from "../src/clients/face-auth-client";
-import { adminAuditLogs } from "../src/db/admin-audit-log-schema";
 import { attendanceEvents } from "../src/db/attendance-event-schema";
+import { auditLogs } from "../src/db/audit-log-schema";
 import { createSqliteDatabase } from "../src/db/client";
 import { DrizzleAdminRepository } from "../src/repositories/drizzle-admin-repository";
 import { DrizzleAttendanceEventRepository } from "../src/repositories/drizzle-attendance-event-repository";
@@ -199,10 +199,12 @@ describe("admin API", () => {
     expect(
       (await login("new@example.com", body.temporaryPassword)).status,
     ).toBe(200);
-    expect(db.select().from(adminAuditLogs).all()).toHaveLength(1);
-    expect(db.select().from(adminAuditLogs).get()).toMatchObject({
+    expect(db.select().from(auditLogs).all()).toHaveLength(1);
+    expect(db.select().from(auditLogs).get()).toMatchObject({
       actorUserId: "admin-001",
       action: "user_created",
+      resourceType: "user",
+      resourceId: body.user.id,
     });
     expect(db.select().from(attendanceEvents).get()).toMatchObject({
       eventId: "unmatched-event-001",
@@ -278,7 +280,7 @@ describe("admin API", () => {
     );
     expect(faceResponse.status).toBe(409);
     expect(faceRegistrations).toHaveLength(0);
-    expect(db.select().from(adminAuditLogs).get()).toMatchObject({
+    expect(db.select().from(auditLogs).get()).toMatchObject({
       action: "user_created",
     });
   });
@@ -372,12 +374,13 @@ describe("admin API", () => {
     expect(
       db
         .select()
-        .from(adminAuditLogs)
+        .from(auditLogs)
         .all()
         .find((log) => log.action === "user_face_images_updated"),
     ).toMatchObject({
       actorUserId: "admin-001",
-      targetUserId: "member-001",
+      resourceType: "user",
+      resourceId: "member-001",
       changedFields: '["faceImageCount"]',
     });
   });
@@ -422,7 +425,7 @@ describe("admin API", () => {
     expect(
       db
         .select()
-        .from(adminAuditLogs)
+        .from(auditLogs)
         .all()
         .filter((log) => log.action === "user_disabled"),
     ).toHaveLength(1);
