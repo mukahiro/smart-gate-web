@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   Clock3,
   Info,
   KeyRound,
@@ -28,6 +29,7 @@ import { type AppScreen, pathForScreen, screenFromPath } from "../admin/routes";
 import { CreateUserPage } from "../admin/users/CreateUserPage";
 import { UserDetailPage } from "../admin/users/UserDetailPage";
 import { UserListPage } from "../admin/users/UserListPage";
+import { AttendanceSessionsPage } from "../attendance/AttendanceSessionsPage";
 import { DailyDetail } from "./DailyDetail";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { currentJapanDate, formatMonth, shiftMonth } from "./calendar";
@@ -84,7 +86,11 @@ export function HistoryPage({
   const [history, setHistory] = useState<MonthlyHistory | null>(null);
   const [error, setError] = useState("");
   const [screen, setScreen] = useState<AppScreen>(() =>
-    screenFromPath(window.location.pathname, user.isAdmin),
+    screenFromPath(
+      window.location.pathname,
+      user.isAdmin,
+      user.userType === "teacher",
+    ),
   );
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -111,11 +117,23 @@ export function HistoryPage({
     if (!user.isAdmin && window.location.pathname.startsWith("/admin")) {
       navigate({ kind: "history" }, true);
     }
+    if (
+      user.userType !== "teacher" &&
+      window.location.pathname.startsWith("/attendance-sessions")
+    ) {
+      navigate({ kind: "history" }, true);
+    }
     const handlePopState = () =>
-      setScreen(screenFromPath(window.location.pathname, user.isAdmin));
+      setScreen(
+        screenFromPath(
+          window.location.pathname,
+          user.isAdmin,
+          user.userType === "teacher",
+        ),
+      );
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [navigate, user.isAdmin]);
+  }, [navigate, user.isAdmin, user.userType]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: 同じ表示月の再取得にも反応させる。
   useEffect(() => {
@@ -183,8 +201,8 @@ export function HistoryPage({
             alt="Smart Gate"
           />
         </a>
-        {user.isAdmin && (
-          <nav className="admin-nav" aria-label="管理者メニュー">
+        {(user.isAdmin || user.userType === "teacher") && (
+          <nav className="admin-nav" aria-label="メインメニュー">
             <button
               type="button"
               data-active={screen.kind === "history" || undefined}
@@ -193,22 +211,40 @@ export function HistoryPage({
               <CalendarDays aria-hidden="true" />
               自分の履歴
             </button>
-            <button
-              type="button"
-              data-active={screen.kind.startsWith("admin-user") || undefined}
-              onClick={() => navigate({ kind: "admin-users" })}
-            >
-              <Users aria-hidden="true" />
-              利用者管理
-            </button>
-            <button
-              type="button"
-              data-active={screen.kind === "admin-audit" || undefined}
-              onClick={() => navigate({ kind: "admin-audit" })}
-            >
-              <ScrollText aria-hidden="true" />
-              監査ログ
-            </button>
+            {user.userType === "teacher" && (
+              <button
+                type="button"
+                data-active={
+                  screen.kind.startsWith("attendance-session") || undefined
+                }
+                onClick={() => navigate({ kind: "attendance-sessions" })}
+              >
+                <ClipboardCheck aria-hidden="true" />
+                出席管理
+              </button>
+            )}
+            {user.isAdmin && (
+              <>
+                <button
+                  type="button"
+                  data-active={
+                    screen.kind.startsWith("admin-user") || undefined
+                  }
+                  onClick={() => navigate({ kind: "admin-users" })}
+                >
+                  <Users aria-hidden="true" />
+                  利用者管理
+                </button>
+                <button
+                  type="button"
+                  data-active={screen.kind === "admin-audit" || undefined}
+                  onClick={() => navigate({ kind: "admin-audit" })}
+                >
+                  <ScrollText aria-hidden="true" />
+                  監査ログ
+                </button>
+              </>
+            )}
           </nav>
         )}
         <div className="user-menu-wrap">
@@ -267,9 +303,24 @@ export function HistoryPage({
       </header>
 
       <main className={`content-shell${selectedDate ? " has-detail" : ""}`}>
-        {screen.kind === "admin-users" ||
-        screen.kind === "admin-user-new" ||
-        screen.kind === "admin-user-detail" ? (
+        {screen.kind === "attendance-sessions" ||
+        screen.kind === "attendance-session-detail" ? (
+          <AttendanceSessionsPage
+            sessionId={
+              screen.kind === "attendance-session-detail"
+                ? screen.sessionId
+                : undefined
+            }
+            onSelect={(sessionId) =>
+              navigate({ kind: "attendance-session-detail", sessionId })
+            }
+            onBack={() => navigate({ kind: "attendance-sessions" })}
+            onSessionExpired={onSessionExpired}
+            onPermissionDenied={showHistory}
+          />
+        ) : screen.kind === "admin-users" ||
+          screen.kind === "admin-user-new" ||
+          screen.kind === "admin-user-detail" ? (
           <UserListPage
             key={userListRefreshKey}
             currentUserId={user.id}

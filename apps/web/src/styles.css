@@ -999,6 +999,58 @@ p {
 .admin-form input[aria-invalid="true"] {
   border-color: #b9473d;
 }
+.attendance-page {
+  display: grid;
+  gap: 24px;
+}
+.attendance-form {
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 0.7fr) minmax(
+      180px,
+      0.7fr
+    ) auto;
+  align-items: end;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-muted);
+}
+.attendance-form .primary-button {
+  min-height: 42px;
+}
+.attendance-results,
+.attendance-audit {
+  display: grid;
+  gap: 14px;
+  padding-top: 22px;
+  border-top: 1px solid var(--color-border);
+}
+.attendance-results h2,
+.attendance-audit h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.attendance-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.attendance-summary span {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: var(--color-theme-soft);
+  color: var(--color-theme-hover);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.attendance-audit p {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.76rem;
+}
+.attendance-audit p span {
+  color: var(--color-text-muted);
+}
 .result-count {
   margin: 18px 0 9px;
   color: var(--color-text-muted);
