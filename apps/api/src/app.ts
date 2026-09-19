@@ -4,10 +4,12 @@ import { AppError } from "./errors/app-error";
 import type { AdminRepository } from "./repositories/admin-repository";
 import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
 import type { AttendanceHistoryRepository } from "./repositories/attendance-history-repository";
+import type { AttendanceSessionRepository } from "./repositories/attendance-session-repository";
 import type { AuthRepository } from "./repositories/auth-repository";
 import { createAdminRoute } from "./routes/admin";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
 import { createAttendanceHistoryRoute } from "./routes/attendance-history";
+import { createAttendanceSessionsRoute } from "./routes/attendance-sessions";
 import { createAuthRoute } from "./routes/auth";
 import type { AttendanceEventLogger } from "./services/attendance-events/record-attendance-event";
 
@@ -30,6 +32,7 @@ type AppOptions = {
   authRepository?: AuthRepository;
   adminRepository?: AdminRepository;
   attendanceHistoryRepository?: AttendanceHistoryRepository;
+  attendanceSessionRepository?: AttendanceSessionRepository;
   secureCookie?: boolean;
   faceAuthClient?: FaceAuthClient;
 };
@@ -41,6 +44,7 @@ export const createApp = ({
   authRepository,
   adminRepository,
   attendanceHistoryRepository,
+  attendanceSessionRepository,
   secureCookie = process.env.SESSION_COOKIE_SECURE === "true",
   faceAuthClient,
 }: AppOptions) => {
@@ -72,6 +76,17 @@ export const createApp = ({
       createAttendanceHistoryRoute({
         authRepository,
         attendanceHistoryRepository,
+        secureCookie,
+      }),
+    );
+  }
+
+  if (authRepository && attendanceSessionRepository) {
+    app.route(
+      "/attendance-sessions",
+      createAttendanceSessionsRoute({
+        authRepository,
+        attendanceSessionRepository,
         secureCookie,
       }),
     );

@@ -7,6 +7,7 @@ import { createSqliteDatabase } from "./db/client";
 import { DrizzleAdminRepository } from "./repositories/drizzle-admin-repository";
 import { DrizzleAttendanceEventRepository } from "./repositories/drizzle-attendance-event-repository";
 import { DrizzleAttendanceHistoryRepository } from "./repositories/drizzle-attendance-history-repository";
+import { DrizzleAttendanceSessionRepository } from "./repositories/drizzle-attendance-session-repository";
 import { DrizzleAuthRepository } from "./repositories/drizzle-auth-repository";
 
 loadLocalEnvFile();
@@ -40,6 +41,7 @@ const app = createApp({
   authRepository: new DrizzleAuthRepository(db),
   adminRepository: new DrizzleAdminRepository(db),
   attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
+  attendanceSessionRepository: new DrizzleAttendanceSessionRepository(db),
   secureCookie,
   faceAuthClient: new HttpFaceAuthClient(
     faceAuthAppUrl,
