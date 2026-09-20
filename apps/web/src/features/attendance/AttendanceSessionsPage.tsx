@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { ApiError } from "../../api/client";
+import { currentJapanDate, shiftMonth } from "../history/calendar";
+import { AttendanceSessionCalendar } from "./AttendanceSessionCalendar";
 import {
   cancelAttendanceSession,
   createAttendanceSession,
@@ -87,6 +89,8 @@ const AttendanceSessionList = ({
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ title: "", startsAt: "", endsAt: "" });
+  const today = currentJapanDate();
+  const [month, setMonth] = useState(today.slice(0, 7));
 
   useEffect(() => {
     listAttendanceSessions()
@@ -184,44 +188,65 @@ const AttendanceSessionList = ({
         <div className="admin-empty">出席対象はまだありません。</div>
       )}
       {sessions && sessions.length > 0 && (
-        <div className="user-table-wrap">
-          <table className="user-table">
-            <thead>
-              <tr>
-                <th>名称</th>
-                <th>開始</th>
-                <th>終了</th>
-                <th>状態</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {sessions.map((session) => (
-                <tr key={session.id}>
-                  <td>
-                    <strong>{session.title}</strong>
-                  </td>
-                  <td>{formatDateTime(session.startsAt)}</td>
-                  <td>{formatDateTime(session.endsAt)}</td>
-                  <td>
-                    <span className="status-badge" data-state={session.status}>
-                      {sessionStatusLabels[session.status]}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="text-button"
-                      type="button"
-                      onClick={() => onSelect(session.id)}
-                    >
-                      詳細
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <AttendanceSessionCalendar
+            month={month}
+            sessions={sessions}
+            today={today}
+            onChangeMonth={(amount) =>
+              setMonth((current) => shiftMonth(current, amount))
+            }
+            onToday={() => setMonth(today.slice(0, 7))}
+            onSelect={onSelect}
+          />
+          <section
+            className="attendance-session-list"
+            aria-labelledby="attendance-list-title"
+          >
+            <h2 id="attendance-list-title">すべての出席対象</h2>
+            <div className="user-table-wrap">
+              <table className="user-table">
+                <thead>
+                  <tr>
+                    <th>名称</th>
+                    <th>開始</th>
+                    <th>終了</th>
+                    <th>状態</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions.map((session) => (
+                    <tr key={session.id}>
+                      <td>
+                        <strong>{session.title}</strong>
+                      </td>
+                      <td>{formatDateTime(session.startsAt)}</td>
+                      <td>{formatDateTime(session.endsAt)}</td>
+                      <td>
+                        <span
+                          className="status-badge"
+                          data-state={session.status}
+                        >
+                          {sessionStatusLabels[session.status]}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          className="text-button"
+                          type="button"
+                          onClick={() => onSelect(session.id)}
+                        >
+                          詳細
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
       )}
     </section>
   );

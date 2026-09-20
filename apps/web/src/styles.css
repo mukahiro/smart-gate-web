@@ -61,6 +61,8 @@ button {
 :root[data-theme="dark"] .icon-button,
 :root[data-theme="dark"] .month-tab-current,
 :root[data-theme="dark"] .calendar-day,
+:root[data-theme="dark"] .attendance-calendar-day,
+:root[data-theme="dark"] .attendance-calendar-header button,
 :root[data-theme="dark"] .danger-outline-button {
   background: #20242a;
 }
@@ -82,6 +84,9 @@ button {
   color: #e7e9ed;
 }
 :root[data-theme="dark"] .calendar-day[data-outside] {
+  background: #1c2025;
+}
+:root[data-theme="dark"] .attendance-calendar-day[data-outside] {
   background: #1c2025;
 }
 :root[data-theme="dark"] .month-tab-current {
@@ -1016,6 +1021,120 @@ p {
 }
 .attendance-form .primary-button {
   min-height: 42px;
+}
+.attendance-calendar-section,
+.attendance-session-list {
+  display: grid;
+  gap: 12px;
+}
+.attendance-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.attendance-calendar-header h2,
+.attendance-session-list h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+.attendance-calendar-header > div {
+  display: flex;
+  gap: 6px;
+}
+.attendance-calendar-header button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+.attendance-calendar-header button:hover {
+  border-color: var(--color-theme);
+  background: var(--color-theme-soft);
+}
+.attendance-calendar-header svg {
+  width: 16px;
+  height: 16px;
+}
+.attendance-calendar {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+.attendance-calendar > .weekday-row,
+.attendance-calendar-grid {
+  min-width: 760px;
+}
+.attendance-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.attendance-calendar-day {
+  min-width: 0;
+  min-height: 128px;
+  padding: 8px;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: #fff;
+}
+.attendance-calendar-day:nth-child(7n) {
+  border-right: 0;
+}
+.attendance-calendar-day:nth-last-child(-n + 7) {
+  border-bottom: 0;
+}
+.attendance-calendar-day[data-outside] {
+  color: #aaa;
+  background: var(--color-row-hover);
+}
+.attendance-calendar-day[data-today] .day-number {
+  color: #fff;
+  background: var(--color-theme);
+}
+.attendance-calendar-events {
+  display: grid;
+  gap: 5px;
+  margin-top: 6px;
+}
+.attendance-calendar-events button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 5px;
+  min-width: 0;
+  padding: 5px 6px;
+  overflow: hidden;
+  border: 0;
+  border-left: 3px solid var(--color-theme);
+  border-radius: 4px;
+  color: var(--color-theme-strong);
+  background: var(--color-theme-soft);
+  font-size: 0.65rem;
+  text-align: left;
+  cursor: pointer;
+}
+.attendance-calendar-events button:hover {
+  filter: brightness(0.96);
+}
+.attendance-calendar-events button[data-status="cancelled"] {
+  border-left-color: #888;
+  color: var(--color-text-muted);
+  background: var(--color-surface-muted);
+  text-decoration: line-through;
+}
+.attendance-calendar-events time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+}
+.attendance-calendar-events span {
+  overflow: hidden;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .attendance-results,
 .attendance-audit {
