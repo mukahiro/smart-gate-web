@@ -402,20 +402,6 @@ export function HistoryPage({
                       <Info aria-hidden="true" />
                     </button>
                   </div>
-                  <div className="calendar-legend">
-                    <span>
-                      <i className="event-dot" />
-                      記録あり
-                    </span>
-                    <span>
-                      <i className="event-dot" data-warning />
-                      記録不足あり
-                    </span>
-                    <span>
-                      <i className="today-symbol" />
-                      本日
-                    </span>
-                  </div>
                   {history?.attendanceSessions.some(
                     (session) => session.attendanceStatus !== "cancelled",
                   ) && (

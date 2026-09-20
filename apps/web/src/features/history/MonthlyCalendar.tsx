@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import type {
   MonthlyHistoryDay,
   MyAttendanceSession,
@@ -64,16 +65,21 @@ export function MonthlyCalendar({
               data-outside={!cell.inCurrentMonth || undefined}
               data-today={cell.date === today || undefined}
               data-selected={cell.date === selectedDate || undefined}
+              data-warning={hasMissing || undefined}
               onClick={() => onSelectDate(cell.date)}
-              aria-label={`${cell.date}${summary ? `、記録${summary.eventCount}件` : "、記録なし"}${dailySessions.length > 0 ? `、出席対象${dailySessions.length}件` : ""}`}
+              aria-label={`${cell.date}${summary ? `、記録${summary.eventCount}件` : "、記録なし"}${hasMissing ? "、記録不足あり" : ""}${dailySessions.length > 0 ? `、出席対象${dailySessions.length}件` : ""}`}
             >
               <span className="day-number">{cell.day}</span>
               {summary && (
                 <span className="day-summary">
-                  <span
-                    className="event-dot"
-                    data-warning={hasMissing || undefined}
-                  />
+                  {hasMissing ? (
+                    <TriangleAlert
+                      className="history-warning-icon"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <span className="event-dot" aria-hidden="true" />
+                  )}
                   <span>{summary.eventCount}件</span>
                   {summary.stayDurationMinutes > 0 && (
                     <span className="day-duration">

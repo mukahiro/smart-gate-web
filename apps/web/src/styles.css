@@ -691,18 +691,9 @@ p {
   display: inline-block;
   width: 7px;
   height: 7px;
+  flex: 0 0 auto;
   border-radius: 50%;
   background: var(--color-theme);
-}
-.event-dot[data-warning] {
-  background: #c27b2f;
-}
-.today-symbol {
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  border: 2px solid var(--color-theme);
-  border-radius: 50%;
 }
 .calendar-wrap {
   animation: calendar-fade-in 160ms ease-out both;
@@ -773,6 +764,12 @@ p {
   z-index: 1;
   box-shadow: inset 0 0 0 2px var(--color-theme);
 }
+.calendar-day[data-warning] {
+  background: #fffaf2;
+}
+:root[data-theme="dark"] .calendar-day[data-warning] {
+  background: #332a20;
+}
 .day-number {
   display: grid;
   width: 25px;
@@ -794,6 +791,13 @@ p {
   gap: 5px;
   color: #555;
   font-size: 0.72rem;
+}
+.history-warning-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: #c27b2f;
+  stroke-width: 2.5;
 }
 .day-duration {
   width: 100%;
