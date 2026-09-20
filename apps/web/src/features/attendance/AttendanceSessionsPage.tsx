@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApiError } from "../../api/client";
 import { currentJapanDate, shiftMonth } from "../history/calendar";
@@ -88,6 +89,8 @@ const AttendanceSessionList = ({
   const [sessions, setSessions] = useState<AttendanceSession[] | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+  const [createError, setCreateError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ title: "", startsAt: "", endsAt: "" });
   const today = currentJapanDate();
   const [month, setMonth] = useState(today.slice(0, 7));
@@ -102,9 +105,19 @@ const AttendanceSessionList = ({
       });
   }, [onPermissionDenied, onSessionExpired]);
 
+  useEffect(() => {
+    if (!creating) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !submitting) setCreating(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [creating, submitting]);
+
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError("");
+    setCreateError("");
+    setSubmitting(true);
     try {
       const session = await createAttendanceSession({
         title: form.title,
@@ -114,11 +127,19 @@ const AttendanceSessionList = ({
       onSelect(session.id);
     } catch (cause) {
       if (!handleAuthorization(cause, onSessionExpired, onPermissionDenied)) {
-        setError(
+        setCreateError(
           cause instanceof ApiError ? cause.message : "作成できませんでした。",
         );
       }
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const closeCreateDialog = () => {
+    if (submitting) return;
+    setCreating(false);
+    setCreateError("");
   };
 
   return (
@@ -134,9 +155,12 @@ const AttendanceSessionList = ({
         <button
           className="primary-button"
           type="button"
-          onClick={() => setCreating((v) => !v)}
+          onClick={() => {
+            setCreateError("");
+            setCreating(true);
+          }}
         >
-          {creating ? "閉じる" : "出席対象を作成"}
+          出席対象を作成
         </button>
       </header>
       {error && (
@@ -145,41 +169,92 @@ const AttendanceSessionList = ({
         </div>
       )}
       {creating && (
-        <form
-          className="admin-form attendance-form"
-          onSubmit={(event) => void submit(event)}
+        <div
+          className="dialog-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeCreateDialog();
+          }}
         >
-          <label>
-            名称
-            <input
-              required
-              maxLength={100}
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-            />
-          </label>
-          <label>
-            開始日時
-            <input
-              required
-              type="datetime-local"
-              value={form.startsAt}
-              onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
-            />
-          </label>
-          <label>
-            終了日時
-            <input
-              required
-              type="datetime-local"
-              value={form.endsAt}
-              onChange={(e) => setForm({ ...form, endsAt: e.target.value })}
-            />
-          </label>
-          <button className="primary-button" type="submit">
-            作成する
-          </button>
-        </form>
+          <dialog
+            open
+            className="dialog-card attendance-create-dialog"
+            aria-labelledby="attendance-create-title"
+            aria-modal="true"
+          >
+            <header className="dialog-header">
+              <div>
+                <h2 id="attendance-create-title">出席対象を作成</h2>
+                <p>名称と授業の開始・終了日時を入力してください。</p>
+              </div>
+              <button
+                className="icon-button close-button"
+                type="button"
+                disabled={submitting}
+                onClick={closeCreateDialog}
+                aria-label="出席対象の作成を閉じる"
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+            {createError && (
+              <div className="notice error-notice" role="alert">
+                {createError}
+              </div>
+            )}
+            <form
+              className="admin-form attendance-create-form"
+              onSubmit={(event) => void submit(event)}
+            >
+              <label>
+                名称
+                <input
+                  required
+                  maxLength={100}
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                />
+              </label>
+              <label>
+                開始日時
+                <input
+                  required
+                  type="datetime-local"
+                  value={form.startsAt}
+                  onChange={(e) =>
+                    setForm({ ...form, startsAt: e.target.value })
+                  }
+                />
+              </label>
+              <label>
+                終了日時
+                <input
+                  required
+                  type="datetime-local"
+                  value={form.endsAt}
+                  onChange={(e) => setForm({ ...form, endsAt: e.target.value })}
+                />
+              </label>
+              <div className="dialog-actions">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  disabled={submitting}
+                  onClick={closeCreateDialog}
+                >
+                  キャンセル
+                </button>
+                <button
+                  className="primary-button"
+                  type="submit"
+                  disabled={submitting}
+                >
+                  {submitting ? "作成中…" : "作成する"}
+                </button>
+              </div>
+            </form>
+          </dialog>
+        </div>
       )}
       {!sessions && !error && (
         <div className="admin-loading">読み込んでいます…</div>

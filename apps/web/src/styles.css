@@ -1022,6 +1022,19 @@ p {
 .attendance-form .primary-button {
   min-height: 42px;
 }
+.attendance-create-dialog {
+  width: min(100%, 620px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+.attendance-create-dialog .dialog-header p {
+  margin: 5px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+.attendance-create-form .dialog-actions {
+  margin-top: 4px;
+}
 .attendance-calendar-section {
   display: grid;
   gap: 12px;
