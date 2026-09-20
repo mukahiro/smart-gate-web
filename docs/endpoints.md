@@ -375,7 +375,7 @@ Status: `401 Unauthorized`
 
 ## GET /attendance-events/me/monthly
 
-ログイン中利用者本人の月別履歴概要を返す。生徒の場合は、指定月に開始する出席対象と本人の出席判定も `attendanceSessions` に含める。先生の場合は空配列を返す。
+ログイン中利用者本人の月別履歴概要を返す。利用者種別にかかわらず、指定月に開始する出席対象と本人の入室記録に基づく出席判定も `attendanceSessions` に含める。
 
 **実装状態:** 実装済み。
 

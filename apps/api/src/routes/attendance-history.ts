@@ -68,11 +68,7 @@ export const createAttendanceHistoryRoute = ({
     return c.json({
       ...getMonthlyHistory.execute(user.id, parsed.data.month),
       attendanceSessions:
-        listMyAttendanceSessions?.execute(
-          user.id,
-          user.userType,
-          parsed.data.month,
-        ) ?? [],
+        listMyAttendanceSessions?.execute(user.id, parsed.data.month) ?? [],
     });
   });
 

@@ -1,5 +1,4 @@
 import type { AttendancePolicy } from "../../config/attendance-policy";
-import type { UserType } from "../../db/user-schema";
 import type { AttendanceResultRepository } from "../../repositories/attendance-result-repository";
 import type { AttendanceSessionRepository } from "../../repositories/attendance-session-repository";
 import { calculateAttendanceStatus } from "../attendance-sessions/calculate-attendance-status";
@@ -13,10 +12,7 @@ export class ListMyAttendanceSessionsUseCase {
     private readonly now: () => Date = () => new Date(),
   ) {}
 
-  execute(userId: string, userType: UserType, month: string) {
-    // 出席対象は全生徒が対象で、先生自身には出席判定を作らない。
-    if (userType !== "student") return [];
-
+  execute(userId: string, month: string) {
     const now = this.now();
     const { from, toExclusive } = getJapanMonthRange(month);
     const sessions = this.sessionRepository.list({ from, toExclusive });
@@ -31,7 +27,7 @@ export class ListMyAttendanceSessionsUseCase {
         ).toISOString(),
       ]),
     );
-    const checkIns = this.resultRepository.findStudentCheckIns({
+    const checkIns = this.resultRepository.findUserCheckIns({
       userId,
       from: [...receptionOpensAtBySession.values()].reduce((earliest, value) =>
         value < earliest ? value : earliest,

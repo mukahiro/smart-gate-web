@@ -24,7 +24,7 @@ const sessionRepository: AttendanceSessionRepository = {
 };
 
 const resultRepository: AttendanceResultRepository = {
-  findStudentCheckIns: vi.fn(() => ["2026-07-01T00:05:00.000Z"]),
+  findUserCheckIns: vi.fn(() => ["2026-07-01T00:05:00.000Z"]),
   listStudentsWithFirstCheckIn: vi.fn(),
 };
 
@@ -41,7 +41,7 @@ describe("ListMyAttendanceSessionsUseCase", () => {
       () => new Date("2026-07-01T02:00:00.000Z"),
     );
 
-    expect(useCase.execute("student-001", "student", "2026-07")).toEqual([
+    expect(useCase.execute("student-001", "2026-07")).toEqual([
       {
         id: "session-001",
         title: "研究ゼミ",
@@ -51,14 +51,14 @@ describe("ListMyAttendanceSessionsUseCase", () => {
         checkedInAt: "2026-07-01T00:05:00.000Z",
       },
     ]);
-    expect(resultRepository.findStudentCheckIns).toHaveBeenCalledWith({
+    expect(resultRepository.findUserCheckIns).toHaveBeenCalledWith({
       userId: "student-001",
       from: "2026-06-30T23:50:00.000Z",
       toExclusive: "2026-07-01T01:30:00.000Z",
     });
   });
 
-  it("does not create an attendance result for a teacher", () => {
+  it("returns the logged-in teacher's own attendance result", () => {
     const useCase = new ListMyAttendanceSessionsUseCase(
       sessionRepository,
       resultRepository,
@@ -69,6 +69,20 @@ describe("ListMyAttendanceSessionsUseCase", () => {
       },
     );
 
-    expect(useCase.execute("teacher-001", "teacher", "2026-07")).toEqual([]);
+    expect(useCase.execute("teacher-001", "2026-07")).toEqual([
+      {
+        id: "session-001",
+        title: "研究ゼミ",
+        startsAt: "2026-07-01T00:00:00.000Z",
+        endsAt: "2026-07-01T01:30:00.000Z",
+        attendanceStatus: "present",
+        checkedInAt: "2026-07-01T00:05:00.000Z",
+      },
+    ]);
+    expect(resultRepository.findUserCheckIns).toHaveBeenCalledWith({
+      userId: "teacher-001",
+      from: "2026-06-30T23:50:00.000Z",
+      toExclusive: "2026-07-01T01:30:00.000Z",
+    });
   });
 });

@@ -9,8 +9,8 @@ export class DrizzleAttendanceResultRepository
 {
   constructor(private readonly db: SqliteDatabase) {}
 
-  findStudentCheckIns(
-    input: Parameters<AttendanceResultRepository["findStudentCheckIns"]>[0],
+  findUserCheckIns(
+    input: Parameters<AttendanceResultRepository["findUserCheckIns"]>[0],
   ) {
     return this.db
       .select({

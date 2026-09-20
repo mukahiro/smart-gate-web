@@ -6,7 +6,7 @@ export type StudentFirstCheckIn = {
 };
 
 export interface AttendanceResultRepository {
-  findStudentCheckIns(input: {
+  findUserCheckIns(input: {
     userId: string;
     from: string;
     toExclusive: string;
