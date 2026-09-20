@@ -737,13 +737,16 @@ const AttendanceSessionDetail = ({
   );
 };
 
-const resultFilterOrder: StudentAttendanceStatus[] = [
-  "present",
-  "late",
-  "absent",
-  "pending",
-  "unregistered",
-  "cancelled",
+const resultFilterOrder: Array<{
+  status: StudentAttendanceStatus;
+  label: string;
+}> = [
+  { status: "present", label: "出席" },
+  { status: "late", label: "遅刻" },
+  { status: "absent", label: "欠席" },
+  { status: "pending", label: "未判定" },
+  { status: "unregistered", label: "未登録" },
+  { status: "cancelled", label: "中止" },
 ];
 
 const ResultsTable = ({ results }: { results: AttendanceResults }) => {
@@ -757,30 +760,25 @@ const ResultsTable = ({ results }: { results: AttendanceResults }) => {
 
   return (
     <section className="attendance-results">
-      <div className="attendance-results-heading">
-        <h2>出席状況</h2>
-        <label className="attendance-result-filter">
-          状態で絞り込み
-          <select
-            value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value as AttendanceStatusFilter)
-            }
+      <h2>出席状況</h2>
+      <div className="attendance-summary" aria-label="出席状態で絞り込み">
+        <button
+          type="button"
+          aria-pressed={statusFilter === "all"}
+          onClick={() => setStatusFilter("all")}
+        >
+          対象 {results.summary.targetStudentCount}
+        </button>
+        {resultFilterOrder.map(({ status, label }) => (
+          <button
+            type="button"
+            key={status}
+            aria-pressed={statusFilter === status}
+            onClick={() => setStatusFilter(status)}
           >
-            <option value="all">すべて（{results.students.length}）</option>
-            {resultFilterOrder.map((status) => (
-              <option value={status} key={status}>
-                {attendanceStatusLabels[status]}（{statusCounts[status] ?? 0}）
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <div className="attendance-summary">
-        <span>対象 {results.summary.targetStudentCount}</span>
-        <span>出席 {results.summary.presentCount}</span>
-        <span>遅刻 {results.summary.lateCount}</span>
-        <span>欠席 {results.summary.absentCount}</span>
+            {label} {statusCounts[status] ?? 0}
+          </button>
+        ))}
       </div>
       {filteredStudents.length === 0 ? (
         <div className="attendance-result-empty">
