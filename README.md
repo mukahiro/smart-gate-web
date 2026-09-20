@@ -98,6 +98,7 @@ npm exec pnpm@9.15.4 -- dev
 | `SESSION_COOKIE_SECURE` | HTTPS運用時は `true`。現在の既定値は `false` |
 | `ATTENDANCE_RECEPTION_OPEN_MINUTES_BEFORE` | 出席受付を授業開始の何分前に開くか。0以上の整数、既定値は `10` |
 | `ATTENDANCE_LATE_AFTER_MINUTES` | 授業開始の何分後を超えたら遅刻とするか。0以上の整数、既定値は `20` |
+| `ATTENDANCE_STANDARD_CLASS_DURATION_MINUTES` | 出席対象作成時の標準授業時間。1以上の整数、既定値は `90` |
 
 `SESSION_COOKIE_SECURE=false` では起動時に警告する。HTTPSの本番方針はデプロイ設計時に確定する。出席判定の設定値が不正な場合、APIは起動しない。
 

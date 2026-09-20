@@ -19,6 +19,7 @@ import {
 import { CancelAttendanceSessionUseCase } from "../services/attendance-sessions/cancel-attendance-session";
 import { CreateAttendanceSessionUseCase } from "../services/attendance-sessions/create-attendance-session";
 import { GetAttendanceSessionUseCase } from "../services/attendance-sessions/get-attendance-session";
+import { GetAttendanceSessionDefaultsUseCase } from "../services/attendance-sessions/get-attendance-session-defaults";
 import { GetAttendanceSessionResultsUseCase } from "../services/attendance-sessions/get-attendance-session-results";
 import { ListAttendanceSessionAuditLogsUseCase } from "../services/attendance-sessions/list-attendance-session-audit-logs";
 import { ListAttendanceSessionsUseCase } from "../services/attendance-sessions/list-attendance-sessions";
@@ -73,6 +74,9 @@ export const createAttendanceSessionsRoute = ({
           attendancePolicy,
         )
       : null;
+  const getDefaults = attendancePolicy
+    ? new GetAttendanceSessionDefaultsUseCase(attendancePolicy)
+    : null;
   const listAuditLogs = new ListAttendanceSessionAuditLogsUseCase(
     attendanceSessionRepository,
   );
@@ -82,6 +86,11 @@ export const createAttendanceSessionsRoute = ({
     if (!query.success) throw new ValidationError(query.error.flatten());
     return c.json({ sessions: listSessions.execute(query.data.month) }, 200);
   });
+  if (getDefaults) {
+    route.get("/defaults", (c) =>
+      c.json({ defaults: getDefaults.execute() }, 200),
+    );
+  }
   route.post("/", requireSameOrigin, async (c) => {
     const input = createAttendanceSessionSchema.safeParse(await readJson(c));
     if (!input.success) throw new ValidationError(input.error.flatten());

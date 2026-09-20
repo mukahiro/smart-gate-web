@@ -1,5 +1,9 @@
 import { apiRequest, jsonRequest } from "../../api/client";
-import type { AttendanceResults, AttendanceSession } from "./types";
+import type {
+  AttendanceResults,
+  AttendanceSession,
+  AttendanceSessionDefaults,
+} from "./types";
 
 const basePath = "/api/v1/attendance-sessions";
 
@@ -12,6 +16,11 @@ export const getAttendanceSession = (id: string) =>
   apiRequest<{ session: AttendanceSession }>(
     `${basePath}/${encodeURIComponent(id)}`,
   ).then(({ session }) => session);
+
+export const getAttendanceSessionDefaults = () =>
+  apiRequest<{ defaults: AttendanceSessionDefaults }>(
+    `${basePath}/defaults`,
+  ).then(({ defaults }) => defaults);
 
 export const createAttendanceSession = (input: {
   title: string;

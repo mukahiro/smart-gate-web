@@ -6,7 +6,7 @@ type Props = {
   sessions: AttendanceSession[];
   today: string;
   onSelect: (id: string) => void;
-  onCreateForDate: (date: string) => void;
+  onCreateForDate?: (date: string) => void;
 };
 
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
@@ -88,7 +88,8 @@ export function AttendanceSessionCalendar({
                   className="attendance-calendar-create"
                   type="button"
                   aria-label={`${cell.date}に出席対象を作成`}
-                  onClick={() => onCreateForDate(cell.date)}
+                  disabled={!onCreateForDate}
+                  onClick={() => onCreateForDate?.(cell.date)}
                 >
                   <span className="day-number">{cell.day}</span>
                 </button>

@@ -67,6 +67,7 @@ const setup = async () => {
     attendancePolicy: {
       receptionOpenMinutesBefore: 10,
       lateAfterMinutes: 20,
+      standardClassDurationMinutes: 90,
     },
     secureCookie: false,
   });
@@ -109,6 +110,18 @@ describe("attendance sessions API", () => {
       session: { id: string; updatedAt: string; startsAt: string };
     };
     expect(created.session.startsAt).toBe("2026-10-01T00:00:00.000Z");
+
+    const defaultsResponse = await app.request(
+      "/api/v1/attendance-sessions/defaults",
+      { headers: { cookie: teacherCookie } },
+    );
+    expect(defaultsResponse.status).toBe(200);
+    await expect(defaultsResponse.json()).resolves.toEqual({
+      defaults: {
+        receptionOpenMinutesBefore: 10,
+        standardClassDurationMinutes: 90,
+      },
+    });
 
     const listResponse = await app.request(
       "/api/v1/attendance-sessions?month=2026-10",

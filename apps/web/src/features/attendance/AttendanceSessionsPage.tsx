@@ -15,9 +15,11 @@ import {
   createAttendanceSession,
   getAttendanceResults,
   getAttendanceSession,
+  getAttendanceSessionDefaults,
   listAttendanceSessions,
   updateAttendanceSession,
 } from "./client";
+import { createSessionDateTimeDefaults } from "./create-session-defaults";
 import {
   type AttendanceStatusFilter,
   countAttendanceStatuses,
@@ -26,6 +28,7 @@ import {
 import type {
   AttendanceResults,
   AttendanceSession,
+  AttendanceSessionDefaults,
   AttendanceSessionStatus,
   StudentAttendanceStatus,
 } from "./types";
@@ -91,8 +94,11 @@ const AttendanceSessionList = ({
   onPermissionDenied,
 }: Props) => {
   const [sessions, setSessions] = useState<AttendanceSession[] | null>(null);
+  const [sessionDefaults, setSessionDefaults] =
+    useState<AttendanceSessionDefaults | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+  const [defaultsError, setDefaultsError] = useState("");
   const [createError, setCreateError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -125,6 +131,24 @@ const AttendanceSessionList = ({
       active = false;
     };
   }, [month, onPermissionDenied, onSessionExpired]);
+
+  useEffect(() => {
+    let active = true;
+    setDefaultsError("");
+    getAttendanceSessionDefaults()
+      .then((defaults) => {
+        if (active) setSessionDefaults(defaults);
+      })
+      .catch((cause) => {
+        if (!active) return;
+        if (!handleAuthorization(cause, onSessionExpired, onPermissionDenied)) {
+          setDefaultsError("出席対象の初期設定を取得できませんでした。");
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [onPermissionDenied, onSessionExpired]);
 
   useEffect(() => {
     if (!creating) return;
@@ -177,12 +201,15 @@ const AttendanceSessionList = ({
   };
 
   const openCreateDialog = (date = "") => {
+    if (!sessionDefaults) return;
+    const dateTimeDefaults = createSessionDateTimeDefaults({
+      now: new Date(),
+      selectedDate: date,
+      ...sessionDefaults,
+    });
     setForm({
       title: "",
-      startDate: date,
-      startTime: "",
-      endDate: date,
-      endTime: "",
+      ...dateTimeDefaults,
     });
     setCreateError("");
     setCreating(true);
@@ -274,6 +301,7 @@ const AttendanceSessionList = ({
         <button
           className="primary-button"
           type="button"
+          disabled={!sessionDefaults}
           onClick={() => openCreateDialog()}
         >
           出席対象を作成
@@ -282,6 +310,11 @@ const AttendanceSessionList = ({
       {error && (
         <div className="notice error-notice" role="alert">
           {error}
+        </div>
+      )}
+      {defaultsError && (
+        <div className="notice error-notice" role="alert">
+          {defaultsError}
         </div>
       )}
       {creating && (
@@ -467,7 +500,7 @@ const AttendanceSessionList = ({
           sessions={sessions}
           today={today}
           onSelect={onSelect}
-          onCreateForDate={openCreateDialog}
+          onCreateForDate={sessionDefaults ? openCreateDialog : undefined}
         />
       )}
     </section>

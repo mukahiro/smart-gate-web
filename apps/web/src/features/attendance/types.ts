@@ -16,6 +16,11 @@ export type AttendanceSession = {
   status: AttendanceSessionStatus;
 };
 
+export type AttendanceSessionDefaults = {
+  receptionOpenMinutesBefore: number;
+  standardClassDurationMinutes: number;
+};
+
 export type StudentAttendanceStatus =
   | "pending"
   | "unregistered"

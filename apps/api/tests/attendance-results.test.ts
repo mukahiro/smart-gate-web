@@ -81,7 +81,11 @@ describe("attendance results", () => {
     const result = new GetAttendanceSessionResultsUseCase(
       new DrizzleAttendanceSessionRepository(db),
       new DrizzleAttendanceResultRepository(db),
-      { receptionOpenMinutesBefore: 10, lateAfterMinutes: 20 },
+      {
+        receptionOpenMinutesBefore: 10,
+        lateAfterMinutes: 20,
+        standardClassDurationMinutes: 90,
+      },
       () => new Date("2026-10-01T01:00:00.000Z"),
     ).execute("session-001");
 

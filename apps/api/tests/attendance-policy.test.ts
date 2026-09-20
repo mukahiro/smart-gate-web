@@ -6,6 +6,7 @@ describe("readAttendancePolicy", () => {
     expect(readAttendancePolicy({})).toEqual({
       receptionOpenMinutesBefore: 10,
       lateAfterMinutes: 20,
+      standardClassDurationMinutes: 90,
     });
   });
 
@@ -14,10 +15,12 @@ describe("readAttendancePolicy", () => {
       readAttendancePolicy({
         ATTENDANCE_RECEPTION_OPEN_MINUTES_BEFORE: "0",
         ATTENDANCE_LATE_AFTER_MINUTES: "30",
+        ATTENDANCE_STANDARD_CLASS_DURATION_MINUTES: "120",
       }),
     ).toEqual({
       receptionOpenMinutesBefore: 0,
       lateAfterMinutes: 30,
+      standardClassDurationMinutes: 120,
     });
   });
 
@@ -28,11 +31,22 @@ describe("readAttendancePolicy", () => {
     [" 10", "ATTENDANCE_RECEPTION_OPEN_MINUTES_BEFORE"],
     ["not-a-number", "ATTENDANCE_LATE_AFTER_MINUTES"],
     ["9007199254740992", "ATTENDANCE_LATE_AFTER_MINUTES"],
+    ["-90", "ATTENDANCE_STANDARD_CLASS_DURATION_MINUTES"],
   ])("rejects invalid value %j for %s", (value, name) => {
     expect(() =>
       readAttendancePolicy({
         [name]: value,
       }),
     ).toThrow(`${name} must be a non-negative integer`);
+  });
+
+  it("rejects a zero-minute standard class duration", () => {
+    expect(() =>
+      readAttendancePolicy({
+        ATTENDANCE_STANDARD_CLASS_DURATION_MINUTES: "0",
+      }),
+    ).toThrow(
+      "ATTENDANCE_STANDARD_CLASS_DURATION_MINUTES must be a positive integer",
+    );
   });
 });
