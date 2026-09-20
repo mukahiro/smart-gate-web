@@ -91,7 +91,13 @@ const AttendanceSessionList = ({
   const [error, setError] = useState("");
   const [createError, setCreateError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({ title: "", startsAt: "", endsAt: "" });
+  const [form, setForm] = useState({
+    title: "",
+    startDate: "",
+    startTime: "",
+    endDate: "",
+    endTime: "",
+  });
   const today = currentJapanDate();
   const [month, setMonth] = useState(today.slice(0, 7));
 
@@ -121,8 +127,12 @@ const AttendanceSessionList = ({
     try {
       const session = await createAttendanceSession({
         title: form.title,
-        startsAt: new Date(form.startsAt).toISOString(),
-        endsAt: new Date(form.endsAt).toISOString(),
+        startsAt: new Date(
+          `${form.startDate}T${form.startTime}:00+09:00`,
+        ).toISOString(),
+        endsAt: new Date(
+          `${form.endDate}T${form.endTime}:00+09:00`,
+        ).toISOString(),
       });
       onSelect(session.id);
     } catch (cause) {
@@ -142,6 +152,18 @@ const AttendanceSessionList = ({
     setCreateError("");
   };
 
+  const openCreateDialog = (date = "") => {
+    setForm({
+      title: "",
+      startDate: date,
+      startTime: "",
+      endDate: date,
+      endTime: "",
+    });
+    setCreateError("");
+    setCreating(true);
+  };
+
   return (
     <section
       className="admin-card attendance-page"
@@ -155,10 +177,7 @@ const AttendanceSessionList = ({
         <button
           className="primary-button"
           type="button"
-          onClick={() => {
-            setCreateError("");
-            setCreating(true);
-          }}
+          onClick={() => openCreateDialog()}
         >
           出席対象を作成
         </button>
@@ -215,26 +234,52 @@ const AttendanceSessionList = ({
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                 />
               </label>
-              <label>
-                開始日時
-                <input
-                  required
-                  type="datetime-local"
-                  value={form.startsAt}
-                  onChange={(e) =>
-                    setForm({ ...form, startsAt: e.target.value })
-                  }
-                />
-              </label>
-              <label>
-                終了日時
-                <input
-                  required
-                  type="datetime-local"
-                  value={form.endsAt}
-                  onChange={(e) => setForm({ ...form, endsAt: e.target.value })}
-                />
-              </label>
+              <div className="attendance-create-datetime-fields">
+                <label>
+                  開始日
+                  <input
+                    required
+                    type="date"
+                    value={form.startDate}
+                    onChange={(e) =>
+                      setForm({ ...form, startDate: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  開始時刻
+                  <input
+                    required
+                    type="time"
+                    value={form.startTime}
+                    onChange={(e) =>
+                      setForm({ ...form, startTime: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  終了日
+                  <input
+                    required
+                    type="date"
+                    value={form.endDate}
+                    onChange={(e) =>
+                      setForm({ ...form, endDate: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  終了時刻
+                  <input
+                    required
+                    type="time"
+                    value={form.endTime}
+                    onChange={(e) =>
+                      setForm({ ...form, endTime: e.target.value })
+                    }
+                  />
+                </label>
+              </div>
               <div className="dialog-actions">
                 <button
                   className="secondary-button"
@@ -259,10 +304,7 @@ const AttendanceSessionList = ({
       {!sessions && !error && (
         <div className="admin-loading">読み込んでいます…</div>
       )}
-      {sessions?.length === 0 && (
-        <div className="admin-empty">出席対象はまだありません。</div>
-      )}
-      {sessions && sessions.length > 0 && (
+      {sessions && (
         <AttendanceSessionCalendar
           month={month}
           sessions={sessions}
@@ -272,6 +314,7 @@ const AttendanceSessionList = ({
           }
           onToday={() => setMonth(today.slice(0, 7))}
           onSelect={onSelect}
+          onCreateForDate={openCreateDialog}
         />
       )}
     </section>

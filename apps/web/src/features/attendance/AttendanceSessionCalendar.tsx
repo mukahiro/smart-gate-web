@@ -8,6 +8,7 @@ type Props = {
   today: string;
   onChangeMonth: (amount: number) => void;
   onSelect: (id: string) => void;
+  onCreateForDate: (date: string) => void;
   onToday: () => void;
 };
 
@@ -62,6 +63,7 @@ export function AttendanceSessionCalendar({
   today,
   onChangeMonth,
   onSelect,
+  onCreateForDate,
   onToday,
 }: Props) {
   const sessionsByDate = groupAttendanceSessionsByStartDate(sessions);
@@ -112,7 +114,14 @@ export function AttendanceSessionCalendar({
                 data-today={cell.date === today || undefined}
                 key={cell.date}
               >
-                <span className="day-number">{cell.day}</span>
+                <button
+                  className="attendance-calendar-create"
+                  type="button"
+                  aria-label={`${cell.date}に出席対象を作成`}
+                  onClick={() => onCreateForDate(cell.date)}
+                >
+                  <span className="day-number">{cell.day}</span>
+                </button>
                 <div className="attendance-calendar-events">
                   {dailySessions.map((session) => (
                     <button
