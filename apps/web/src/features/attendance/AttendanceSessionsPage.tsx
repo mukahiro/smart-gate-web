@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApiError } from "../../api/client";
 import { currentJapanDate, formatMonth, shiftMonth } from "../history/calendar";
@@ -100,6 +100,8 @@ const AttendanceSessionList = ({
   });
   const today = currentJapanDate();
   const [month, setMonth] = useState(today.slice(0, 7));
+  const [monthPickerOpen, setMonthPickerOpen] = useState(false);
+  const [monthInput, setMonthInput] = useState(month);
 
   useEffect(() => {
     listAttendanceSessions()
@@ -119,6 +121,15 @@ const AttendanceSessionList = ({
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [creating, submitting]);
+
+  useEffect(() => {
+    if (!monthPickerOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMonthPickerOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [monthPickerOpen]);
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -199,6 +210,17 @@ const AttendanceSessionList = ({
             onClick={() => setMonth(today.slice(0, 7))}
           >
             今月
+          </button>
+          <button
+            className="month-tab month-picker-button"
+            type="button"
+            onClick={() => {
+              setMonthInput(month);
+              setMonthPickerOpen(true);
+            }}
+            aria-label="表示する年月を指定"
+          >
+            <CalendarDays aria-hidden="true" />
           </button>
         </nav>
       </header>
@@ -357,6 +379,66 @@ const AttendanceSessionList = ({
                   disabled={submitting}
                 >
                   {submitting ? "作成中…" : "作成する"}
+                </button>
+              </div>
+            </form>
+          </dialog>
+        </div>
+      )}
+      {monthPickerOpen && (
+        <div
+          className="dialog-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setMonthPickerOpen(false);
+            }
+          }}
+        >
+          <dialog
+            open
+            className="dialog-card month-picker-dialog"
+            aria-labelledby="attendance-month-picker-title"
+            aria-modal="true"
+          >
+            <header className="dialog-header">
+              <h2 id="attendance-month-picker-title">年月を指定</h2>
+              <button
+                className="icon-button close-button"
+                type="button"
+                onClick={() => setMonthPickerOpen(false)}
+                aria-label="年月指定を閉じる"
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+            <form
+              className="month-picker-form"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setMonth(monthInput);
+                setMonthPickerOpen(false);
+              }}
+            >
+              <label>
+                表示する年月
+                <input
+                  type="month"
+                  required
+                  value={monthInput}
+                  onChange={(event) => setMonthInput(event.target.value)}
+                />
+              </label>
+              <div className="dialog-actions">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => setMonthPickerOpen(false)}
+                >
+                  キャンセル
+                </button>
+                <button className="primary-button" type="submit">
+                  表示
                 </button>
               </div>
             </form>
