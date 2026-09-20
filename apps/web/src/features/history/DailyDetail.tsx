@@ -30,8 +30,8 @@ const formatDateTime = (value: string) =>
   }).format(new Date(value));
 
 const attendanceStatusLabels: Record<MyAttendanceStatus, string> = {
-  pending: "未判定",
-  unregistered: "未登録",
+  pending: "予定",
+  unregistered: "予定",
   present: "出席",
   late: "遅刻",
   absent: "欠席",
@@ -47,7 +47,9 @@ export function DailyDetail({
   const [history, setHistory] = useState<DailyHistory | null>(null);
   const [error, setError] = useState("");
   const dailyAttendanceSessions = attendanceSessions.filter(
-    (session) => japanDateAndTime(session.startsAt).date === date,
+    (session) =>
+      session.attendanceStatus !== "cancelled" &&
+      japanDateAndTime(session.startsAt).date === date,
   );
 
   useEffect(() => {

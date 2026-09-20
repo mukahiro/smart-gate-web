@@ -20,8 +20,8 @@ type MonthlyCalendarProps = {
 
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
 const attendanceStatusLabels: Record<MyAttendanceStatus, string> = {
-  pending: "未判定",
-  unregistered: "未登録",
+  pending: "予定",
+  unregistered: "予定",
   present: "出席",
   late: "遅刻",
   absent: "欠席",
@@ -37,8 +37,11 @@ export function MonthlyCalendar({
   onSelectDate,
 }: MonthlyCalendarProps) {
   const summaries = new Map(days.map((day) => [day.date, day]));
-  const attendanceSessionsByDate =
-    groupAttendanceSessionsByStartDate(attendanceSessions);
+  const attendanceSessionsByDate = groupAttendanceSessionsByStartDate(
+    attendanceSessions.filter(
+      (session) => session.attendanceStatus !== "cancelled",
+    ),
+  );
 
   return (
     <div className="calendar-wrap">
@@ -92,9 +95,6 @@ export function MonthlyCalendar({
                         {japanDateAndTime(session.startsAt).time}
                       </time>
                       <span>{session.title}</span>
-                      <strong>
-                        {attendanceStatusLabels[session.attendanceStatus]}
-                      </strong>
                     </span>
                   ))}
                 </span>
