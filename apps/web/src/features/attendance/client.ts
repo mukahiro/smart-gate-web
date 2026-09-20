@@ -1,9 +1,5 @@
 import { apiRequest, jsonRequest } from "../../api/client";
-import type {
-  AttendanceAuditLog,
-  AttendanceResults,
-  AttendanceSession,
-} from "./types";
+import type { AttendanceResults, AttendanceSession } from "./types";
 
 const basePath = "/api/v1/attendance-sessions";
 
@@ -54,8 +50,3 @@ export const getAttendanceResults = (id: string) =>
   apiRequest<AttendanceResults>(
     `${basePath}/${encodeURIComponent(id)}/results`,
   );
-
-export const listAttendanceAuditLogs = (id: string) =>
-  apiRequest<{ logs: AttendanceAuditLog[] }>(
-    `${basePath}/${encodeURIComponent(id)}/audit-logs`,
-  ).then(({ logs }) => logs);

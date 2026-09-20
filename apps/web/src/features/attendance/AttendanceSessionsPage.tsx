@@ -8,12 +8,10 @@ import {
   createAttendanceSession,
   getAttendanceResults,
   getAttendanceSession,
-  listAttendanceAuditLogs,
   listAttendanceSessions,
   updateAttendanceSession,
 } from "./client";
 import type {
-  AttendanceAuditLog,
   AttendanceResults,
   AttendanceSession,
   AttendanceSessionStatus,
@@ -42,12 +40,6 @@ const attendanceStatusLabels: Record<StudentAttendanceStatus, string> = {
   absent: "欠席",
   cancelled: "中止",
 };
-const actionLabels: Record<AttendanceAuditLog["action"], string> = {
-  attendance_session_created: "作成",
-  attendance_session_updated: "更新",
-  attendance_session_cancelled: "中止",
-};
-
 const formatDateTime = (value: string) =>
   new Intl.DateTimeFormat("ja-JP", {
     dateStyle: "medium",
@@ -478,21 +470,18 @@ const AttendanceSessionDetail = ({
 }: Props & { sessionId: string }) => {
   const [session, setSession] = useState<AttendanceSession | null>(null);
   const [results, setResults] = useState<AttendanceResults | null>(null);
-  const [logs, setLogs] = useState<AttendanceAuditLog[]>([]);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ title: "", startsAt: "", endsAt: "" });
 
   const load = async () => {
     setError("");
     try {
-      const [nextSession, nextResults, nextLogs] = await Promise.all([
+      const [nextSession, nextResults] = await Promise.all([
         getAttendanceSession(sessionId),
         getAttendanceResults(sessionId),
-        listAttendanceAuditLogs(sessionId),
       ]);
       setSession(nextSession);
       setResults(nextResults);
-      setLogs(nextLogs);
       setForm({
         title: nextSession.title,
         startsAt: toLocalInput(nextSession.startsAt),
@@ -628,16 +617,6 @@ const AttendanceSessionDetail = ({
             </button>
           </form>
           {results && <ResultsTable results={results} />}
-          <section className="attendance-audit">
-            <h2>変更履歴</h2>
-            {logs.map((log) => (
-              <p key={log.id}>
-                <time>{formatDateTime(log.occurredAt)}</time>　
-                {actionLabels[log.action]}　
-                <span>{log.changedFields.join("、")}</span>
-              </p>
-            ))}
-          </section>
         </>
       )}
     </section>

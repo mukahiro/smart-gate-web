@@ -44,15 +44,3 @@ export type AttendanceResults = {
     checkedInAt: string | null;
   }>;
 };
-
-export type AttendanceAuditLog = {
-  id: string;
-  actorUserId: string;
-  action:
-    | "attendance_session_created"
-    | "attendance_session_updated"
-    | "attendance_session_cancelled";
-  occurredAt: string;
-  changedFields: string[];
-  changes: Record<string, { before: unknown; after: unknown }> | null;
-};

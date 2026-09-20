@@ -1190,15 +1190,13 @@ p {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.attendance-results,
-.attendance-audit {
+.attendance-results {
   display: grid;
   gap: 14px;
   padding-top: 22px;
   border-top: 1px solid var(--color-border);
 }
-.attendance-results h2,
-.attendance-audit h2 {
+.attendance-results h2 {
   margin: 0;
   font-size: 1rem;
 }
@@ -1214,15 +1212,6 @@ p {
   color: var(--color-theme-hover);
   font-size: 0.72rem;
   font-weight: 700;
-}
-.attendance-audit p {
-  margin: 0;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--color-border);
-  font-size: 0.76rem;
-}
-.attendance-audit p span {
-  color: var(--color-text-muted);
 }
 .result-count {
   margin: 18px 0 9px;
