@@ -1224,6 +1224,42 @@ p {
   margin: 0;
   font-size: 1rem;
 }
+.attendance-results-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+.attendance-result-filter {
+  display: grid;
+  gap: 5px;
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.attendance-result-filter select {
+  min-width: 170px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: inherit;
+  background: var(--color-surface-muted);
+}
+.attendance-result-filter select:focus {
+  border-color: var(--color-theme);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-theme-focus);
+}
+.attendance-result-empty {
+  display: grid;
+  min-height: 120px;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
 .attendance-summary {
   display: flex;
   flex-wrap: wrap;
@@ -2039,6 +2075,17 @@ p {
   }
 }
 @media (max-width: 600px) {
+  .attendance-results-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .attendance-result-filter select {
+    width: 100%;
+  }
+  .user-table.attendance-results-table th:nth-child(3),
+  .user-table.attendance-results-table td:nth-child(3) {
+    display: table-cell;
+  }
   .attendance-session-metadata {
     grid-template-columns: 1fr;
   }

@@ -11,6 +11,11 @@ import {
   listAttendanceSessions,
   updateAttendanceSession,
 } from "./client";
+import {
+  type AttendanceStatusFilter,
+  countAttendanceStatuses,
+  filterAttendanceStudents,
+} from "./filter-attendance-results";
 import type {
   AttendanceResults,
   AttendanceSession,
@@ -732,46 +737,89 @@ const AttendanceSessionDetail = ({
   );
 };
 
-const ResultsTable = ({ results }: { results: AttendanceResults }) => (
-  <section className="attendance-results">
-    <h2>出席状況</h2>
-    <div className="attendance-summary">
-      <span>対象 {results.summary.targetStudentCount}</span>
-      <span>出席 {results.summary.presentCount}</span>
-      <span>遅刻 {results.summary.lateCount}</span>
-      <span>欠席 {results.summary.absentCount}</span>
-    </div>
-    <div className="user-table-wrap">
-      <table className="user-table">
-        <thead>
-          <tr>
-            <th>生徒</th>
-            <th>学籍番号</th>
-            <th>状態</th>
-            <th>最初の入室</th>
-          </tr>
-        </thead>
-        <tbody>
-          {results.students.map((student) => (
-            <tr key={student.userId}>
-              <td>
-                <strong>{student.name}</strong>
-              </td>
-              <td>{student.studentNumber}</td>
-              <td>
-                <span className="status-badge" data-state={student.status}>
-                  {attendanceStatusLabels[student.status]}
-                </span>
-              </td>
-              <td>
-                {student.checkedInAt
-                  ? formatDateTime(student.checkedInAt)
-                  : "—"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </section>
-);
+const resultFilterOrder: StudentAttendanceStatus[] = [
+  "present",
+  "late",
+  "absent",
+  "pending",
+  "unregistered",
+  "cancelled",
+];
+
+const ResultsTable = ({ results }: { results: AttendanceResults }) => {
+  const [statusFilter, setStatusFilter] =
+    useState<AttendanceStatusFilter>("all");
+  const filteredStudents = filterAttendanceStudents(
+    results.students,
+    statusFilter,
+  );
+  const statusCounts = countAttendanceStatuses(results.students);
+
+  return (
+    <section className="attendance-results">
+      <div className="attendance-results-heading">
+        <h2>出席状況</h2>
+        <label className="attendance-result-filter">
+          状態で絞り込み
+          <select
+            value={statusFilter}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as AttendanceStatusFilter)
+            }
+          >
+            <option value="all">すべて（{results.students.length}）</option>
+            {resultFilterOrder.map((status) => (
+              <option value={status} key={status}>
+                {attendanceStatusLabels[status]}（{statusCounts[status] ?? 0}）
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <div className="attendance-summary">
+        <span>対象 {results.summary.targetStudentCount}</span>
+        <span>出席 {results.summary.presentCount}</span>
+        <span>遅刻 {results.summary.lateCount}</span>
+        <span>欠席 {results.summary.absentCount}</span>
+      </div>
+      {filteredStudents.length === 0 ? (
+        <div className="attendance-result-empty">
+          選択した状態に該当する生徒はいません。
+        </div>
+      ) : (
+        <div className="user-table-wrap">
+          <table className="user-table attendance-results-table">
+            <thead>
+              <tr>
+                <th>生徒</th>
+                <th>学籍番号</th>
+                <th>状態</th>
+                <th>最初の入室</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStudents.map((student) => (
+                <tr key={student.userId}>
+                  <td>
+                    <strong>{student.name}</strong>
+                  </td>
+                  <td>{student.studentNumber}</td>
+                  <td>
+                    <span className="status-badge" data-state={student.status}>
+                      {attendanceStatusLabels[student.status]}
+                    </span>
+                  </td>
+                  <td>
+                    {student.checkedInAt
+                      ? formatDateTime(student.checkedInAt)
+                      : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+};
