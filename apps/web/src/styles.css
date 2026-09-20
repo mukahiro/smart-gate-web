@@ -1274,6 +1274,9 @@ p {
   display: grid;
   gap: 24px;
 }
+.history-card.attendance-page {
+  gap: 0;
+}
 .attendance-create-dialog,
 .attendance-edit-dialog {
   width: min(100%, 620px);
@@ -1336,6 +1339,9 @@ p {
 }
 .attendance-calendar-meta .primary-button {
   align-self: center;
+}
+.attendance-calendar-meta {
+  margin-bottom: 12px;
 }
 .attendance-session-symbol {
   display: inline-block;

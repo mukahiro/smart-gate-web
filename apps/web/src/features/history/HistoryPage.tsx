@@ -402,29 +402,25 @@ export function HistoryPage({
                       <Info aria-hidden="true" />
                     </button>
                   </div>
-                  {history?.attendanceSessions.some(
-                    (session) => session.attendanceStatus !== "cancelled",
-                  ) && (
-                    <div
-                      className="calendar-legend attendance-state-legend"
-                      aria-label="出席状態の凡例"
-                    >
-                      {[
-                        ["pending", "予定"],
-                        ["present", "出席"],
-                        ["late", "遅刻"],
-                        ["absent", "欠席"],
-                      ].map(([status, label]) => (
-                        <span key={status}>
-                          <i
-                            className="history-attendance-symbol"
-                            data-status={status}
-                          />
-                          {label}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  <div
+                    className="calendar-legend attendance-state-legend"
+                    aria-label="出席状態の凡例"
+                  >
+                    {[
+                      ["pending", "予定"],
+                      ["present", "出席"],
+                      ["late", "遅刻"],
+                      ["absent", "欠席"],
+                    ].map(([status, label]) => (
+                      <span key={status}>
+                        <i
+                          className="history-attendance-symbol"
+                          data-status={status}
+                        />
+                        {label}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 {monthlyStatistics && (
                   <dl className="monthly-statistics" aria-label="月間サマリー">
