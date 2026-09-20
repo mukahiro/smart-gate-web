@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq, gte, lt } from "drizzle-orm";
 import { attendanceSessions } from "../db/attendance-session-schema";
 import { auditLogs } from "../db/audit-log-schema";
 import type { SqliteDatabase } from "../db/client";
@@ -12,11 +12,17 @@ export class DrizzleAttendanceSessionRepository
 {
   constructor(private readonly db: SqliteDatabase) {}
 
-  list(): AttendanceSession[] {
+  list(input: Parameters<AttendanceSessionRepository["list"]>[0]) {
     return this.db
       .select()
       .from(attendanceSessions)
-      .orderBy(desc(attendanceSessions.startsAt), desc(attendanceSessions.id))
+      .where(
+        and(
+          gte(attendanceSessions.startsAt, input.from),
+          lt(attendanceSessions.startsAt, input.toExclusive),
+        ),
+      )
+      .orderBy(asc(attendanceSessions.startsAt), asc(attendanceSessions.id))
       .all();
   }
 

@@ -11,6 +11,7 @@ import type { AttendanceResultRepository } from "../repositories/attendance-resu
 import type { AttendanceSessionRepository } from "../repositories/attendance-session-repository";
 import type { AuthRepository } from "../repositories/auth-repository";
 import {
+  attendanceSessionListQuerySchema,
   cancelAttendanceSessionSchema,
   createAttendanceSessionSchema,
   updateAttendanceSessionSchema,
@@ -76,7 +77,11 @@ export const createAttendanceSessionsRoute = ({
     attendanceSessionRepository,
   );
 
-  route.get("/", (c) => c.json({ sessions: listSessions.execute() }, 200));
+  route.get("/", (c) => {
+    const query = attendanceSessionListQuerySchema.safeParse(c.req.query());
+    if (!query.success) throw new ValidationError(query.error.flatten());
+    return c.json({ sessions: listSessions.execute(query.data.month) }, 200);
+  });
   route.post("/", requireSameOrigin, async (c) => {
     const input = createAttendanceSessionSchema.safeParse(await readJson(c));
     if (!input.success) throw new ValidationError(input.error.flatten());

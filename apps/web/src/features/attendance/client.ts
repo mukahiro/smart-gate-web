@@ -7,10 +7,10 @@ import type {
 
 const basePath = "/api/v1/attendance-sessions";
 
-export const listAttendanceSessions = () =>
-  apiRequest<{ sessions: AttendanceSession[] }>(basePath).then(
-    ({ sessions }) => sessions,
-  );
+export const listAttendanceSessions = (month: string) =>
+  apiRequest<{ sessions: AttendanceSession[] }>(
+    `${basePath}?month=${encodeURIComponent(month)}`,
+  ).then(({ sessions }) => sessions);
 
 export const getAttendanceSession = (id: string) =>
   apiRequest<{ session: AttendanceSession }>(

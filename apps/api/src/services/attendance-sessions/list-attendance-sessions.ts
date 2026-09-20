@@ -1,4 +1,5 @@
 import type { AttendanceSessionRepository } from "../../repositories/attendance-session-repository";
+import { getJapanMonthRange } from "../attendance-history/japan-date";
 import { toAttendanceSessionView } from "./session-view";
 
 export class ListAttendanceSessionsUseCase {
@@ -7,10 +8,11 @@ export class ListAttendanceSessionsUseCase {
     private readonly now: () => Date = () => new Date(),
   ) {}
 
-  execute() {
+  execute(month: string) {
     const now = this.now();
+    const range = getJapanMonthRange(month);
     return this.repository
-      .list()
+      .list(range)
       .map((session) => toAttendanceSessionView(session, now));
   }
 }

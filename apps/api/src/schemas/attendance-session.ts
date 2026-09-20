@@ -2,6 +2,12 @@ import { z } from "zod";
 
 const timestampSchema = z.string().datetime({ offset: true });
 
+export const attendanceSessionListQuerySchema = z
+  .object({
+    month: z.string().regex(/^[0-9]{4}-(0[1-9]|1[0-2])$/),
+  })
+  .strict();
+
 export const createAttendanceSessionSchema = z
   .object({
     title: z.string().trim().min(1).max(100),

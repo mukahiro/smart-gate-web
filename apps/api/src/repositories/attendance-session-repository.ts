@@ -33,7 +33,7 @@ export type AttendanceSessionMutationResult =
   | { kind: "conflict" };
 
 export interface AttendanceSessionRepository {
-  list(): AttendanceSession[];
+  list(input: { from: string; toExclusive: string }): AttendanceSession[];
   findById(id: string): AttendanceSession | null;
   listAuditLogs(sessionId: string): AttendanceSessionAuditLog[];
   create(

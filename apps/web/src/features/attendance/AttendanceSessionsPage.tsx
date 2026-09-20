@@ -104,14 +104,23 @@ const AttendanceSessionList = ({
   const [monthInput, setMonthInput] = useState(month);
 
   useEffect(() => {
-    listAttendanceSessions()
-      .then(setSessions)
+    let active = true;
+    setSessions(null);
+    setError("");
+    listAttendanceSessions(month)
+      .then((result) => {
+        if (active) setSessions(result);
+      })
       .catch((cause) => {
+        if (!active) return;
         if (!handleAuthorization(cause, onSessionExpired, onPermissionDenied)) {
           setError("出席対象を取得できませんでした。");
         }
       });
-  }, [onPermissionDenied, onSessionExpired]);
+    return () => {
+      active = false;
+    };
+  }, [month, onPermissionDenied, onSessionExpired]);
 
   useEffect(() => {
     if (!creating) return;

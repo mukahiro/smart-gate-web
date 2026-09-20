@@ -110,13 +110,19 @@ describe("attendance sessions API", () => {
     };
     expect(created.session.startsAt).toBe("2026-10-01T00:00:00.000Z");
 
-    const listResponse = await app.request("/api/v1/attendance-sessions", {
-      headers: { cookie: teacherCookie },
-    });
+    const listResponse = await app.request(
+      "/api/v1/attendance-sessions?month=2026-10",
+      { headers: { cookie: teacherCookie } },
+    );
     expect(listResponse.status).toBe(200);
     await expect(listResponse.json()).resolves.toMatchObject({
       sessions: [{ id: created.session.id, title: "データベース演習" }],
     });
+    const otherMonthResponse = await app.request(
+      "/api/v1/attendance-sessions?month=2026-09",
+      { headers: { cookie: teacherCookie } },
+    );
+    await expect(otherMonthResponse.json()).resolves.toEqual({ sessions: [] });
     const resultsResponse = await app.request(
       `/api/v1/attendance-sessions/${created.session.id}/results`,
       { headers: { cookie: teacherCookie } },
@@ -243,6 +249,20 @@ describe("attendance sessions API", () => {
       }),
     });
     expect(response.status).toBe(403);
+  });
+
+  it("requires a valid month when listing sessions", async () => {
+    const { app, teacherCookie } = await setup();
+    for (const path of [
+      "/api/v1/attendance-sessions",
+      "/api/v1/attendance-sessions?month=2026-13",
+      "/api/v1/attendance-sessions?month=2026-9",
+    ]) {
+      const response = await app.request(path, {
+        headers: { cookie: teacherCookie },
+      });
+      expect(response.status).toBe(400);
+    }
   });
 
   it("validates the complete period when only one endpoint is updated", async () => {

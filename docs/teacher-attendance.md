@@ -398,7 +398,7 @@ APIは次の構成案とする。
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| `GET` | `/api/v1/attendance-sessions` | 出席対象一覧 |
+| `GET` | `/api/v1/attendance-sessions?month=YYYY-MM` | 日本時間で指定月に開始する出席対象一覧 |
 | `POST` | `/api/v1/attendance-sessions` | 出席対象作成 |
 | `GET` | `/api/v1/attendance-sessions/:id` | 出席対象詳細 |
 | `PATCH` | `/api/v1/attendance-sessions/:id` | 出席対象更新 |
