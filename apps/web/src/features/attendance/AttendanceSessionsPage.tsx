@@ -51,6 +51,7 @@ const attendanceStatusLabels: Record<StudentAttendanceStatus, string> = {
   absent: "欠席",
   cancelled: "中止",
 };
+const attendanceResultsRefreshIntervalMs = 3_000;
 const formatDateTime = (value: string) =>
   new Intl.DateTimeFormat("ja-JP", {
     dateStyle: "medium",
@@ -481,6 +482,7 @@ const AttendanceSessionDetail = ({
   const [session, setSession] = useState<AttendanceSession | null>(null);
   const [results, setResults] = useState<AttendanceResults | null>(null);
   const [error, setError] = useState("");
+  const [resultsRefreshError, setResultsRefreshError] = useState("");
   const [editError, setEditError] = useState("");
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -495,6 +497,7 @@ const AttendanceSessionDetail = ({
       ]);
       setSession(nextSession);
       setResults(nextResults);
+      setResultsRefreshError("");
       setForm({
         title: nextSession.title,
         startsAt: toLocalInput(nextSession.startsAt),
@@ -511,6 +514,46 @@ const AttendanceSessionDetail = ({
   useEffect(() => {
     void load();
   }, [sessionId]);
+
+  useEffect(() => {
+    if (!session) return;
+    let active = true;
+    let timerId: number | undefined;
+
+    const refreshResults = async () => {
+      try {
+        const nextResults = await getAttendanceResults(sessionId);
+        if (!active) return;
+        setResults(nextResults);
+        setResultsRefreshError("");
+      } catch (cause) {
+        if (!active) return;
+        if (handleAuthorization(cause, onSessionExpired, onPermissionDenied)) {
+          active = false;
+          return;
+        }
+        setResultsRefreshError(
+          "最新の出席状況を取得できませんでした。自動的に再試行します。",
+        );
+      }
+
+      if (active) {
+        timerId = window.setTimeout(
+          refreshResults,
+          attendanceResultsRefreshIntervalMs,
+        );
+      }
+    };
+
+    timerId = window.setTimeout(
+      refreshResults,
+      attendanceResultsRefreshIntervalMs,
+    );
+    return () => {
+      active = false;
+      if (timerId !== undefined) window.clearTimeout(timerId);
+    };
+  }, [session, sessionId, onSessionExpired, onPermissionDenied]);
 
   useEffect(() => {
     if (!editing) return;
@@ -635,7 +678,12 @@ const AttendanceSessionDetail = ({
               <dd>{formatDateTime(session.endsAt)}</dd>
             </div>
           </dl>
-          {results && <ResultsTable results={results} />}
+          {results && (
+            <ResultsTable
+              results={results}
+              refreshError={resultsRefreshError}
+            />
+          )}
           {editing && (
             <div
               className="dialog-backdrop"
@@ -753,7 +801,13 @@ const resultFilterOrder: Array<{
   { status: "absent", label: "欠席" },
 ];
 
-const ResultsTable = ({ results }: { results: AttendanceResults }) => {
+const ResultsTable = ({
+  results,
+  refreshError,
+}: {
+  results: AttendanceResults;
+  refreshError: string;
+}) => {
   const [statusFilter, setStatusFilter] =
     useState<AttendanceStatusFilter>("all");
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -803,6 +857,11 @@ const ResultsTable = ({ results }: { results: AttendanceResults }) => {
           </button>
         )}
       </header>
+      {refreshError && (
+        <div className="notice error-notice" role="alert">
+          {refreshError}
+        </div>
+      )}
       <div className="attendance-summary" aria-label="出席状態で絞り込み">
         <button
           type="button"
