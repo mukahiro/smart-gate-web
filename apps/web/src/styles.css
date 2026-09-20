@@ -61,7 +61,6 @@ button {
 :root[data-theme="dark"] .icon-button,
 :root[data-theme="dark"] .month-tab-current,
 :root[data-theme="dark"] .calendar-day,
-:root[data-theme="dark"] .attendance-calendar-day,
 :root[data-theme="dark"] .danger-outline-button {
   background: #20242a;
 }
@@ -83,9 +82,6 @@ button {
   color: #e7e9ed;
 }
 :root[data-theme="dark"] .calendar-day[data-outside] {
-  background: #1c2025;
-}
-:root[data-theme="dark"] .attendance-calendar-day[data-outside] {
   background: #1c2025;
 }
 :root[data-theme="dark"]
@@ -1099,35 +1095,17 @@ p {
   border: 1px solid #888;
   background: transparent;
 }
-.attendance-calendar {
-  overflow-x: auto;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-}
-.attendance-calendar > .weekday-row,
-.attendance-calendar-grid {
-  min-width: 760px;
-}
-.attendance-calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-}
 .attendance-calendar-day {
-  position: relative;
-  min-width: 0;
-  min-height: 128px;
-  padding: 8px;
-  border-right: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-  background: #fff;
+  cursor: default;
 }
 .attendance-calendar-create {
   position: absolute;
   z-index: 0;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  padding: 8px;
+  padding: 11px;
   border: 0;
   background: transparent;
   text-align: left;
@@ -1145,31 +1123,12 @@ p {
   cursor: wait;
   opacity: 0.55;
 }
-.attendance-calendar-day:nth-child(7n) {
-  border-right: 0;
-}
-.attendance-calendar-day:nth-last-child(-n + 7) {
-  border-bottom: 0;
-}
-.attendance-calendar-day[data-outside] {
-  color: #aaa;
-  background: var(--color-row-hover);
-}
-.attendance-calendar-day[data-outside] .attendance-calendar-create:hover,
-.attendance-calendar-day[data-outside]
-  .attendance-calendar-create:focus-visible {
-  background: var(--color-theme-soft);
-}
-.attendance-calendar-day[data-today] .day-number {
-  color: #fff;
-  background: var(--color-theme);
-}
 .attendance-calendar-events {
   position: relative;
   z-index: 1;
   display: grid;
   gap: 5px;
-  margin-top: 31px;
+  margin-top: 39px;
   pointer-events: none;
 }
 .attendance-calendar-events button {
@@ -2084,6 +2043,22 @@ p {
   }
 }
 @media (max-width: 600px) {
+  .attendance-calendar-create {
+    padding: 6px 4px;
+  }
+  .attendance-calendar-events {
+    gap: 3px;
+    margin-top: 29px;
+  }
+  .attendance-calendar-events button {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 4px 2px;
+    border-left-width: 2px;
+    text-align: center;
+  }
+  .attendance-calendar-events span {
+    display: none;
+  }
   .user-table.attendance-results-table th:nth-child(3),
   .user-table.attendance-results-table td:nth-child(3) {
     display: table-cell;

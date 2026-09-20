@@ -68,18 +68,18 @@ export function AttendanceSessionCalendar({
       className="attendance-calendar-section"
       aria-label="出席対象カレンダー"
     >
-      <div className="attendance-calendar">
+      <div className="calendar-wrap">
         <div className="weekday-row" aria-hidden="true">
           {weekdays.map((weekday) => (
             <span key={weekday}>{weekday}</span>
           ))}
         </div>
-        <div className="attendance-calendar-grid">
+        <div className="calendar-grid" aria-label="月別出席対象カレンダー">
           {buildCalendar(month).map((cell) => {
             const dailySessions = sessionsByDate.get(cell.date) ?? [];
             return (
               <div
-                className="attendance-calendar-day"
+                className="calendar-day attendance-calendar-day"
                 data-outside={!cell.inCurrentMonth || undefined}
                 data-today={cell.date === today || undefined}
                 key={cell.date}
