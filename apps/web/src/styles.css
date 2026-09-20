@@ -564,6 +564,36 @@ p {
   padding: 0 8px;
   font-size: 1.5rem;
 }
+.history-title-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.history-guide-button {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  background: transparent;
+  cursor: pointer;
+}
+.history-guide-button:hover,
+.history-guide-button:focus-visible {
+  color: var(--color-theme-strong);
+  background: var(--color-theme-soft);
+  outline: none;
+}
+.history-guide-button:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-theme-focus);
+}
+.history-guide-button svg {
+  width: 18px;
+  height: 18px;
+}
 .calendar-legend {
   display: flex;
   flex-wrap: wrap;
@@ -1839,6 +1869,65 @@ p {
 }
 .credits-dialog {
   width: min(100%, 520px);
+}
+.history-guide-dialog {
+  width: min(100%, 620px);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+.history-guide-dialog .dialog-header p {
+  margin: 5px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+.history-guide-content {
+  display: grid;
+  gap: 18px;
+}
+.history-guide-content section {
+  display: grid;
+  gap: 8px;
+}
+.history-guide-content h3 {
+  margin: 0;
+  font-size: 0.88rem;
+}
+.history-guide-content ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 1.3rem;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+.history-guide-content dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.history-guide-content dl > div {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: var(--color-surface-muted);
+}
+.history-guide-content dt,
+.history-guide-content dd {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+.history-guide-content dt {
+  font-weight: 750;
+}
+.history-guide-content dd {
+  color: var(--color-text-muted);
+}
+.history-guide-dialog .dialog-actions {
+  margin-top: 20px;
 }
 .credit-details {
   display: grid;

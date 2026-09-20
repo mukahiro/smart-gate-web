@@ -95,6 +95,7 @@ export function HistoryPage({
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
+  const [historyGuideOpen, setHistoryGuideOpen] = useState(false);
   const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
   const [userListRefreshKey, setUserListRefreshKey] = useState(0);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
@@ -390,7 +391,17 @@ export function HistoryPage({
               </header>
               <div className="calendar-meta">
                 <div className="calendar-legend-group">
-                  <h2>入退出履歴</h2>
+                  <div className="history-title-row">
+                    <h2>入退出履歴</h2>
+                    <button
+                      className="history-guide-button"
+                      type="button"
+                      aria-label="入退出履歴の記録方法を表示"
+                      onClick={() => setHistoryGuideOpen(true)}
+                    >
+                      <Info aria-hidden="true" />
+                    </button>
+                  </div>
                   <div className="calendar-legend">
                     <span>
                       <i className="event-dot" />
@@ -577,6 +588,98 @@ export function HistoryPage({
                 </dd>
               </div>
             </dl>
+          </dialog>
+        </div>
+      )}
+      {historyGuideOpen && (
+        <div className="dialog-backdrop" role="presentation">
+          <dialog
+            open
+            className="dialog-card history-guide-dialog"
+            aria-labelledby="history-guide-title"
+            aria-modal="true"
+          >
+            <header className="dialog-header">
+              <div>
+                <h2 id="history-guide-title">入退出履歴について</h2>
+                <p>履歴が記録・集計される条件を説明します。</p>
+              </div>
+              <button
+                className="icon-button close-button"
+                type="button"
+                aria-label="閉じる"
+                onClick={() => setHistoryGuideOpen(false)}
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+            <div className="history-guide-content">
+              <section>
+                <h3>記録される条件</h3>
+                <ul>
+                  <li>
+                    認証端末で「入室」または「退出」を選び、本人確認に成功すると記録されます。
+                  </li>
+                  <li>同じ記録が再送された場合は、重複して登録されません。</li>
+                  <li>
+                    画面には、現在ログインしている本人の記録だけが表示されます。
+                  </li>
+                </ul>
+              </section>
+              <section>
+                <h3>本人確認の方法</h3>
+                <dl>
+                  <div>
+                    <dt>カード認証</dt>
+                    <dd>登録されたカードを認証端末で読み取ります。</dd>
+                  </div>
+                  <div>
+                    <dt>顔認証</dt>
+                    <dd>認証端末のカメラで本人確認を行います。</dd>
+                  </div>
+                </dl>
+              </section>
+              <section>
+                <h3>出席の判定方法</h3>
+                <ul>
+                  <li>
+                    出席対象ごとに、受付開始から終了までの最初の入室記録を使って判定します。退出記録は出席判定には使用しません。
+                  </li>
+                  <li>
+                    標準設定では開始10分前から受付を開始し、開始20分後までの入室を「出席」とします。
+                  </li>
+                  <li>出席の締切後から終了前までの入室は「遅刻」とします。</li>
+                  <li>
+                    入室記録がない場合、出席対象の終了までは「予定」、終了後は「欠席」とします。
+                  </li>
+                  <li>中止された出席対象は、自分の履歴には表示されません。</li>
+                </ul>
+              </section>
+              <section>
+                <h3>履歴の集計方法</h3>
+                <ul>
+                  <li>日時は日本時間で表示し、認証された時刻を使用します。</li>
+                  <li>
+                    入室と、その後の退出を一組として参考滞在時間を計算します。
+                  </li>
+                  <li>
+                    日をまたいで退出した場合、滞在時間は入室した日に集計されます。
+                  </li>
+                  <li>
+                    入室または退出が不足していても自動補完せず、「記録不足あり」と表示します。
+                  </li>
+                </ul>
+              </section>
+            </div>
+            <div className="dialog-actions">
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => setHistoryGuideOpen(false)}
+              >
+                閉じる
+              </button>
+            </div>
           </dialog>
         </div>
       )}
