@@ -314,7 +314,6 @@ export function HistoryPage({
             onSelect={(sessionId) =>
               navigate({ kind: "attendance-session-detail", sessionId })
             }
-            onBack={() => navigate({ kind: "attendance-sessions" })}
             onSessionExpired={onSessionExpired}
             onPermissionDenied={showHistory}
           />

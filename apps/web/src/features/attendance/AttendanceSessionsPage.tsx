@@ -21,7 +21,6 @@ import type {
 type Props = {
   sessionId?: string;
   onSelect: (id: string) => void;
-  onBack: () => void;
   onSessionExpired: () => void;
   onPermissionDenied: () => void;
 };
@@ -464,13 +463,15 @@ const AttendanceSessionList = ({
 
 const AttendanceSessionDetail = ({
   sessionId,
-  onBack,
   onSessionExpired,
   onPermissionDenied,
 }: Props & { sessionId: string }) => {
   const [session, setSession] = useState<AttendanceSession | null>(null);
   const [results, setResults] = useState<AttendanceResults | null>(null);
   const [error, setError] = useState("");
+  const [editError, setEditError] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ title: "", startsAt: "", endsAt: "" });
 
   const load = async () => {
@@ -499,9 +500,37 @@ const AttendanceSessionDetail = ({
     void load();
   }, [sessionId]);
 
+  useEffect(() => {
+    if (!editing) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !saving) setEditing(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [editing, saving]);
+
+  const openEditDialog = () => {
+    if (!session) return;
+    setForm({
+      title: session.title,
+      startsAt: toLocalInput(session.startsAt),
+      endsAt: toLocalInput(session.endsAt),
+    });
+    setEditError("");
+    setEditing(true);
+  };
+
+  const closeEditDialog = () => {
+    if (saving) return;
+    setEditing(false);
+    setEditError("");
+  };
+
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!session) return;
+    setSaving(true);
+    setEditError("");
     try {
       await updateAttendanceSession(session.id, {
         title: form.title,
@@ -510,41 +539,48 @@ const AttendanceSessionDetail = ({
         expectedUpdatedAt: session.updatedAt,
       });
       await load();
+      setEditing(false);
     } catch (cause) {
       if (
         cause instanceof ApiError &&
         cause.code === "ATTENDANCE_SESSION_CONFLICT"
       ) {
-        setError("別の先生が更新しました。最新内容を再読み込みしてください。");
+        setEditError(
+          "別の先生が更新しました。モーダルを閉じて最新内容を再読み込みしてください。",
+        );
       } else if (
         !handleAuthorization(cause, onSessionExpired, onPermissionDenied)
       ) {
-        setError(
+        setEditError(
           cause instanceof ApiError ? cause.message : "更新できませんでした。",
         );
       }
+    } finally {
+      setSaving(false);
     }
   };
 
   const cancel = async () => {
     if (!session || !window.confirm("この出席対象を中止しますか？")) return;
+    setSaving(true);
+    setEditError("");
     try {
       await cancelAttendanceSession(session.id, session.updatedAt);
       await load();
+      setEditing(false);
     } catch (cause) {
       if (!handleAuthorization(cause, onSessionExpired, onPermissionDenied)) {
-        setError(
+        setEditError(
           cause instanceof ApiError ? cause.message : "中止できませんでした。",
         );
       }
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <section className="admin-card attendance-page">
-      <button className="back-button" type="button" onClick={onBack}>
-        一覧へ戻る
-      </button>
       {error && (
         <div className="notice error-notice" role="alert">
           {error}
@@ -569,54 +605,127 @@ const AttendanceSessionDetail = ({
             </div>
             {!session.cancelledAt && (
               <button
-                className="danger-button"
+                className="primary-button"
                 type="button"
-                onClick={() => void cancel()}
+                onClick={openEditDialog}
               >
-                中止する
+                編集する
               </button>
             )}
           </header>
-          <form
-            className="admin-form attendance-form"
-            onSubmit={(event) => void save(event)}
-          >
-            <label>
-              名称
-              <input
-                required
-                maxLength={100}
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-              />
-            </label>
-            <label>
-              開始日時
-              <input
-                required
-                type="datetime-local"
-                value={form.startsAt}
-                onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
-              />
-            </label>
-            <label>
-              終了日時
-              <input
-                required
-                type="datetime-local"
-                value={form.endsAt}
-                onChange={(e) => setForm({ ...form, endsAt: e.target.value })}
-              />
-            </label>
-            <button
-              className="primary-button"
-              type="submit"
-              disabled={session.status === "cancelled"}
-            >
-              保存する
-            </button>
-          </form>
+          <dl className="attendance-session-metadata">
+            <div>
+              <dt>開始日時</dt>
+              <dd>{formatDateTime(session.startsAt)}</dd>
+            </div>
+            <div>
+              <dt>終了日時</dt>
+              <dd>{formatDateTime(session.endsAt)}</dd>
+            </div>
+          </dl>
           {results && <ResultsTable results={results} />}
+          {editing && (
+            <div
+              className="dialog-backdrop"
+              role="presentation"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) closeEditDialog();
+              }}
+            >
+              <dialog
+                open
+                className="dialog-card attendance-edit-dialog"
+                aria-labelledby="attendance-edit-title"
+                aria-modal="true"
+              >
+                <header className="dialog-header">
+                  <div>
+                    <h2 id="attendance-edit-title">出席対象を編集</h2>
+                    <p>名称と授業の開始・終了日時を変更できます。</p>
+                  </div>
+                  <button
+                    className="icon-button close-button"
+                    type="button"
+                    disabled={saving}
+                    onClick={closeEditDialog}
+                    aria-label="出席対象の編集を閉じる"
+                  >
+                    <X aria-hidden="true" />
+                  </button>
+                </header>
+                {editError && (
+                  <div className="notice error-notice" role="alert">
+                    {editError}
+                  </div>
+                )}
+                <form
+                  className="admin-form"
+                  onSubmit={(event) => void save(event)}
+                >
+                  <label>
+                    名称
+                    <input
+                      required
+                      maxLength={100}
+                      value={form.title}
+                      onChange={(event) =>
+                        setForm({ ...form, title: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    開始日時
+                    <input
+                      required
+                      type="datetime-local"
+                      value={form.startsAt}
+                      onChange={(event) =>
+                        setForm({ ...form, startsAt: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label>
+                    終了日時
+                    <input
+                      required
+                      type="datetime-local"
+                      value={form.endsAt}
+                      onChange={(event) =>
+                        setForm({ ...form, endsAt: event.target.value })
+                      }
+                    />
+                  </label>
+                  <div className="attendance-edit-actions">
+                    <button
+                      className="danger-button"
+                      type="button"
+                      disabled={saving}
+                      onClick={() => void cancel()}
+                    >
+                      出席対象を中止
+                    </button>
+                    <div className="dialog-actions">
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        disabled={saving}
+                        onClick={closeEditDialog}
+                      >
+                        キャンセル
+                      </button>
+                      <button
+                        className="primary-button"
+                        type="submit"
+                        disabled={saving}
+                      >
+                        {saving ? "保存中…" : "保存する"}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </dialog>
+            </div>
+          )}
         </>
       )}
     </section>

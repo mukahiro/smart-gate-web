@@ -1019,26 +1019,14 @@ p {
   display: grid;
   gap: 24px;
 }
-.attendance-form {
-  grid-template-columns: minmax(180px, 1fr) minmax(180px, 0.7fr) minmax(
-      180px,
-      0.7fr
-    ) auto;
-  align-items: end;
-  padding: 18px;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  background: var(--color-surface-muted);
-}
-.attendance-form .primary-button {
-  min-height: 42px;
-}
-.attendance-create-dialog {
+.attendance-create-dialog,
+.attendance-edit-dialog {
   width: min(100%, 620px);
   max-height: calc(100dvh - 40px);
   overflow-y: auto;
 }
-.attendance-create-dialog .dialog-header p {
+.attendance-create-dialog .dialog-header p,
+.attendance-edit-dialog .dialog-header p {
   margin: 5px 0 0;
   color: var(--color-text-muted);
   font-size: 0.72rem;
@@ -1050,6 +1038,42 @@ p {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px 12px;
+}
+.attendance-session-metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-border);
+}
+.attendance-session-metadata div {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--color-surface-muted);
+}
+.attendance-session-metadata dt {
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.attendance-session-metadata dd {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+.attendance-edit-actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 6px;
+}
+.attendance-edit-actions .dialog-actions {
+  margin-top: 0;
 }
 .attendance-calendar-section {
   display: grid;
@@ -2015,6 +2039,18 @@ p {
   }
 }
 @media (max-width: 600px) {
+  .attendance-session-metadata {
+    grid-template-columns: 1fr;
+  }
+  .attendance-edit-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+  .attendance-edit-actions > button,
+  .attendance-edit-actions .dialog-actions,
+  .attendance-edit-actions .dialog-actions button {
+    width: 100%;
+  }
   .monthly-statistics {
     width: 100%;
     grid-template-columns: 1fr 1fr;
