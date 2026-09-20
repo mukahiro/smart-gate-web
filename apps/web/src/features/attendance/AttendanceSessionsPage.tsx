@@ -1,5 +1,12 @@
-import { CalendarDays, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Minimize2,
+  X,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { ApiError } from "../../api/client";
 import { currentJapanDate, formatMonth, shiftMonth } from "../history/calendar";
 import { AttendanceSessionCalendar } from "./AttendanceSessionCalendar";
@@ -749,15 +756,53 @@ const resultFilterOrder: Array<{
 const ResultsTable = ({ results }: { results: AttendanceResults }) => {
   const [statusFilter, setStatusFilter] =
     useState<AttendanceStatusFilter>("all");
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const resultsRef = useRef<HTMLElement>(null);
   const filteredStudents = filterAttendanceStudents(
     results.students,
     statusFilter,
   );
   const statusCounts = countAttendanceStatuses(results.students);
 
+  useEffect(() => {
+    const updateFullscreenState = () => {
+      setIsFullscreen(document.fullscreenElement === resultsRef.current);
+    };
+    document.addEventListener("fullscreenchange", updateFullscreenState);
+    return () =>
+      document.removeEventListener("fullscreenchange", updateFullscreenState);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    if (document.fullscreenElement === resultsRef.current) {
+      await document.exitFullscreen();
+      return;
+    }
+    await resultsRef.current?.requestFullscreen();
+  };
+
   return (
-    <section className="attendance-results">
-      <h2>出席状況</h2>
+    <section className="attendance-results" ref={resultsRef}>
+      <header className="attendance-results-header">
+        <h2>出席状況</h2>
+        {document.fullscreenEnabled && (
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => void toggleFullscreen()}
+            aria-label={
+              isFullscreen ? "全画面表示を終了" : "全画面表示に切り替え"
+            }
+          >
+            {isFullscreen ? (
+              <Minimize2 aria-hidden="true" />
+            ) : (
+              <Maximize2 aria-hidden="true" />
+            )}
+            {isFullscreen ? "全画面を終了" : "全画面表示"}
+          </button>
+        )}
+      </header>
       <div className="attendance-summary" aria-label="出席状態で絞り込み">
         <button
           type="button"
