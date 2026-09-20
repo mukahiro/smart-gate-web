@@ -1022,8 +1022,7 @@ p {
 .attendance-form .primary-button {
   min-height: 42px;
 }
-.attendance-calendar-section,
-.attendance-session-list {
+.attendance-calendar-section {
   display: grid;
   gap: 12px;
 }
@@ -1033,8 +1032,7 @@ p {
   justify-content: space-between;
   gap: 16px;
 }
-.attendance-calendar-header h2,
-.attendance-session-list h2 {
+.attendance-calendar-header h2 {
   margin: 0;
   font-size: 1rem;
 }
