@@ -68,6 +68,7 @@ button {
 :root[data-theme="dark"] .user-filters input,
 :root[data-theme="dark"] .user-filters select,
 :root[data-theme="dark"] .admin-form input,
+:root[data-theme="dark"] .admin-form select,
 :root[data-theme="dark"] .face-image-field input,
 :root[data-theme="dark"] .month-picker-form input {
   color: #e7e9ed;
@@ -1219,8 +1220,9 @@ p {
 }
 .user-filters {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) 150px 150px;
+  grid-template-columns: minmax(260px, 1fr) repeat(3, minmax(120px, 150px));
   gap: 12px;
+  align-items: end;
   padding: 16px;
   border-radius: 10px;
   border: 1px solid var(--color-border);
@@ -1228,6 +1230,7 @@ p {
 .user-filters label,
 .admin-form label {
   display: grid;
+  min-width: 0;
   gap: 7px;
   color: #444;
   font-size: 0.76rem;
@@ -1235,7 +1238,8 @@ p {
 }
 .user-filters input,
 .user-filters select,
-.admin-form input {
+.admin-form input,
+.admin-form select {
   width: 100%;
   min-height: 42px;
   padding: 9px 11px;
@@ -1247,9 +1251,13 @@ p {
 }
 .user-filters input:focus,
 .user-filters select:focus,
-.admin-form input:focus {
+.admin-form input:focus,
+.admin-form select:focus {
   border-color: var(--color-theme);
   box-shadow: 0 0 0 3px var(--color-theme-focus);
+}
+.admin-form select {
+  cursor: pointer;
 }
 .admin-form input[readonly] {
   color: #666;
@@ -2292,7 +2300,7 @@ p {
     font-size: 0.72rem;
   }
   .user-filters {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .search-field {
     grid-column: 1 / -1;
@@ -2327,6 +2335,12 @@ p {
   }
 }
 @media (max-width: 600px) {
+  .user-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .user-filters .search-field {
+    grid-column: auto;
+  }
   .attendance-calendar-create {
     padding: 6px 4px;
   }
