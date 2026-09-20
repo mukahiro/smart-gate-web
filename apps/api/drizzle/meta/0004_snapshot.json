@@ -53,10 +53,7 @@
       "indexes": {
         "admin_audit_logs_occurred_at_id_index": {
           "name": "admin_audit_logs_occurred_at_id_index",
-          "columns": [
-            "occurred_at",
-            "id"
-          ],
+          "columns": ["occurred_at", "id"],
           "isUnique": false
         }
       },
@@ -65,12 +62,8 @@
           "name": "admin_audit_logs_actor_user_id_users_id_fk",
           "tableFrom": "admin_audit_logs",
           "tableTo": "users",
-          "columnsFrom": [
-            "actor_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["actor_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -78,12 +71,8 @@
           "name": "admin_audit_logs_target_user_id_users_id_fk",
           "tableFrom": "admin_audit_logs",
           "tableTo": "users",
-          "columnsFrom": [
-            "target_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["target_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -162,18 +151,12 @@
       "indexes": {
         "attendance_events_student_number_authenticated_at_index": {
           "name": "attendance_events_student_number_authenticated_at_index",
-          "columns": [
-            "student_number_snapshot",
-            "authenticated_at"
-          ],
+          "columns": ["student_number_snapshot", "authenticated_at"],
           "isUnique": false
         },
         "attendance_events_user_authenticated_at_index": {
           "name": "attendance_events_user_authenticated_at_index",
-          "columns": [
-            "user_id",
-            "authenticated_at"
-          ],
+          "columns": ["user_id", "authenticated_at"],
           "isUnique": false
         }
       },
@@ -182,12 +165,8 @@
           "name": "attendance_events_user_id_users_id_fk",
           "tableFrom": "attendance_events",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -245,16 +224,12 @@
       "indexes": {
         "sessions_user_id_index": {
           "name": "sessions_user_id_index",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         },
         "sessions_idle_expires_at_index": {
           "name": "sessions_idle_expires_at_index",
-          "columns": [
-            "idle_expires_at"
-          ],
+          "columns": ["idle_expires_at"],
           "isUnique": false
         }
       },
@@ -263,12 +238,8 @@
           "name": "sessions_user_id_users_id_fk",
           "tableFrom": "sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -330,12 +301,8 @@
           "name": "user_credentials_user_id_users_id_fk",
           "tableFrom": "user_credentials",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -444,16 +411,12 @@
       "indexes": {
         "users_student_number_unique": {
           "name": "users_student_number_unique",
-          "columns": [
-            "student_number"
-          ],
+          "columns": ["student_number"],
           "isUnique": true
         },
         "users_email_normalized_unique": {
           "name": "users_email_normalized_unique",
-          "columns": [
-            "email_normalized"
-          ],
+          "columns": ["email_normalized"],
           "isUnique": true
         }
       },
