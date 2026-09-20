@@ -744,9 +744,6 @@ const resultFilterOrder: Array<{
   { status: "present", label: "出席" },
   { status: "late", label: "遅刻" },
   { status: "absent", label: "欠席" },
-  { status: "pending", label: "未判定" },
-  { status: "unregistered", label: "未登録" },
-  { status: "cancelled", label: "中止" },
 ];
 
 const ResultsTable = ({ results }: { results: AttendanceResults }) => {
@@ -767,7 +764,7 @@ const ResultsTable = ({ results }: { results: AttendanceResults }) => {
           aria-pressed={statusFilter === "all"}
           onClick={() => setStatusFilter("all")}
         >
-          対象 {results.summary.targetStudentCount}
+          すべて {results.summary.targetStudentCount}
         </button>
         {resultFilterOrder.map(({ status, label }) => (
           <button
