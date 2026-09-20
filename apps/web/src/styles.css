@@ -815,7 +815,6 @@ p {
   overflow: hidden;
   border: 0;
   border-left: 3px solid var(--color-theme);
-  border-radius: 4px;
   color: var(--color-theme-strong);
   background: var(--color-theme-soft);
   font-size: 0.61rem;
@@ -915,8 +914,7 @@ p {
   display: grid;
   gap: 10px;
   padding: 12px;
-  border-left: 3px solid var(--color-theme);
-  border-radius: 7px;
+  border-left: 8px solid var(--color-theme);
   background: var(--color-surface-muted);
 }
 .daily-attendance-card > header {
