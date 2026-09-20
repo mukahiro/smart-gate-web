@@ -8,6 +8,8 @@ import { createApp } from "../src/app";
 import { createSqliteDatabase } from "../src/db/client";
 import { DrizzleAttendanceEventRepository } from "../src/repositories/drizzle-attendance-event-repository";
 import { DrizzleAttendanceHistoryRepository } from "../src/repositories/drizzle-attendance-history-repository";
+import { DrizzleAttendanceResultRepository } from "../src/repositories/drizzle-attendance-result-repository";
+import { DrizzleAttendanceSessionRepository } from "../src/repositories/drizzle-attendance-session-repository";
 import { DrizzleAuthRepository } from "../src/repositories/drizzle-auth-repository";
 
 const migrationsFolder = fileURLToPath(new URL("../drizzle", import.meta.url));
@@ -108,11 +110,29 @@ describe("attendance history API", () => {
       "2026-07-01T10:00:00+09:00",
     );
 
+    const sessionRepository = new DrizzleAttendanceSessionRepository(db);
+    sessionRepository.create({
+      sessionId: "session-001",
+      auditId: "audit-session-001",
+      actorUserId: "user-001",
+      title: "研究ゼミ",
+      startsAt: "2026-07-01T00:00:00.000Z",
+      endsAt: "2026-07-01T01:30:00.000Z",
+      occurredAt: "2026-06-01T00:00:00.000Z",
+    });
+
     app = createApp({
       authToken: "test-token",
       attendanceEventRepository: eventRepository,
       authRepository: new DrizzleAuthRepository(db),
       attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
+      attendanceSessionRepository: sessionRepository,
+      attendanceResultRepository: new DrizzleAttendanceResultRepository(db),
+      attendancePolicy: {
+        receptionOpenMinutesBefore: 10,
+        lateAfterMinutes: 20,
+        standardClassDurationMinutes: 90,
+      },
       secureCookie: false,
     });
     const loginResponse = await app.request("/api/v1/auth/login", {
@@ -133,6 +153,16 @@ describe("attendance history API", () => {
     await expect(response.json()).resolves.toEqual({
       month: "2026-07",
       timeZone: "Asia/Tokyo",
+      attendanceSessions: [
+        {
+          id: "session-001",
+          title: "研究ゼミ",
+          startsAt: "2026-07-01T00:00:00.000Z",
+          endsAt: "2026-07-01T01:30:00.000Z",
+          attendanceStatus: "present",
+          checkedInAt: "2026-07-01T00:00:00.000Z",
+        },
+      ],
       days: [
         {
           date: "2026-07-01",

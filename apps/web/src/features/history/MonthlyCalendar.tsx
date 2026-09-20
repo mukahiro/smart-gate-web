@@ -1,24 +1,44 @@
-import type { MonthlyHistoryDay } from "../../api/client";
+import type {
+  MonthlyHistoryDay,
+  MyAttendanceSession,
+  MyAttendanceStatus,
+} from "../../api/types";
+import {
+  groupAttendanceSessionsByStartDate,
+  japanDateAndTime,
+} from "../attendance/AttendanceSessionCalendar";
 import { buildCalendar, formatDuration } from "./calendar";
 
 type MonthlyCalendarProps = {
   month: string;
   days: MonthlyHistoryDay[];
+  attendanceSessions: MyAttendanceSession[];
   today: string;
   selectedDate: string | null;
   onSelectDate: (date: string) => void;
 };
 
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+const attendanceStatusLabels: Record<MyAttendanceStatus, string> = {
+  pending: "未判定",
+  unregistered: "未登録",
+  present: "出席",
+  late: "遅刻",
+  absent: "欠席",
+  cancelled: "中止",
+};
 
 export function MonthlyCalendar({
   month,
   days,
+  attendanceSessions,
   today,
   selectedDate,
   onSelectDate,
 }: MonthlyCalendarProps) {
   const summaries = new Map(days.map((day) => [day.date, day]));
+  const attendanceSessionsByDate =
+    groupAttendanceSessionsByStartDate(attendanceSessions);
 
   return (
     <div className="calendar-wrap">
@@ -30,6 +50,7 @@ export function MonthlyCalendar({
       <div className="calendar-grid" aria-label="月別入退室カレンダー">
         {buildCalendar(month).map((cell) => {
           const summary = summaries.get(cell.date);
+          const dailySessions = attendanceSessionsByDate.get(cell.date) ?? [];
           const hasMissing =
             summary?.hasMissingCheckIn || summary?.hasMissingCheckOut;
           return (
@@ -41,7 +62,7 @@ export function MonthlyCalendar({
               data-today={cell.date === today || undefined}
               data-selected={cell.date === selectedDate || undefined}
               onClick={() => onSelectDate(cell.date)}
-              aria-label={`${cell.date}${summary ? `、記録${summary.eventCount}件` : "、記録なし"}`}
+              aria-label={`${cell.date}${summary ? `、記録${summary.eventCount}件` : "、記録なし"}${dailySessions.length > 0 ? `、出席対象${dailySessions.length}件` : ""}`}
             >
               <span className="day-number">{cell.day}</span>
               {summary && (
@@ -56,6 +77,26 @@ export function MonthlyCalendar({
                       {formatDuration(summary.stayDurationMinutes)}
                     </span>
                   )}
+                </span>
+              )}
+              {dailySessions.length > 0 && (
+                <span className="history-attendance-sessions">
+                  {dailySessions.map((session) => (
+                    <span
+                      className="history-attendance-session"
+                      data-status={session.attendanceStatus}
+                      key={session.id}
+                      title={`${japanDateAndTime(session.startsAt).time} ${session.title}（${attendanceStatusLabels[session.attendanceStatus]}）`}
+                    >
+                      <time dateTime={session.startsAt}>
+                        {japanDateAndTime(session.startsAt).time}
+                      </time>
+                      <span>{session.title}</span>
+                      <strong>
+                        {attendanceStatusLabels[session.attendanceStatus]}
+                      </strong>
+                    </span>
+                  ))}
                 </span>
               )}
             </button>

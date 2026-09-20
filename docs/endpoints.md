@@ -375,7 +375,7 @@ Status: `401 Unauthorized`
 
 ## GET /attendance-events/me/monthly
 
-ログイン中利用者本人の月別履歴概要を返す。
+ログイン中利用者本人の月別履歴概要を返す。生徒の場合は、指定月に開始する出席対象と本人の出席判定も `attendanceSessions` に含める。先生の場合は空配列を返す。
 
 **実装状態:** 実装済み。
 
@@ -389,12 +389,22 @@ GET /api/v1/attendance-events/me/monthly?month=2026-07
 
 ### Success response
 
-履歴が存在する日だけを `days` に含める。
+履歴が存在する日だけを `days` に含める。`attendanceStatus` は `pending`、`unregistered`、`present`、`late`、`absent`、`cancelled` のいずれかとする。
 
 ```json
 {
   "month": "2026-07",
   "timeZone": "Asia/Tokyo",
+  "attendanceSessions": [
+    {
+      "id": "session-001",
+      "title": "研究ゼミ",
+      "startsAt": "2026-07-12T00:00:00.000Z",
+      "endsAt": "2026-07-12T01:30:00.000Z",
+      "attendanceStatus": "present",
+      "checkedInAt": "2026-07-12T00:05:00.000Z"
+    }
+  ],
   "days": [
     {
       "date": "2026-07-12",

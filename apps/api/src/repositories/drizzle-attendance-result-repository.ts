@@ -9,6 +9,30 @@ export class DrizzleAttendanceResultRepository
 {
   constructor(private readonly db: SqliteDatabase) {}
 
+  findStudentCheckIns(
+    input: Parameters<AttendanceResultRepository["findStudentCheckIns"]>[0],
+  ) {
+    return this.db
+      .select({
+        checkedInAt:
+          sql<string>`strftime('%Y-%m-%dT%H:%M:%fZ', ${attendanceEvents.authenticatedAt})`.as(
+            "checked_in_at",
+          ),
+      })
+      .from(attendanceEvents)
+      .where(
+        and(
+          eq(attendanceEvents.userId, input.userId),
+          eq(attendanceEvents.eventType, "check_in"),
+          sql`julianday(${attendanceEvents.authenticatedAt}) >= julianday(${input.from})`,
+          sql`julianday(${attendanceEvents.authenticatedAt}) < julianday(${input.toExclusive})`,
+        ),
+      )
+      .orderBy(asc(attendanceEvents.authenticatedAt))
+      .all()
+      .map((row) => row.checkedInAt);
+  }
+
   listStudentsWithFirstCheckIn(
     input: Parameters<
       AttendanceResultRepository["listStudentsWithFirstCheckIn"]

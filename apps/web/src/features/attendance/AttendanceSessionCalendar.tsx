@@ -36,10 +36,12 @@ export const japanDateAndTime = (value: string) => {
   };
 };
 
-export const groupAttendanceSessionsByStartDate = (
-  sessions: AttendanceSession[],
+export const groupAttendanceSessionsByStartDate = <
+  T extends Pick<AttendanceSession, "id" | "startsAt">,
+>(
+  sessions: T[],
 ) => {
-  const grouped = new Map<string, AttendanceSession[]>();
+  const grouped = new Map<string, T[]>();
   for (const session of sessions) {
     const date = japanDateAndTime(session.startsAt).date;
     grouped.set(date, [...(grouped.get(date) ?? []), session]);

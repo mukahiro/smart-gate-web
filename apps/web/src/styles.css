@@ -96,6 +96,34 @@ button {
   color: #c7ced8;
   background: #343a43;
 }
+:root[data-theme="dark"] .history-attendance-session[data-status="present"] {
+  color: #a8dfbf;
+  background: #213d2e;
+}
+:root[data-theme="dark"] .history-attendance-session[data-status="late"] {
+  color: #f0c689;
+  background: #4c3823;
+}
+:root[data-theme="dark"] .history-attendance-session[data-status="absent"] {
+  color: #f0b4ae;
+  background: #4b2d2b;
+}
+:root[data-theme="dark"] .daily-attendance-status[data-status="present"] {
+  color: #a8dfbf;
+  background: #294b38;
+}
+:root[data-theme="dark"] .daily-attendance-status[data-status="late"] {
+  color: #f0c689;
+  background: #4c3823;
+}
+:root[data-theme="dark"] .daily-attendance-status[data-status="absent"] {
+  color: #f0b4ae;
+  background: #4b2d2b;
+}
+:root[data-theme="dark"] .daily-attendance-status[data-status="cancelled"] {
+  color: #c7ced8;
+  background: #343a43;
+}
 :root[data-theme="dark"] .month-tab-current {
   border-bottom-color: #20242a;
 }
@@ -722,6 +750,55 @@ p {
   color: var(--color-text-muted);
   font-size: 0.66rem;
 }
+.history-attendance-sessions {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+}
+.history-attendance-session {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 4px;
+  padding: 4px 5px;
+  border-left: 3px solid var(--color-theme);
+  border-radius: 4px;
+  color: var(--color-theme-strong);
+  background: var(--color-theme-soft);
+  font-size: 0.61rem;
+  line-height: 1.35;
+}
+.history-attendance-session time,
+.history-attendance-session strong {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.history-attendance-session > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.history-attendance-session[data-status="present"] {
+  border-left-color: #3f9b68;
+  color: #276944;
+  background: #e7f5ed;
+}
+.history-attendance-session[data-status="late"] {
+  border-left-color: #c27b2f;
+  color: #80511e;
+  background: #fff2df;
+}
+.history-attendance-session[data-status="absent"] {
+  border-left-color: #b64c45;
+  color: #8e3029;
+  background: #fff0ed;
+}
+.history-attendance-session[data-status="cancelled"] {
+  border-left-color: #888;
+  color: var(--color-text-muted);
+  background: var(--color-surface-muted);
+  text-decoration: line-through;
+}
 .calendar-loading,
 .detail-loading {
   display: grid;
@@ -754,6 +831,106 @@ p {
 .detail-header h2 {
   margin: 0;
   font-size: 1.08rem;
+}
+.daily-attendance-section {
+  display: grid;
+  gap: 10px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.daily-attendance-section h3 {
+  margin: 0;
+  font-size: 0.82rem;
+}
+.daily-attendance-list {
+  display: grid;
+  gap: 8px;
+}
+.daily-attendance-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-left: 3px solid var(--color-theme);
+  border-radius: 7px;
+  background: var(--color-surface-muted);
+}
+.daily-attendance-card > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.daily-attendance-card > header > strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+}
+.daily-attendance-status {
+  width: fit-content;
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: var(--color-theme-strong);
+  background: var(--color-theme-soft);
+  font-size: 0.63rem;
+  font-weight: 750;
+}
+.daily-attendance-card dl {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+}
+.daily-attendance-card dl > div {
+  display: grid;
+  grid-template-columns: 65px minmax(0, 1fr);
+  gap: 8px;
+}
+.daily-attendance-card dt,
+.daily-attendance-card dd {
+  margin: 0;
+  font-size: 0.7rem;
+}
+.daily-attendance-card dt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+}
+.daily-attendance-card dt svg {
+  width: 12px;
+  height: 12px;
+}
+.daily-attendance-card dd {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.daily-attendance-card[data-status="present"] {
+  border-left-color: #3f9b68;
+}
+.daily-attendance-status[data-status="present"] {
+  color: #276944;
+  background: #dcefe4;
+}
+.daily-attendance-card[data-status="late"] {
+  border-left-color: #c27b2f;
+}
+.daily-attendance-status[data-status="late"] {
+  color: #80511e;
+  background: #ffead0;
+}
+.daily-attendance-card[data-status="absent"] {
+  border-left-color: #b64c45;
+}
+.daily-attendance-status[data-status="absent"] {
+  color: #8e3029;
+  background: #ffe1dc;
+}
+.daily-attendance-card[data-status="cancelled"] {
+  border-left-color: #888;
+}
+.daily-attendance-status[data-status="cancelled"] {
+  color: var(--color-text-muted);
+  background: #e6e6e6;
 }
 .close-button {
   border: 0;

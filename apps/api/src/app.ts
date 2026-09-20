@@ -82,6 +82,9 @@ export const createApp = ({
       createAttendanceHistoryRoute({
         authRepository,
         attendanceHistoryRepository,
+        attendanceSessionRepository,
+        attendanceResultRepository,
+        attendancePolicy,
         secureCookie,
       }),
     );

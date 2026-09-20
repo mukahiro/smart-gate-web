@@ -461,6 +461,7 @@ export function HistoryPage({
                   key={month}
                   month={month}
                   days={history.days}
+                  attendanceSessions={history.attendanceSessions}
                   today={today}
                   selectedDate={selectedDate}
                   onSelectDate={(date) => {
@@ -474,6 +475,7 @@ export function HistoryPage({
               <DailyDetail
                 key={selectedDate}
                 date={selectedDate}
+                attendanceSessions={history?.attendanceSessions ?? []}
                 onSessionExpired={onSessionExpired}
                 onClose={() => setSelectedDate(null)}
               />

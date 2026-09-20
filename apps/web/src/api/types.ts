@@ -20,6 +20,24 @@ export type MonthlyHistory = {
   month: string;
   timeZone: "Asia/Tokyo";
   days: MonthlyHistoryDay[];
+  attendanceSessions: MyAttendanceSession[];
+};
+
+export type MyAttendanceStatus =
+  | "pending"
+  | "unregistered"
+  | "present"
+  | "late"
+  | "absent"
+  | "cancelled";
+
+export type MyAttendanceSession = {
+  id: string;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  attendanceStatus: MyAttendanceStatus;
+  checkedInAt: string | null;
 };
 
 export type DailyHistoryEvent = {
