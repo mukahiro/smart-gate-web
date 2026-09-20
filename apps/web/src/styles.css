@@ -62,7 +62,6 @@ button {
 :root[data-theme="dark"] .month-tab-current,
 :root[data-theme="dark"] .calendar-day,
 :root[data-theme="dark"] .attendance-calendar-day,
-:root[data-theme="dark"] .attendance-calendar-header button,
 :root[data-theme="dark"] .danger-outline-button {
   background: #20242a;
 }
@@ -88,6 +87,18 @@ button {
 }
 :root[data-theme="dark"] .attendance-calendar-day[data-outside] {
   background: #1c2025;
+}
+:root[data-theme="dark"]
+  .attendance-calendar-events
+  button[data-status="in_progress"] {
+  color: #a8dfbf;
+  background: #213d2e;
+}
+:root[data-theme="dark"]
+  .attendance-calendar-events
+  button[data-status="completed"] {
+  color: #c7ced8;
+  background: #343a43;
 }
 :root[data-theme="dark"] .month-tab-current {
   border-bottom-color: #20242a;
@@ -1044,38 +1055,25 @@ p {
   display: grid;
   gap: 12px;
 }
-.attendance-calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+.attendance-calendar-meta .primary-button {
+  align-self: center;
 }
-.attendance-calendar-header h2 {
-  margin: 0;
-  font-size: 1rem;
+.attendance-session-symbol {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  background: var(--color-theme);
 }
-.attendance-calendar-header > div {
-  display: flex;
-  gap: 6px;
+.attendance-session-symbol[data-status="in_progress"] {
+  background: #3f9b68;
 }
-.attendance-calendar-header button {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 7px;
-  background: #fff;
-  cursor: pointer;
+.attendance-session-symbol[data-status="completed"] {
+  background: #888;
 }
-.attendance-calendar-header button:hover {
-  border-color: var(--color-theme);
-  background: var(--color-theme-soft);
-}
-.attendance-calendar-header svg {
-  width: 16px;
-  height: 16px;
+.attendance-session-symbol[data-status="cancelled"] {
+  border: 1px solid #888;
+  background: transparent;
 }
 .attendance-calendar {
   overflow-x: auto;
@@ -1165,6 +1163,16 @@ p {
 }
 .attendance-calendar-events button:hover {
   filter: brightness(0.96);
+}
+.attendance-calendar-events button[data-status="in_progress"] {
+  border-left-color: #3f9b68;
+  color: #276944;
+  background: #e7f5ed;
+}
+.attendance-calendar-events button[data-status="completed"] {
+  border-left-color: #888;
+  color: #666;
+  background: #eee;
 }
 .attendance-calendar-events button[data-status="cancelled"] {
   border-left-color: #888;

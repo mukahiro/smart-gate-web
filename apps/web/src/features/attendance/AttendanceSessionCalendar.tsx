@@ -1,15 +1,12 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { buildCalendar, formatMonth } from "../history/calendar";
+import { buildCalendar } from "../history/calendar";
 import type { AttendanceSession, AttendanceSessionStatus } from "./types";
 
 type Props = {
   month: string;
   sessions: AttendanceSession[];
   today: string;
-  onChangeMonth: (amount: number) => void;
   onSelect: (id: string) => void;
   onCreateForDate: (date: string) => void;
-  onToday: () => void;
 };
 
 const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
@@ -61,50 +58,23 @@ export function AttendanceSessionCalendar({
   month,
   sessions,
   today,
-  onChangeMonth,
   onSelect,
   onCreateForDate,
-  onToday,
 }: Props) {
   const sessionsByDate = groupAttendanceSessionsByStartDate(sessions);
 
   return (
     <section
       className="attendance-calendar-section"
-      aria-labelledby="attendance-calendar-title"
+      aria-label="出席対象カレンダー"
     >
-      <header className="attendance-calendar-header">
-        <h2 id="attendance-calendar-title">{formatMonth(month)}</h2>
-        <div>
-          <button
-            type="button"
-            onClick={() => onChangeMonth(-1)}
-            aria-label="前月を表示"
-          >
-            <ChevronLeft aria-hidden="true" />
-          </button>
-          <button type="button" onClick={onToday}>
-            今月
-          </button>
-          <button
-            type="button"
-            onClick={() => onChangeMonth(1)}
-            aria-label="翌月を表示"
-          >
-            <ChevronRight aria-hidden="true" />
-          </button>
-        </div>
-      </header>
       <div className="attendance-calendar">
         <div className="weekday-row" aria-hidden="true">
           {weekdays.map((weekday) => (
             <span key={weekday}>{weekday}</span>
           ))}
         </div>
-        <div
-          className="attendance-calendar-grid"
-          aria-label="出席対象カレンダー"
-        >
+        <div className="attendance-calendar-grid">
           {buildCalendar(month).map((cell) => {
             const dailySessions = sessionsByDate.get(cell.date) ?? [];
             return (

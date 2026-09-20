@@ -1,7 +1,7 @@
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApiError } from "../../api/client";
-import { currentJapanDate, shiftMonth } from "../history/calendar";
+import { currentJapanDate, formatMonth, shiftMonth } from "../history/calendar";
 import { AttendanceSessionCalendar } from "./AttendanceSessionCalendar";
 import {
   cancelAttendanceSession,
@@ -166,13 +166,75 @@ const AttendanceSessionList = ({
 
   return (
     <section
-      className="admin-card attendance-page"
+      className="history-card attendance-page"
       aria-labelledby="sessions-title"
     >
-      <header className="admin-page-heading card-header">
-        <div>
-          <h1 id="sessions-title">出席管理</h1>
-          <p>授業の受付期間と生徒ごとの出席状況を確認します。</p>
+      <header className="history-heading card-header">
+        <nav className="month-tabs" aria-label="表示月の移動">
+          <button
+            className="month-tab"
+            type="button"
+            onClick={() => setMonth((current) => shiftMonth(current, -1))}
+            aria-label={`${formatMonth(shiftMonth(month, -1))}を表示`}
+          >
+            <ChevronLeft aria-hidden="true" />
+          </button>
+          <div className="month-tab month-tab-current">
+            <h1>
+              <span className="month-tab-year">{month.slice(0, 4)}年</span>
+              {Number(month.slice(5))}月
+            </h1>
+          </div>
+          <button
+            className="month-tab"
+            type="button"
+            onClick={() => setMonth((current) => shiftMonth(current, 1))}
+            aria-label={`${formatMonth(shiftMonth(month, 1))}を表示`}
+          >
+            <ChevronRight aria-hidden="true" />
+          </button>
+          <button
+            className="month-tab month-tab-today"
+            type="button"
+            onClick={() => setMonth(today.slice(0, 7))}
+          >
+            今月
+          </button>
+        </nav>
+      </header>
+      <div className="calendar-meta attendance-calendar-meta">
+        <div className="calendar-legend-group">
+          <h2 id="sessions-title">出席管理</h2>
+          <div className="calendar-legend">
+            <span>
+              <i
+                className="attendance-session-symbol"
+                data-status="scheduled"
+              />
+              予定
+            </span>
+            <span>
+              <i
+                className="attendance-session-symbol"
+                data-status="in_progress"
+              />
+              実施中
+            </span>
+            <span>
+              <i
+                className="attendance-session-symbol"
+                data-status="completed"
+              />
+              終了
+            </span>
+            <span>
+              <i
+                className="attendance-session-symbol"
+                data-status="cancelled"
+              />
+              中止
+            </span>
+          </div>
         </div>
         <button
           className="primary-button"
@@ -181,7 +243,7 @@ const AttendanceSessionList = ({
         >
           出席対象を作成
         </button>
-      </header>
+      </div>
       {error && (
         <div className="notice error-notice" role="alert">
           {error}
@@ -309,10 +371,6 @@ const AttendanceSessionList = ({
           month={month}
           sessions={sessions}
           today={today}
-          onChangeMonth={(amount) =>
-            setMonth((current) => shiftMonth(current, amount))
-          }
-          onToday={() => setMonth(today.slice(0, 7))}
           onSelect={onSelect}
           onCreateForDate={openCreateDialog}
         />
