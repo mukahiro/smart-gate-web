@@ -145,7 +145,7 @@ Status: `201 Created`
   "eventType": "check_in",
   "recordedAt": "2026-07-12T08:45:12+09:00",
   "receivedAt": "2026-07-12T08:45:13.000Z",
-  "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ"
+  "lcdDisplayName": "ﾔﾏﾀﾞ ﾀﾛｳ"
 }
 ```
 
@@ -183,7 +183,7 @@ Status: `200 OK`
   "eventType": "check_in",
   "recordedAt": "2026-07-12T08:45:12+09:00",
   "receivedAt": "2026-07-12T08:45:13.000Z",
-  "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ"
+  "lcdDisplayName": "ﾔﾏﾀﾞ ﾀﾛｳ"
 }
 ```
 

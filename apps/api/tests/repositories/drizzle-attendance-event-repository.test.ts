@@ -98,7 +98,7 @@ describe("DrizzleAttendanceEventRepository", () => {
       event: {
         ...attendanceEvent,
         userId: "user-001",
-        lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+        lcdDisplayName: "ﾔﾏﾀﾞ ﾀﾛｳ",
         receivedAt: "2026-07-12T08:45:13.000Z",
       },
     });
