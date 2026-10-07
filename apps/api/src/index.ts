@@ -14,6 +14,7 @@ import { DrizzleAuthRepository } from "./repositories/drizzle-auth-repository";
 loadLocalEnvFile();
 
 const port = Number(process.env.API_PORT ?? 3000);
+const hostname = process.env.API_HOST ?? "0.0.0.0";
 const databasePath = process.env.DATABASE_PATH ?? "./data/smart-gate.sqlite3";
 const authToken = readAuthAppBearerToken();
 const attendancePolicy = readAttendancePolicy();
@@ -55,8 +56,9 @@ serve(
   {
     fetch: app.fetch,
     port,
+    hostname,
   },
   (info) => {
-    console.log(`API server listening on http://localhost:${info.port}`);
+    console.log(`API server listening on http://${hostname}:${info.port}`);
   },
 );
