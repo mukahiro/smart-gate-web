@@ -128,8 +128,8 @@ Python認証アプリ、Hono API、React Webアプリ、SQLiteは同一のRaspbe
 通常の氏名とは別にLCD表示専用の名前を登録する。
 
 ```text
-通常氏名：向原 大翔
-LCD表示名：ﾑｶｲﾊﾗ ﾋﾛﾄ
+通常氏名：山田 太郎
+LCD表示名：ﾔﾏﾀﾞ ﾀﾛｳ
 ```
 
 LCD表示名の制約：
