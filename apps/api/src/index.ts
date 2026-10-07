@@ -1,18 +1,23 @@
 import { serve } from "@hono/node-server";
 import { createApp, readAuthAppBearerToken } from "./app";
 import { HttpFaceAuthClient } from "./clients/face-auth-client";
+import { readAttendancePolicy } from "./config/attendance-policy";
 import { loadLocalEnvFile } from "./config/load-local-env";
 import { createSqliteDatabase } from "./db/client";
 import { DrizzleAdminRepository } from "./repositories/drizzle-admin-repository";
 import { DrizzleAttendanceEventRepository } from "./repositories/drizzle-attendance-event-repository";
 import { DrizzleAttendanceHistoryRepository } from "./repositories/drizzle-attendance-history-repository";
+import { DrizzleAttendanceResultRepository } from "./repositories/drizzle-attendance-result-repository";
+import { DrizzleAttendanceSessionRepository } from "./repositories/drizzle-attendance-session-repository";
 import { DrizzleAuthRepository } from "./repositories/drizzle-auth-repository";
 
 loadLocalEnvFile();
 
 const port = Number(process.env.API_PORT ?? 3000);
+const hostname = process.env.API_HOST ?? "0.0.0.0";
 const databasePath = process.env.DATABASE_PATH ?? "./data/smart-gate.sqlite3";
 const authToken = readAuthAppBearerToken();
+const attendancePolicy = readAttendancePolicy();
 const db = createSqliteDatabase(databasePath);
 const secureCookie = process.env.SESSION_COOKIE_SECURE === "true";
 const faceAuthAppUrl = process.env.FACE_AUTH_APP_URL;
@@ -37,6 +42,9 @@ const app = createApp({
   authRepository: new DrizzleAuthRepository(db),
   adminRepository: new DrizzleAdminRepository(db),
   attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
+  attendanceSessionRepository: new DrizzleAttendanceSessionRepository(db),
+  attendanceResultRepository: new DrizzleAttendanceResultRepository(db),
+  attendancePolicy,
   secureCookie,
   faceAuthClient: new HttpFaceAuthClient(
     faceAuthAppUrl,
@@ -48,8 +56,9 @@ serve(
   {
     fetch: app.fetch,
     port,
+    hostname,
   },
   (info) => {
-    console.log(`API server listening on http://localhost:${info.port}`);
+    console.log(`API server listening on http://${hostname}:${info.port}`);
   },
 );

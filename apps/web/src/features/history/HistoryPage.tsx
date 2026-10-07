@@ -5,6 +5,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
   Clock3,
   Info,
   KeyRound,
@@ -28,6 +29,7 @@ import { type AppScreen, pathForScreen, screenFromPath } from "../admin/routes";
 import { CreateUserPage } from "../admin/users/CreateUserPage";
 import { UserDetailPage } from "../admin/users/UserDetailPage";
 import { UserListPage } from "../admin/users/UserListPage";
+import { AttendanceSessionsPage } from "../attendance/AttendanceSessionsPage";
 import { DailyDetail } from "./DailyDetail";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { currentJapanDate, formatMonth, shiftMonth } from "./calendar";
@@ -84,11 +86,16 @@ export function HistoryPage({
   const [history, setHistory] = useState<MonthlyHistory | null>(null);
   const [error, setError] = useState("");
   const [screen, setScreen] = useState<AppScreen>(() =>
-    screenFromPath(window.location.pathname, user.role === "admin"),
+    screenFromPath(
+      window.location.pathname,
+      user.isAdmin,
+      user.userType === "teacher",
+    ),
   );
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
+  const [historyGuideOpen, setHistoryGuideOpen] = useState(false);
   const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
   const [userListRefreshKey, setUserListRefreshKey] = useState(0);
   const [monthPickerOpen, setMonthPickerOpen] = useState(false);
@@ -108,19 +115,26 @@ export function HistoryPage({
   );
 
   useEffect(() => {
+    if (!user.isAdmin && window.location.pathname.startsWith("/admin")) {
+      navigate({ kind: "history" }, true);
+    }
     if (
-      user.role !== "admin" &&
-      window.location.pathname.startsWith("/admin")
+      user.userType !== "teacher" &&
+      window.location.pathname.startsWith("/attendance-sessions")
     ) {
       navigate({ kind: "history" }, true);
     }
     const handlePopState = () =>
       setScreen(
-        screenFromPath(window.location.pathname, user.role === "admin"),
+        screenFromPath(
+          window.location.pathname,
+          user.isAdmin,
+          user.userType === "teacher",
+        ),
       );
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [navigate, user.role]);
+  }, [navigate, user.isAdmin, user.userType]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: 同じ表示月の再取得にも反応させる。
   useEffect(() => {
@@ -188,8 +202,8 @@ export function HistoryPage({
             alt="Smart Gate"
           />
         </a>
-        {user.role === "admin" && (
-          <nav className="admin-nav" aria-label="管理者メニュー">
+        {(user.isAdmin || user.userType === "teacher") && (
+          <nav className="admin-nav" aria-label="メインメニュー">
             <button
               type="button"
               data-active={screen.kind === "history" || undefined}
@@ -198,22 +212,40 @@ export function HistoryPage({
               <CalendarDays aria-hidden="true" />
               自分の履歴
             </button>
-            <button
-              type="button"
-              data-active={screen.kind.startsWith("admin-user") || undefined}
-              onClick={() => navigate({ kind: "admin-users" })}
-            >
-              <Users aria-hidden="true" />
-              利用者管理
-            </button>
-            <button
-              type="button"
-              data-active={screen.kind === "admin-audit" || undefined}
-              onClick={() => navigate({ kind: "admin-audit" })}
-            >
-              <ScrollText aria-hidden="true" />
-              監査ログ
-            </button>
+            {user.userType === "teacher" && (
+              <button
+                type="button"
+                data-active={
+                  screen.kind.startsWith("attendance-session") || undefined
+                }
+                onClick={() => navigate({ kind: "attendance-sessions" })}
+              >
+                <ClipboardCheck aria-hidden="true" />
+                出席管理
+              </button>
+            )}
+            {user.isAdmin && (
+              <>
+                <button
+                  type="button"
+                  data-active={
+                    screen.kind.startsWith("admin-user") || undefined
+                  }
+                  onClick={() => navigate({ kind: "admin-users" })}
+                >
+                  <Users aria-hidden="true" />
+                  利用者管理
+                </button>
+                <button
+                  type="button"
+                  data-active={screen.kind === "admin-audit" || undefined}
+                  onClick={() => navigate({ kind: "admin-audit" })}
+                >
+                  <ScrollText aria-hidden="true" />
+                  監査ログ
+                </button>
+              </>
+            )}
           </nav>
         )}
         <div className="user-menu-wrap">
@@ -228,7 +260,7 @@ export function HistoryPage({
             </span>
             <span>
               <strong>{user.name}</strong>
-              <small>{user.studentNumber}</small>
+              <small>{user.studentNumber ?? "学籍番号なし"}</small>
             </span>
             <ChevronDown className="menu-chevron" aria-hidden="true" />
           </button>
@@ -272,9 +304,23 @@ export function HistoryPage({
       </header>
 
       <main className={`content-shell${selectedDate ? " has-detail" : ""}`}>
-        {screen.kind === "admin-users" ||
-        screen.kind === "admin-user-new" ||
-        screen.kind === "admin-user-detail" ? (
+        {screen.kind === "attendance-sessions" ||
+        screen.kind === "attendance-session-detail" ? (
+          <AttendanceSessionsPage
+            sessionId={
+              screen.kind === "attendance-session-detail"
+                ? screen.sessionId
+                : undefined
+            }
+            onSelect={(sessionId) =>
+              navigate({ kind: "attendance-session-detail", sessionId })
+            }
+            onSessionExpired={onSessionExpired}
+            onPermissionDenied={showHistory}
+          />
+        ) : screen.kind === "admin-users" ||
+          screen.kind === "admin-user-new" ||
+          screen.kind === "admin-user-detail" ? (
           <UserListPage
             key={userListRefreshKey}
             currentUserId={user.id}
@@ -345,20 +391,35 @@ export function HistoryPage({
               </header>
               <div className="calendar-meta">
                 <div className="calendar-legend-group">
-                  <h2>入退出履歴</h2>
-                  <div className="calendar-legend">
-                    <span>
-                      <i className="event-dot" />
-                      記録あり
-                    </span>
-                    <span>
-                      <i className="event-dot" data-warning />
-                      記録不足あり
-                    </span>
-                    <span>
-                      <i className="today-symbol" />
-                      本日
-                    </span>
+                  <div className="history-title-row">
+                    <h2>入退出履歴</h2>
+                    <button
+                      className="history-guide-button"
+                      type="button"
+                      aria-label="入退出履歴の記録方法を表示"
+                      onClick={() => setHistoryGuideOpen(true)}
+                    >
+                      <Info aria-hidden="true" />
+                    </button>
+                  </div>
+                  <div
+                    className="calendar-legend attendance-state-legend"
+                    aria-label="出席状態の凡例"
+                  >
+                    {[
+                      ["pending", "予定"],
+                      ["present", "出席"],
+                      ["late", "遅刻"],
+                      ["absent", "欠席"],
+                    ].map(([status, label]) => (
+                      <span key={status}>
+                        <i
+                          className="history-attendance-symbol"
+                          data-status={status}
+                        />
+                        {label}
+                      </span>
+                    ))}
                   </div>
                 </div>
                 {monthlyStatistics && (
@@ -416,6 +477,7 @@ export function HistoryPage({
                   key={month}
                   month={month}
                   days={history.days}
+                  attendanceSessions={history.attendanceSessions}
                   today={today}
                   selectedDate={selectedDate}
                   onSelectDate={(date) => {
@@ -429,6 +491,7 @@ export function HistoryPage({
               <DailyDetail
                 key={selectedDate}
                 date={selectedDate}
+                attendanceSessions={history?.attendanceSessions ?? []}
                 onSessionExpired={onSessionExpired}
                 onClose={() => setSelectedDate(null)}
               />
@@ -507,6 +570,98 @@ export function HistoryPage({
                 </dd>
               </div>
             </dl>
+          </dialog>
+        </div>
+      )}
+      {historyGuideOpen && (
+        <div className="dialog-backdrop" role="presentation">
+          <dialog
+            open
+            className="dialog-card history-guide-dialog"
+            aria-labelledby="history-guide-title"
+            aria-modal="true"
+          >
+            <header className="dialog-header">
+              <div>
+                <h2 id="history-guide-title">入退出履歴について</h2>
+                <p>履歴が記録・集計される条件を説明します。</p>
+              </div>
+              <button
+                className="icon-button close-button"
+                type="button"
+                aria-label="閉じる"
+                onClick={() => setHistoryGuideOpen(false)}
+              >
+                <X aria-hidden="true" />
+              </button>
+            </header>
+            <div className="history-guide-content">
+              <section>
+                <h3>記録される条件</h3>
+                <ul>
+                  <li>
+                    認証端末で「入室」または「退出」を選び、本人確認に成功すると記録されます。
+                  </li>
+                  <li>同じ記録が再送された場合は、重複して登録されません。</li>
+                  <li>
+                    画面には、現在ログインしている本人の記録だけが表示されます。
+                  </li>
+                </ul>
+              </section>
+              <section>
+                <h3>本人確認の方法</h3>
+                <dl>
+                  <div>
+                    <dt>カード認証</dt>
+                    <dd>登録されたカードを認証端末で読み取ります。</dd>
+                  </div>
+                  <div>
+                    <dt>顔認証</dt>
+                    <dd>認証端末のカメラで本人確認を行います。</dd>
+                  </div>
+                </dl>
+              </section>
+              <section>
+                <h3>出席の判定方法</h3>
+                <ul>
+                  <li>
+                    出席対象ごとに、受付開始から終了までの最初の入室記録を使って判定します。退出記録は出席判定には使用しません。
+                  </li>
+                  <li>
+                    標準設定では開始10分前から受付を開始し、開始20分後までの入室を「出席」とします。
+                  </li>
+                  <li>出席の締切後から終了前までの入室は「遅刻」とします。</li>
+                  <li>
+                    入室記録がない場合、出席対象の終了までは「予定」、終了後は「欠席」とします。
+                  </li>
+                  <li>中止された出席対象は、自分の履歴には表示されません。</li>
+                </ul>
+              </section>
+              <section>
+                <h3>履歴の集計方法</h3>
+                <ul>
+                  <li>日時は日本時間で表示し、認証された時刻を使用します。</li>
+                  <li>
+                    入室と、その後の退出を一組として参考滞在時間を計算します。
+                  </li>
+                  <li>
+                    日をまたいで退出した場合、滞在時間は入室した日に集計されます。
+                  </li>
+                  <li>
+                    入室または退出が不足していても自動補完せず、「記録不足あり」と表示します。
+                  </li>
+                </ul>
+              </section>
+            </div>
+            <div className="dialog-actions">
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() => setHistoryGuideOpen(false)}
+              >
+                閉じる
+              </button>
+            </div>
           </dialog>
         </div>
       )}

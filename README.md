@@ -6,6 +6,7 @@ Raspberry Pi上で動作する、ローカルネットワーク向け研究室�
 
 ## ドキュメント一覧
 
+- [`raspberry-pi-deployment.md`](./docs/raspberry-pi-deployment.md)：Raspberry Pi OSでのLAN内HTTP配信・systemd自動起動手順
 - [`TECHNICAL_GUIDE.md`](./TECHNICAL_GUIDE.md)：発表準備のためのWeb・API技術解説
 - `tech-stack.md`：技術スタック
 - `requirements.md`：要件定義
@@ -13,6 +14,7 @@ Raspberry Pi上で動作する、ローカルネットワーク向け研究室�
 - `web-authentication.md`：Web利用者認証・セッション・学籍番号の設計
 - `admin-api.md`：管理者API・権限・監査ログの設計
 - `admin-web.md`：管理者向けWeb画面・操作フローの設計
+- `teacher-attendance.md`：先生向け出席対象・出席判定・権限・監査ログの追加仕様
 
 ## 想定構成
 
@@ -82,6 +84,8 @@ npm exec pnpm@9.15.4 -- install
 npm exec pnpm@9.15.4 -- dev
 ```
 
+APIの通常起動は `pnpm --filter @smart-gate/api start` を使う。既存のtsxで `src/index.ts` を直接実行し、開発用のファイル監視は行わない。運用環境にもソースコードとtsxが必要なため、依存のインストールには `pnpm install --frozen-lockfile` を使い、`--prod` は付けない。Web画面は別途 `pnpm build` で生成した `apps/web/dist` を配信する。
+
 ## 環境変数
 
 開発時はリポジトリルートの `.env` をAPI起動時に読み込む。シェルやsystemdで同名の環境変数が設定済みの場合は、その値を優先する。本番では `.env` を配置せず、systemdの `EnvironmentFile` などから設定してもよい。
@@ -94,9 +98,13 @@ npm exec pnpm@9.15.4 -- dev
 | `DATABASE_PATH` | SQLiteファイルのパス。既定値は `./data/smart-gate.sqlite3` |
 | `DATABASE_MIGRATIONS_PATH` | migrationディレクトリ。既定値は `./drizzle` |
 | `API_PORT` | APIの待受ポート。既定値は `3000` |
+| `API_HOST` | APIの待受アドレス。既定値は `0.0.0.0`。リバースプロキシ経由の配信では `127.0.0.1` に設定する |
 | `SESSION_COOKIE_SECURE` | HTTPS運用時は `true`。現在の既定値は `false` |
+| `ATTENDANCE_RECEPTION_OPEN_MINUTES_BEFORE` | 出席受付を授業開始の何分前に開くか。0以上の整数、既定値は `10` |
+| `ATTENDANCE_LATE_AFTER_MINUTES` | 授業開始の何分後を超えたら遅刻とするか。0以上の整数、既定値は `20` |
+| `ATTENDANCE_STANDARD_CLASS_DURATION_MINUTES` | 出席対象作成時の標準授業時間。1以上の整数、既定値は `90` |
 
-`SESSION_COOKIE_SECURE=false` では起動時に警告する。HTTPSの本番方針はデプロイ設計時に確定する。
+`SESSION_COOKIE_SECURE=false` では起動時に警告する。HTTPSの本番方針はデプロイ設計時に確定する。出席判定の設定値が不正な場合、APIは起動しない。
 
 `AUTH_APP_BEARER_TOKEN` はPythonアプリから本APIへの入退室イベント送信用、`FACE_AUTH_APP_BEARER_TOKEN` は本APIからPythonアプリへの顔画像送信用である。権限と漏えい時の影響を分離するため、異なる値を設定する。
 

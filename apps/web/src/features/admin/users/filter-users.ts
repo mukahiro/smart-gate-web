@@ -3,7 +3,8 @@ import type { AdminUser } from "../types";
 export type UserFilters = {
   query: string;
   status: "all" | "active" | "inactive" | "locked";
-  role: "all" | "member" | "admin";
+  userType: "all" | "student" | "teacher";
+  admin: "all" | "non_admin" | "admin";
 };
 
 export const isUserLocked = (user: AdminUser, now = new Date()) =>
@@ -19,14 +20,19 @@ export const filterUsers = (
     const matchesQuery =
       query.length === 0 ||
       [user.name, user.studentNumber, user.email].some((value) =>
-        value.toLocaleLowerCase("ja-JP").includes(query),
+        value?.toLocaleLowerCase("ja-JP").includes(query),
       );
-    const matchesRole = filters.role === "all" || user.role === filters.role;
+    const matchesAdmin =
+      filters.admin === "all" ||
+      (filters.admin === "admin" && user.isAdmin) ||
+      (filters.admin === "non_admin" && !user.isAdmin);
+    const matchesUserType =
+      filters.userType === "all" || user.userType === filters.userType;
     const matchesStatus =
       filters.status === "all" ||
       (filters.status === "active" && user.isActive) ||
       (filters.status === "inactive" && !user.isActive) ||
       (filters.status === "locked" && isUserLocked(user, now));
-    return matchesQuery && matchesRole && matchesStatus;
+    return matchesQuery && matchesUserType && matchesAdmin && matchesStatus;
   });
 };

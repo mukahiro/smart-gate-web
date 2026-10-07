@@ -9,7 +9,6 @@ import { attendanceEvents } from "../src/db/attendance-event-schema";
 import { sessions, userCredentials } from "../src/db/auth-schema";
 import { type SqliteDatabase, createSqliteDatabase } from "../src/db/client";
 import { users } from "../src/db/user-schema";
-import type { UserRole } from "../src/db/user-schema";
 
 const studentNumberSchema = z
   .string()
@@ -33,7 +32,7 @@ export const createUser = async (
     email: string;
     password: string;
   },
-  options: { userId?: string; now?: string; role?: UserRole } = {},
+  options: { userId?: string; now?: string; isAdmin?: boolean } = {},
 ) => {
   const userId = options.userId ?? randomUUID();
   const now = options.now ?? new Date().toISOString();
@@ -59,7 +58,8 @@ export const createUser = async (
         lcdDisplayName,
         email,
         emailNormalized,
-        role: options.role ?? "member",
+        userType: "student",
+        isAdmin: options.isAdmin ?? false,
         createdAt: now,
         updatedAt: now,
       })
@@ -144,11 +144,11 @@ export const setUserActive = (
     if (!user) {
       throw new Error("利用者が見つかりません");
     }
-    if (!isActive && user.isActive && user.role === "admin") {
+    if (!isActive && user.isActive && user.isAdmin) {
       const activeAdmins = tx
         .select({ value: count() })
         .from(users)
-        .where(and(eq(users.role, "admin"), eq(users.isActive, true)))
+        .where(and(eq(users.isAdmin, true), eq(users.isActive, true)))
         .get()?.value;
       if ((activeAdmins ?? 0) <= 1) {
         throw new Error("最後の有効な管理者は無効化できません");
@@ -188,10 +188,10 @@ export const unlockUser = (
     .run();
 };
 
-export const setUserRole = (
+export const setUserAdmin = (
   db: SqliteDatabase,
   studentNumberInput: string,
-  role: UserRole,
+  isAdmin: boolean,
   now = new Date().toISOString(),
 ) => {
   const studentNumber = normalizeStudentNumber(studentNumberInput);
@@ -205,21 +205,21 @@ export const setUserRole = (
     if (!user) {
       throw new Error("利用者が見つかりません");
     }
-    if (user.role === role) {
+    if (user.isAdmin === isAdmin) {
       return;
     }
-    if (user.role === "admin" && role === "member" && user.isActive) {
+    if (user.isAdmin && !isAdmin && user.isActive) {
       const activeAdmins = tx
         .select({ value: count() })
         .from(users)
-        .where(and(eq(users.role, "admin"), eq(users.isActive, true)))
+        .where(and(eq(users.isAdmin, true), eq(users.isActive, true)))
         .get()?.value;
       if ((activeAdmins ?? 0) <= 1) {
         throw new Error("最後の有効な管理者は降格できません");
       }
     }
     tx.update(users)
-      .set({ role, updatedAt: now })
+      .set({ isAdmin, updatedAt: now })
       .where(eq(users.id, user.id))
       .run();
   });
@@ -281,7 +281,7 @@ const run = async () => {
     const result = await createUser(
       db,
       { studentNumber, name, lcdDisplayName, email, password },
-      { role: command === "create-admin" ? "admin" : "member" },
+      { isAdmin: command === "create-admin" },
     );
     stdout.write(
       `利用者を作成しました。未照合イベント紐付け件数: ${result.linkedEventCount}\n`,
@@ -297,11 +297,7 @@ const run = async () => {
   } else if (command === "unlock") {
     unlockUser(db, studentNumber);
   } else if (command === "promote-admin" || command === "demote-admin") {
-    setUserRole(
-      db,
-      studentNumber,
-      command === "promote-admin" ? "admin" : "member",
-    );
+    setUserAdmin(db, studentNumber, command === "promote-admin");
   } else {
     throw new Error(
       "create, create-admin, reset-password, enable, disable, unlock, promote-admin, demote-adminを指定してください",

@@ -1,6 +1,6 @@
 import { loadLocalEnvFile } from "../src/config/load-local-env";
-import { adminAuditLogs } from "../src/db/admin-audit-log-schema";
 import { attendanceEvents } from "../src/db/attendance-event-schema";
+import { auditLogs } from "../src/db/audit-log-schema";
 import { userCredentials } from "../src/db/auth-schema";
 import { createSqliteDatabase } from "../src/db/client";
 import { users } from "../src/db/user-schema";
@@ -30,7 +30,8 @@ const demoUsers = [
     name: "山田 太郎（デモ）",
     lcdDisplayName: "山田",
     email: "demo.member@example.test",
-    role: "member" as const,
+    userType: "student" as const,
+    isAdmin: false,
     isActive: true,
   },
   {
@@ -39,7 +40,8 @@ const demoUsers = [
     name: "佐藤 花子（デモ管理者）",
     lcdDisplayName: "佐藤",
     email: "demo.admin@example.test",
-    role: "admin" as const,
+    userType: "student" as const,
+    isAdmin: true,
     isActive: true,
   },
   {
@@ -48,7 +50,8 @@ const demoUsers = [
     name: "鈴木 次郎（無効デモ）",
     lcdDisplayName: "鈴木",
     email: "demo.inactive@example.test",
-    role: "member" as const,
+    userType: "student" as const,
+    isAdmin: false,
     isActive: false,
   },
   {
@@ -57,7 +60,8 @@ const demoUsers = [
     name: "高橋 美咲（ロックデモ）",
     lcdDisplayName: "高橋",
     email: "demo.locked@example.test",
-    role: "member" as const,
+    userType: "student" as const,
+    isAdmin: false,
     isActive: true,
   },
 ];
@@ -217,7 +221,8 @@ db.transaction((tx) => {
           lcdDisplayName: user.lcdDisplayName,
           email: user.email,
           emailNormalized: user.email.toLowerCase(),
-          role: user.role,
+          userType: user.userType,
+          isAdmin: user.isAdmin,
           isActive: user.isActive,
           faceImageCount: 0,
           updatedAt: nowIso,
@@ -256,7 +261,8 @@ db.transaction((tx) => {
       id: `demo-${month}-audit-created`,
       actorUserId: "demo-admin",
       action: "user_created" as const,
-      targetUserId: "demo-member",
+      resourceType: "user" as const,
+      resourceId: "demo-member",
       occurredAt: at("01", "08:30:00"),
       changedFields: JSON.stringify([
         "studentNumber",
@@ -269,7 +275,8 @@ db.transaction((tx) => {
       id: `demo-${month}-audit-updated`,
       actorUserId: "demo-admin",
       action: "user_updated" as const,
-      targetUserId: "demo-member",
+      resourceType: "user" as const,
+      resourceId: "demo-member",
       occurredAt: at("04", "14:20:00"),
       changedFields: JSON.stringify(["lcdDisplayName"]),
     },
@@ -277,14 +284,15 @@ db.transaction((tx) => {
       id: `demo-${month}-audit-disabled`,
       actorUserId: "demo-admin",
       action: "user_disabled" as const,
-      targetUserId: "demo-inactive",
+      resourceType: "user" as const,
+      resourceId: "demo-inactive",
       occurredAt: at("06", "16:00:00"),
       changedFields: JSON.stringify(["isActive"]),
     },
   ];
 
   for (const entry of auditEntries) {
-    tx.insert(adminAuditLogs).values(entry).onConflictDoNothing().run();
+    tx.insert(auditLogs).values(entry).onConflictDoNothing().run();
   }
 });
 

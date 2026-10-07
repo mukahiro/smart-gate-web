@@ -16,6 +16,7 @@ type CreatedUser = {
   temporaryPassword: string;
   linkedEventCount: number;
   email: string;
+  userType: "student" | "teacher";
 };
 
 export function CreateUserPage({
@@ -24,6 +25,7 @@ export function CreateUserPage({
   onSessionExpired,
   onPermissionDenied,
 }: CreateUserPageProps) {
+  const [userType, setUserType] = useState<"student" | "teacher">("student");
   const [studentNumber, setStudentNumber] = useState("");
   const [name, setName] = useState("");
   const [lcdDisplayName, setLcdDisplayName] = useState("");
@@ -41,16 +43,28 @@ export function CreateUserPage({
     setFieldError(null);
     setSubmitting(true);
     try {
-      const result = await createAdminUser({
-        studentNumber: studentNumber.replaceAll("-", ""),
-        name,
-        lcdDisplayName,
-        email,
-      });
+      const result = await createAdminUser(
+        userType === "student"
+          ? {
+              userType,
+              studentNumber: studentNumber.replaceAll("-", ""),
+              name,
+              lcdDisplayName,
+              email,
+            }
+          : {
+              userType,
+              studentNumber: studentNumber.replaceAll("-", "").trim() || null,
+              name,
+              lcdDisplayName: lcdDisplayName.trim() || null,
+              email,
+            },
+      );
       setCreated({
         temporaryPassword: result.temporaryPassword,
         linkedEventCount: result.linkedEventCount,
         email,
+        userType,
       });
     } catch (cause) {
       if (
@@ -98,19 +112,35 @@ export function CreateUserPage({
                 <X aria-hidden="true" />
               </button>
             </header>
-            <p>一般利用者を作成し、一時パスワードを発行します。</p>
+            <p>生徒または先生のアカウントを作成します。</p>
             <form className="admin-form" onSubmit={submit}>
+              <label>
+                利用者種別
+                <select
+                  value={userType}
+                  onChange={(event) =>
+                    setUserType(event.target.value as "student" | "teacher")
+                  }
+                >
+                  <option value="student">生徒</option>
+                  <option value="teacher">先生</option>
+                </select>
+              </label>
               <label>
                 学籍番号
                 <input
-                  required
+                  required={userType === "student"}
                   inputMode="numeric"
                   placeholder="12-3456-789-0"
                   value={studentNumber}
                   onChange={(event) => setStudentNumber(event.target.value)}
                   aria-invalid={fieldError === "studentNumber"}
                 />
-                <small>ハイフンあり・なしのどちらでも入力できます</small>
+                <small>
+                  {userType === "student"
+                    ? "必須。ハイフンあり・なしのどちらでも入力できます"
+                    : "任意。持っていない場合は空欄にします"}
+                </small>
                 {fieldError === "studentNumber" && (
                   <span className="field-error">
                     この学籍番号はすでに登録されています。
@@ -129,12 +159,16 @@ export function CreateUserPage({
               <label>
                 LCD表示名
                 <input
-                  required
+                  required={userType === "student"}
                   maxLength={20}
                   value={lcdDisplayName}
                   onChange={(event) => setLcdDisplayName(event.target.value)}
                 />
-                <small>認証端末へ表示する20文字以内の名前</small>
+                <small>
+                  {userType === "student"
+                    ? "必須。認証端末へ表示する20文字以内の名前"
+                    : "任意。認証端末を利用しない場合は空欄にします"}
+                </small>
               </label>
               <label>
                 メールアドレス
@@ -182,11 +216,15 @@ export function CreateUserPage({
         <TemporaryPasswordDialog
           password={created.temporaryPassword}
           email={created.email}
-          note={`${
-            created.linkedEventCount > 0
-              ? `未照合の入退室イベントを${created.linkedEventCount}件紐付けました。 `
-              : ""
-          }顔認証用画像は利用者詳細から登録してください。`}
+          note={
+            created.userType === "student"
+              ? `${
+                  created.linkedEventCount > 0
+                    ? `未照合の入退室イベントを${created.linkedEventCount}件紐付けました。 `
+                    : ""
+                }顔認証用画像は利用者詳細から登録してください。`
+              : "先生アカウントを作成しました。"
+          }
           onClose={() => {
             onCreated();
             onBack();

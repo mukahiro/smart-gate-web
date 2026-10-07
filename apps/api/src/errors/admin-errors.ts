@@ -9,6 +9,15 @@ export class AdminPermissionRequiredError extends AppError {
   }
 }
 
+export class TeacherPermissionRequiredError extends AppError {
+  readonly code = "TEACHER_PERMISSION_REQUIRED";
+  readonly status = 403;
+
+  constructor() {
+    super("先生権限が必要です");
+  }
+}
+
 export class UserNotFoundError extends AppError {
   readonly code = "USER_NOT_FOUND";
   readonly status = 404;
@@ -33,6 +42,15 @@ export class UserStudentNumberAlreadyExistsError extends AppError {
 
   constructor() {
     super("学籍番号はすでに使用されています");
+  }
+}
+
+export class UserStudentNumberRequiredError extends AppError {
+  readonly code = "USER_STUDENT_NUMBER_REQUIRED";
+  readonly status = 409;
+
+  constructor() {
+    super("この操作には学籍番号が必要です");
   }
 }
 

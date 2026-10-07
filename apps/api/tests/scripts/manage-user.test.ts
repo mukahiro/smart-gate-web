@@ -10,7 +10,7 @@ import {
   normalizeStudentNumber,
   resetPassword,
   setUserActive,
-  setUserRole,
+  setUserAdmin,
   unlockUser,
 } from "../../scripts/manage-user";
 import { attendanceEvents } from "../../src/db/attendance-event-schema";
@@ -190,10 +190,10 @@ describe("manage user", () => {
         email: "admin1@example.com",
         password: "a-secure-password",
       },
-      { userId: "admin-001", role: "admin" },
+      { userId: "admin-001", isAdmin: true },
     );
 
-    expect(() => setUserRole(db, "1234567890", "member")).toThrow(
+    expect(() => setUserAdmin(db, "1234567890", false)).toThrow(
       "最後の有効な管理者は降格できません",
     );
     expect(() => setUserActive(db, "1234567890", false)).toThrow(
@@ -209,11 +209,11 @@ describe("manage user", () => {
         email: "admin2@example.com",
         password: "a-secure-password",
       },
-      { userId: "admin-002", role: "admin" },
+      { userId: "admin-002", isAdmin: true },
     );
-    setUserRole(db, "1234567890", "member");
+    setUserAdmin(db, "1234567890", false);
     expect(
-      db.select().from(users).where(eq(users.id, "admin-001")).get()?.role,
-    ).toBe("member");
+      db.select().from(users).where(eq(users.id, "admin-001")).get()?.isAdmin,
+    ).toBe(false);
   });
 });

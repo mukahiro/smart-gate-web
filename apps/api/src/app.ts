@@ -1,13 +1,17 @@
 import { Hono } from "hono";
 import type { FaceAuthClient } from "./clients/face-auth-client";
+import type { AttendancePolicy } from "./config/attendance-policy";
 import { AppError } from "./errors/app-error";
 import type { AdminRepository } from "./repositories/admin-repository";
 import type { AttendanceEventRepository } from "./repositories/attendance-event-repository";
 import type { AttendanceHistoryRepository } from "./repositories/attendance-history-repository";
+import type { AttendanceResultRepository } from "./repositories/attendance-result-repository";
+import type { AttendanceSessionRepository } from "./repositories/attendance-session-repository";
 import type { AuthRepository } from "./repositories/auth-repository";
 import { createAdminRoute } from "./routes/admin";
 import { createAttendanceEventsRoute } from "./routes/attendance-events";
 import { createAttendanceHistoryRoute } from "./routes/attendance-history";
+import { createAttendanceSessionsRoute } from "./routes/attendance-sessions";
 import { createAuthRoute } from "./routes/auth";
 import type { AttendanceEventLogger } from "./services/attendance-events/record-attendance-event";
 
@@ -30,6 +34,9 @@ type AppOptions = {
   authRepository?: AuthRepository;
   adminRepository?: AdminRepository;
   attendanceHistoryRepository?: AttendanceHistoryRepository;
+  attendanceSessionRepository?: AttendanceSessionRepository;
+  attendanceResultRepository?: AttendanceResultRepository;
+  attendancePolicy?: AttendancePolicy;
   secureCookie?: boolean;
   faceAuthClient?: FaceAuthClient;
 };
@@ -41,6 +48,9 @@ export const createApp = ({
   authRepository,
   adminRepository,
   attendanceHistoryRepository,
+  attendanceSessionRepository,
+  attendanceResultRepository,
+  attendancePolicy,
   secureCookie = process.env.SESSION_COOKIE_SECURE === "true",
   faceAuthClient,
 }: AppOptions) => {
@@ -72,6 +82,22 @@ export const createApp = ({
       createAttendanceHistoryRoute({
         authRepository,
         attendanceHistoryRepository,
+        attendanceSessionRepository,
+        attendanceResultRepository,
+        attendancePolicy,
+        secureCookie,
+      }),
+    );
+  }
+
+  if (authRepository && attendanceSessionRepository) {
+    app.route(
+      "/attendance-sessions",
+      createAttendanceSessionsRoute({
+        authRepository,
+        attendanceSessionRepository,
+        attendanceResultRepository,
+        attendancePolicy,
         secureCookie,
       }),
     );

@@ -1,0 +1,29 @@
+[Unit]
+Description=Smart Gate API
+After=network.target
+# 一時的な起動失敗でも復旧を続ける。設定不備はjournalctlで確認する。
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=smart-gate
+Group=smart-gate
+WorkingDirectory=/opt/smart-gate/apps/api
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+Environment=TSX_DISABLE_CACHE=1
+EnvironmentFile=/etc/smart-gate/api.env
+ExecStart=/usr/bin/env node --import tsx src/index.ts
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=45
+StateDirectory=smart-gate
+StateDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

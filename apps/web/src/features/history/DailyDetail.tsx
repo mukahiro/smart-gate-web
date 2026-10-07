@@ -1,10 +1,13 @@
-import { LogIn, LogOut, X } from "lucide-react";
+import { Clock3, LogIn, LogOut, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApiError, type DailyHistory, getDailyHistory } from "../../api/client";
+import type { MyAttendanceSession, MyAttendanceStatus } from "../../api/types";
+import { japanDateAndTime } from "../attendance/AttendanceSessionCalendar";
 import { formatDate, formatDuration } from "./calendar";
 
 type DailyDetailProps = {
   date: string;
+  attendanceSessions: MyAttendanceSession[];
   onSessionExpired: () => void;
   onClose: () => void;
 };
@@ -17,13 +20,37 @@ const formatTime = (value: string) =>
     second: "2-digit",
   }).format(new Date(value));
 
+const formatDateTime = (value: string) =>
+  new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+
+const attendanceStatusLabels: Record<MyAttendanceStatus, string> = {
+  pending: "予定",
+  unregistered: "予定",
+  present: "出席",
+  late: "遅刻",
+  absent: "欠席",
+  cancelled: "中止",
+};
+
 export function DailyDetail({
   date,
+  attendanceSessions,
   onSessionExpired,
   onClose,
 }: DailyDetailProps) {
   const [history, setHistory] = useState<DailyHistory | null>(null);
   const [error, setError] = useState("");
+  const dailyAttendanceSessions = attendanceSessions.filter(
+    (session) =>
+      session.attendanceStatus !== "cancelled" &&
+      japanDateAndTime(session.startsAt).date === date,
+  );
 
   useEffect(() => {
     let active = true;
@@ -68,6 +95,65 @@ export function DailyDetail({
             <X aria-hidden="true" />
           </button>
         </header>
+
+        {dailyAttendanceSessions.length > 0 && (
+          <section
+            className="daily-attendance-section"
+            aria-labelledby="daily-attendance-title"
+          >
+            <h3 id="daily-attendance-title">出席情報</h3>
+            <div className="daily-attendance-list">
+              {dailyAttendanceSessions.map((session) => (
+                <article
+                  className="daily-attendance-card"
+                  data-status={session.attendanceStatus}
+                  key={session.id}
+                >
+                  <header>
+                    <strong>{session.title}</strong>
+                    <span
+                      className="daily-attendance-status"
+                      data-status={session.attendanceStatus}
+                    >
+                      {attendanceStatusLabels[session.attendanceStatus]}
+                    </span>
+                  </header>
+                  <dl>
+                    <div>
+                      <dt>開始</dt>
+                      <dd>
+                        <time dateTime={session.startsAt}>
+                          {formatDateTime(session.startsAt)}
+                        </time>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>終了</dt>
+                      <dd>
+                        <time dateTime={session.endsAt}>
+                          {formatDateTime(session.endsAt)}
+                        </time>
+                      </dd>
+                    </div>
+                    {session.checkedInAt && (
+                      <div>
+                        <dt>
+                          <Clock3 aria-hidden="true" />
+                          出席時刻
+                        </dt>
+                        <dd>
+                          <time dateTime={session.checkedInAt}>
+                            {formatDateTime(session.checkedInAt)}
+                          </time>
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         {error && (
           <div className="notice error-notice" role="alert">

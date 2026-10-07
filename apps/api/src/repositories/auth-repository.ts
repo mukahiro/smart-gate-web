@@ -1,12 +1,13 @@
-import type { UserRole } from "../db/user-schema";
+import type { UserType } from "../db/user-schema";
 
 export type AuthenticatedUser = {
   id: string;
-  studentNumber: string;
+  studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
-  role: UserRole;
+  userType: UserType;
+  isAdmin: boolean;
 };
 
 export type UserAuthenticationRecord = AuthenticatedUser & {

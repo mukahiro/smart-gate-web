@@ -26,10 +26,31 @@ describe("admin screen routes", () => {
     });
   });
 
+  it("resolves attendance paths only for teachers", () => {
+    expect(screenFromPath("/attendance-sessions", false, true)).toEqual({
+      kind: "attendance-sessions",
+    });
+    expect(
+      screenFromPath("/attendance-sessions/session%201", true, true),
+    ).toEqual({
+      kind: "attendance-session-detail",
+      sessionId: "session 1",
+    });
+    expect(screenFromPath("/attendance-sessions", true, false)).toEqual({
+      kind: "history",
+    });
+  });
+
   it("builds bookmarkable paths", () => {
     expect(pathForScreen({ kind: "admin-users" })).toBe("/admin/users");
     expect(pathForScreen({ kind: "admin-user-detail", userId: "user 1" })).toBe(
       "/admin/users/user%201",
     );
+    expect(
+      pathForScreen({
+        kind: "attendance-session-detail",
+        sessionId: "session 1",
+      }),
+    ).toBe("/attendance-sessions/session%201");
   });
 });

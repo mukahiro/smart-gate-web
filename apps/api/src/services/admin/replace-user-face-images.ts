@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
 import type { FaceAuthClient, FaceImage } from "../../clients/face-auth-client";
-import { UserNotFoundError } from "../../errors/admin-errors";
+import {
+  UserNotFoundError,
+  UserStudentNumberRequiredError,
+} from "../../errors/admin-errors";
 import type { AdminRepository } from "../../repositories/admin-repository";
 import { resolveAdminMutation } from "./resolve-admin-mutation";
 
@@ -23,6 +26,9 @@ export class ReplaceUserFaceImagesUseCase {
   ) {
     const user = this.repository.findUser(targetUserId);
     if (!user) throw new UserNotFoundError();
+    if (user.studentNumber === null) {
+      throw new UserStudentNumberRequiredError();
+    }
 
     await this.faceAuthClient.replaceFaceImages(user.studentNumber, images);
     const result = this.repository.updateFaceImageCount({

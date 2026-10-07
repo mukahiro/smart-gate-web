@@ -144,9 +144,14 @@ export function AccountActionsDialog({
             <div>
               <h1 id="account-actions-dialog-title">{user.name}</h1>
               <div className="title-badges">
-                <span className="role-badge" data-role={user.role}>
-                  {user.role === "admin" ? "管理者" : "一般利用者"}
+                <span className="role-badge">
+                  {user.userType === "teacher" ? "先生" : "生徒"}
                 </span>
+                {user.isAdmin && (
+                  <span className="role-badge" data-role="admin">
+                    管理者
+                  </span>
+                )}
                 <span
                   className="status-badge"
                   data-state={user.isActive ? "active" : "inactive"}

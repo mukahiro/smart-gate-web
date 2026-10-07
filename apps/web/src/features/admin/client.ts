@@ -1,17 +1,28 @@
 import { apiRequest, jsonRequest } from "../../api/client";
 import type { AdminAuditLog, AdminUser } from "./types";
 
-export type CreateAdminUserInput = {
-  studentNumber: string;
+type CreateAdminUserBase = {
   name: string;
-  lcdDisplayName: string;
   email: string;
 };
 
-export type UpdateAdminUserInput = Pick<
-  CreateAdminUserInput,
-  "name" | "lcdDisplayName" | "email"
->;
+export type CreateAdminUserInput = CreateAdminUserBase &
+  (
+    | {
+        userType: "student";
+        studentNumber: string;
+        lcdDisplayName: string;
+      }
+    | {
+        userType: "teacher";
+        studentNumber: string | null;
+        lcdDisplayName: string | null;
+      }
+  );
+
+export type UpdateAdminUserInput = CreateAdminUserBase & {
+  lcdDisplayName?: string;
+};
 
 export const listAdminUsers = () =>
   apiRequest<{ users: AdminUser[] }>("/api/v1/admin/users").then(

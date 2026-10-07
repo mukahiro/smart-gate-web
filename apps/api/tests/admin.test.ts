@@ -6,7 +6,8 @@ import { describe, expect, it } from "vitest";
 import { createUser } from "../scripts/manage-user";
 import { createApp } from "../src/app";
 import type { FaceImage } from "../src/clients/face-auth-client";
-import { adminAuditLogs } from "../src/db/admin-audit-log-schema";
+import { attendanceEvents } from "../src/db/attendance-event-schema";
+import { auditLogs } from "../src/db/audit-log-schema";
 import { createSqliteDatabase } from "../src/db/client";
 import { DrizzleAdminRepository } from "../src/repositories/drizzle-admin-repository";
 import { DrizzleAttendanceEventRepository } from "../src/repositories/drizzle-attendance-event-repository";
@@ -41,7 +42,7 @@ const setup = async () => {
       email: "admin@example.com",
       password,
     },
-    { userId: "admin-001", role: "admin" },
+    { userId: "admin-001", isAdmin: true },
   );
   await createUser(
     db,
@@ -58,9 +59,10 @@ const setup = async () => {
     studentNumber: string;
     images: FaceImage[];
   }> = [];
+  const attendanceEventRepository = new DrizzleAttendanceEventRepository(db);
   const app = createApp({
     authToken: "test-token",
-    attendanceEventRepository: new DrizzleAttendanceEventRepository(db),
+    attendanceEventRepository,
     authRepository: new DrizzleAuthRepository(db),
     adminRepository: new DrizzleAdminRepository(db),
     attendanceHistoryRepository: new DrizzleAttendanceHistoryRepository(db),
@@ -77,7 +79,8 @@ const setup = async () => {
       headers: { "content-type": "application/json", host, origin },
       body: JSON.stringify({ email, password: loginPassword }),
     });
-  const adminCookie = getCookie(await login("admin@example.com"));
+  const adminLoginResponse = await login("admin@example.com");
+  const adminCookie = getCookie(adminLoginResponse);
   const memberCookie = getCookie(await login("member@example.com"));
   const mutate = (path: string, cookie = adminCookie, body?: unknown) =>
     app.request(path, {
@@ -95,20 +98,29 @@ const setup = async () => {
     app,
     db,
     login,
+    adminLoginResponse,
     adminCookie,
     memberCookie,
     mutate,
     faceRegistrations,
+    attendanceEventRepository,
   };
 };
 
 describe("admin API", () => {
   it("allows admins to list all users and rejects members", async () => {
-    const { app, adminCookie, memberCookie } = await setup();
-    const memberResponse = await app.request("/api/v1/admin/users", {
-      headers: { cookie: memberCookie },
+    const { app, adminLoginResponse, adminCookie, memberCookie } =
+      await setup();
+    await expect(adminLoginResponse.json()).resolves.toMatchObject({
+      user: { id: "admin-001", userType: "student", isAdmin: true },
     });
-    expect(memberResponse.status).toBe(403);
+
+    for (const path of ["/api/v1/admin/users", "/api/v1/admin/audit-logs"]) {
+      const memberResponse = await app.request(path, {
+        headers: { cookie: memberCookie },
+      });
+      expect(memberResponse.status).toBe(403);
+    }
 
     const response = await app.request("/api/v1/admin/users", {
       headers: { cookie: adminCookie },
@@ -116,8 +128,16 @@ describe("admin API", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({
       users: [
-        { studentNumber: "1111111111", role: "admin" },
-        { studentNumber: "2222222222", role: "member" },
+        {
+          studentNumber: "1111111111",
+          userType: "student",
+          isAdmin: true,
+        },
+        {
+          studentNumber: "2222222222",
+          userType: "student",
+          isAdmin: false,
+        },
       ],
     });
 
@@ -129,7 +149,19 @@ describe("admin API", () => {
   });
 
   it("creates members with a one-time temporary password and audit log", async () => {
-    const { app, db, login, adminCookie } = await setup();
+    const { app, db, login, adminCookie, attendanceEventRepository } =
+      await setup();
+    attendanceEventRepository.save(
+      {
+        eventId: "unmatched-event-001",
+        studentNumber: "3333333333",
+        deviceId: "device-001",
+        method: "card",
+        eventType: "check_in",
+        authenticatedAt: "2026-09-01T09:00:00+09:00",
+      },
+      new Date("2026-09-01T09:00:01+09:00").toISOString(),
+    );
     const response = await app.request("/api/v1/admin/users", {
       method: "POST",
       headers: {
@@ -139,6 +171,7 @@ describe("admin API", () => {
         origin,
       },
       body: JSON.stringify({
+        userType: "student",
         studentNumber: "3333333333",
         name: "新規利用者",
         lcdDisplayName: "NEW USER",
@@ -149,19 +182,105 @@ describe("admin API", () => {
     expect(response.status).toBe(201);
     expect(response.headers.get("cache-control")).toBe("no-store");
     const body = (await response.json()) as {
-      user: { role: string; faceImageCount: number };
+      user: {
+        id: string;
+        userType: string;
+        isAdmin: boolean;
+        faceImageCount: number;
+      };
       temporaryPassword: string;
+      linkedEventCount: number;
     };
-    expect(body.user.role).toBe("member");
+    expect(body.user).toMatchObject({ userType: "student", isAdmin: false });
     expect(body.user.faceImageCount).toBe(0);
+    expect(body.linkedEventCount).toBe(1);
     expect(body.temporaryPassword).toMatch(/^[A-Z2-9]{12}$/);
     expect(body.temporaryPassword).not.toMatch(/[ILO01]/);
     expect(
       (await login("new@example.com", body.temporaryPassword)).status,
     ).toBe(200);
-    expect(db.select().from(adminAuditLogs).all()).toHaveLength(1);
-    expect(db.select().from(adminAuditLogs).get()).toMatchObject({
+    expect(db.select().from(auditLogs).all()).toHaveLength(1);
+    expect(db.select().from(auditLogs).get()).toMatchObject({
       actorUserId: "admin-001",
+      action: "user_created",
+      resourceType: "user",
+      resourceId: body.user.id,
+    });
+    expect(db.select().from(attendanceEvents).get()).toMatchObject({
+      eventId: "unmatched-event-001",
+      userId: body.user.id,
+    });
+  });
+
+  it("creates teachers without student numbers or LCD names", async () => {
+    const { app, db, login, adminCookie, faceRegistrations } = await setup();
+    const response = await app.request("/api/v1/admin/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: adminCookie,
+        host,
+        origin,
+      },
+      body: JSON.stringify({
+        userType: "teacher",
+        studentNumber: null,
+        name: "先生利用者",
+        lcdDisplayName: null,
+        email: "teacher@example.com",
+      }),
+    });
+
+    expect(response.status).toBe(201);
+    const body = (await response.json()) as {
+      user: {
+        id: string;
+        studentNumber: null;
+        lcdDisplayName: null;
+        userType: string;
+        isAdmin: boolean;
+      };
+      temporaryPassword: string;
+      linkedEventCount: number;
+    };
+    expect(body.user).toMatchObject({
+      studentNumber: null,
+      lcdDisplayName: null,
+      userType: "teacher",
+      isAdmin: false,
+    });
+    expect(body.linkedEventCount).toBe(0);
+    const teacherLogin = await login(
+      "teacher@example.com",
+      body.temporaryPassword,
+    );
+    expect(teacherLogin.status).toBe(200);
+    await expect(teacherLogin.json()).resolves.toMatchObject({
+      user: {
+        studentNumber: null,
+        lcdDisplayName: null,
+        userType: "teacher",
+        isAdmin: false,
+      },
+    });
+
+    const faceImages = new FormData();
+    faceImages.append(
+      "images",
+      new Blob(["image"], { type: "image/jpeg" }),
+      "teacher.jpg",
+    );
+    const faceResponse = await app.request(
+      `/api/v1/admin/users/${body.user.id}/face-images`,
+      {
+        method: "PUT",
+        headers: { cookie: adminCookie, host, origin },
+        body: faceImages,
+      },
+    );
+    expect(faceResponse.status).toBe(409);
+    expect(faceRegistrations).toHaveLength(0);
+    expect(db.select().from(auditLogs).get()).toMatchObject({
       action: "user_created",
     });
   });
@@ -178,6 +297,7 @@ describe("admin API", () => {
           origin,
         },
         body: JSON.stringify({
+          userType: "student",
           studentNumber,
           name: "重複",
           lcdDisplayName: "DUP",
@@ -188,6 +308,24 @@ describe("admin API", () => {
     expect((await create("3333333333", "member@example.com")).status).toBe(409);
     expect((await create("2222222222", "unique@example.com")).status).toBe(409);
 
+    const invalidStudent = await app.request("/api/v1/admin/users", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        cookie: adminCookie,
+        host,
+        origin,
+      },
+      body: JSON.stringify({
+        userType: "student",
+        studentNumber: null,
+        name: "学籍番号なし生徒",
+        lcdDisplayName: null,
+        email: "invalid-student@example.com",
+      }),
+    });
+    expect(invalidStudent.status).toBe(400);
+
     const update = await app.request("/api/v1/admin/users/member-001", {
       method: "PATCH",
       headers: {
@@ -196,7 +334,7 @@ describe("admin API", () => {
         host,
         origin,
       },
-      body: JSON.stringify({ role: "admin" }),
+      body: JSON.stringify({ isAdmin: true }),
     });
     expect(update.status).toBe(400);
   });
@@ -236,12 +374,13 @@ describe("admin API", () => {
     expect(
       db
         .select()
-        .from(adminAuditLogs)
+        .from(auditLogs)
         .all()
         .find((log) => log.action === "user_face_images_updated"),
     ).toMatchObject({
       actorUserId: "admin-001",
-      targetUserId: "member-001",
+      resourceType: "user",
+      resourceId: "member-001",
       changedFields: '["faceImageCount"]',
     });
   });
@@ -286,7 +425,7 @@ describe("admin API", () => {
     expect(
       db
         .select()
-        .from(adminAuditLogs)
+        .from(auditLogs)
         .all()
         .filter((log) => log.action === "user_disabled"),
     ).toHaveLength(1);

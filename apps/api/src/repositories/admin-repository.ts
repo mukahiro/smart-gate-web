@@ -1,13 +1,14 @@
-import type { AdminAuditAction } from "../db/admin-audit-log-schema";
-import type { UserRole } from "../db/user-schema";
+import type { AuditAction } from "../db/audit-log-schema";
+import type { UserType } from "../db/user-schema";
 
 export type AdminUser = {
   id: string;
-  studentNumber: string;
+  studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
-  role: UserRole;
+  userType: UserType;
+  isAdmin: boolean;
   isActive: boolean;
   faceImageCount: number;
   failedLoginCount: number;
@@ -19,7 +20,7 @@ export type AdminUser = {
 export type AdminAuditLog = {
   id: string;
   actorUserId: string;
-  action: AdminAuditAction;
+  action: AuditAction;
   targetUserId: string;
   occurredAt: string;
   changedFields: string[];
@@ -33,9 +34,10 @@ type AuditInput = {
 
 export type CreateAdminUserInput = AuditInput & {
   userId: string;
-  studentNumber: string;
+  userType: UserType;
+  studentNumber: string | null;
   name: string;
-  lcdDisplayName: string;
+  lcdDisplayName: string | null;
   email: string;
   emailNormalized: string;
   passwordHash: string;

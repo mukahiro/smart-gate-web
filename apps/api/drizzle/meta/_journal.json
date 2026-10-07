@@ -29,6 +29,34 @@
       "when": 1788962103274,
       "tag": "0003_sudden_tempest",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789824081115,
+      "tag": "0004_free_bulldozer",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789824601999,
+      "tag": "0005_slimy_may_parker",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1789825179429,
+      "tag": "0006_melodic_wonder_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789825575501,
+      "tag": "0007_striped_vapor",
+      "breakpoints": true
     }
   ]
 }
