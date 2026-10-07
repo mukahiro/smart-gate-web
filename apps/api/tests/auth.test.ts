@@ -27,8 +27,8 @@ const setup = async () => {
     db,
     {
       studentNumber: "1234567890",
-      name: "向原 大翔",
-      lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+      name: "山田 太郎",
+      lcdDisplayName: "ﾔﾏﾀﾞ ﾀﾛｳ",
       email: "user@example.com",
       password,
     },
@@ -77,8 +77,8 @@ describe("web authentication API", () => {
       user: {
         id: "user-001",
         studentNumber: "1234567890",
-        name: "向原 大翔",
-        lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+        name: "山田 太郎",
+        lcdDisplayName: "ﾔﾏﾀﾞ ﾀﾛｳ",
         email: "user@example.com",
         role: "member",
       },

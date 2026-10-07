@@ -74,8 +74,8 @@ describe("manage user", () => {
       db,
       {
         studentNumber: "12-3456-789-0",
-        name: "向原 大翔",
-        lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+        name: "山田 太郎",
+        lcdDisplayName: "ﾔﾏﾀﾞ ﾀﾛｳ",
         email: "User@Example.com",
         password: "a-secure-password",
       },
@@ -108,8 +108,8 @@ describe("manage user", () => {
       db,
       {
         studentNumber: "1234567890",
-        name: "向原 大翔",
-        lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+        name: "山田 太郎",
+        lcdDisplayName: "ﾔﾏﾀﾞ ﾀﾛｳ",
         email: "user@example.com",
         password: "a-secure-password",
       },
@@ -157,8 +157,8 @@ describe("manage user", () => {
       db,
       {
         studentNumber: "1234567890",
-        name: "向原 大翔",
-        lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+        name: "山田 太郎",
+        lcdDisplayName: "ﾔﾏﾀﾞ ﾀﾛｳ",
         email: "user@example.com",
         password: "a-secure-password",
       },

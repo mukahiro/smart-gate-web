@@ -81,8 +81,8 @@ describe("DrizzleAttendanceEventRepository", () => {
       .values({
         id: "user-001",
         studentNumber: attendanceEvent.studentNumber,
-        name: "向原 大翔",
-        lcdDisplayName: "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+        name: "山田 太郎",
+        lcdDisplayName: "ﾔﾏﾀﾞ ﾀﾛｳ",
         email: "user@example.com",
         emailNormalized: "user@example.com",
         createdAt: "2026-07-12T08:00:00.000Z",

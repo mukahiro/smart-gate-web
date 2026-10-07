@@ -266,8 +266,8 @@ Status: `200 OK`
   "user": {
     "id": "019c0000-0000-7000-8000-000000000001",
     "studentNumber": "1234567890",
-    "name": "向原 大翔",
-    "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+    "name": "山田 太郎",
+    "lcdDisplayName": "ﾔﾏﾀﾞ ﾀﾛｳ",
     "email": "user@example.com",
     "role": "member"
   }
@@ -346,8 +346,8 @@ Status: `200 OK`
   "user": {
     "id": "019c0000-0000-7000-8000-000000000001",
     "studentNumber": "1234567890",
-    "name": "向原 大翔",
-    "lcdDisplayName": "ﾑｶｲﾊﾗ ﾋﾛﾄ",
+    "name": "山田 太郎",
+    "lcdDisplayName": "ﾔﾏﾀﾞ ﾀﾛｳ",
     "email": "user@example.com",
     "role": "member"
   }
